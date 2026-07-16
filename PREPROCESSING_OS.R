@@ -127,18 +127,26 @@ metadata_query <- XenaGenerate(subset = XenaDatasets == "TARGET-OS.clinical.tsv"
 
 xe_download <- XenaDownload(metadata_query, destdir = os_directory)
 
+metadata_raw <- XenaPrepare(xe_download)
 
-metadata_os <- XenaPrepare(xe_download)
-
-View(metadata_os)
+metadata_os <- metadata_raw
 
 metadata_os <- metadata_os %>% 
   filter(sample %in% colnames(counts_data))
 
-
-sum(is.na(metadata_os$metastasis_at_diagnosis.diagnoses))
-
-
+metadata_os <- metadata_os %>% 
+  mutate(
+    metastasis_at_diagnosis = ifelse(
+      metastasis_at_diagnosis.diagnoses == "Metastasis, NOS",
+      yes = 1,
+      no = 0 
+    ),
+    survival_status = ifelse(
+      vital_status.demographic == "Dead",
+      yes = 1,
+      no = 0
+    )
+  )
 
 
 
