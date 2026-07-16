@@ -16,7 +16,7 @@ query_os <- GDCquery(
   data.type = "Gene Expression Quantification",
   workflow.type = "STAR - Counts")
 
-GDCdownload(query_os, directory = os_directory)
+# GDCdownload(query_os, directory = os_directory)
 
 
 os_data <- GDCprepare(
@@ -42,10 +42,11 @@ counts_raw <- os_data %>%
 
 counts_raw$variance <- apply(counts_raw %>% dplyr::select(-gene_name),1 , var, na.rm = TRUE)
 
-counts_raw <- counts_raw %>% group_by(gene_name) %>%
+counts_raw <- counts_raw %>% 
+  group_by(gene_name) %>%
   slice_max(order_by = variance, n = 1, with_ties = FALSE) %>% 
   ungroup %>% 
-  column_to_rownames("gene_name") %>% 
+  tibble::column_to_rownames("gene_name") %>% 
   dplyr::select(-variance)
   
 
@@ -63,24 +64,26 @@ colnames(counts_raw) <- sub(
 
 head(colnames(counts_raw))
 
-
-
-
 # Check for duplicates
 
 # Ensembl IDs
+
 sum(duplicated(rownames(counts_raw)))
 
 # Duplicate samples
+
 sum(duplicated(colnames(counts_raw)))
 
 # Symbol
+
 sum(duplicated(gene_annotation$gene_name))
 
 # Search for Na in counts
+
 anyNA(counts_raw)
 
 # Negative values
+
 any(counts_raw < 0)
 
 
@@ -117,6 +120,11 @@ head(colnames(counts_data))
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
+metadata_query <- XenaGenerate(subset = XenaDatasets == "TARGET-OS.clinical.tsv") %>% 
+  XenaQuery()
+
+# 2.2 Download 
+
 xe_download <- XenaDownload(metadata_query, destdir = os_directory)
 
 metadata_raw <- XenaPrepare(xe_download)
@@ -139,7 +147,6 @@ metadata_os <- metadata_os %>%
       no = 0
     )
   )
-
 
 
 
