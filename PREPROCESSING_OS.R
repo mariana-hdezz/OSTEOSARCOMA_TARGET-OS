@@ -117,6 +117,7 @@ colnames(counts_data) <- sub(
 
 head(colnames(counts_data))
 
+counts_data <- log(counts_data + 1)
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
