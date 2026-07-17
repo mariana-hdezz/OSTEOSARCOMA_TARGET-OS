@@ -1,8 +1,17 @@
+# This script preprocesses counts data and metadata
+
+#> Main output objects:
+#> counts_data: Unnormalized object for future differential expression
+#> vst_counts: VST normalized object for most downstream analysis
+#> metadata_os: metadata
+
+
 library(TCGAbiolinks)
 library(data.table)
 library(dplyr)
 library(biomaRt)
 library(UCSCXenaTools)
+library(DESeq2)
 
 
 os_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso"
@@ -25,8 +34,9 @@ os_data <- GDCprepare(
   summarizedExperiment = FALSE)
 
 # Raw counts
+
 counts_col <- grep(
-  pattern = "^fpkm_uq_unstranded_",
+  pattern = "^unstranded_",
   x = names(os_data),
   value = TRUE)
 
@@ -55,15 +65,6 @@ class(counts_raw)
 dim(counts_raw)
 
 
-# Use ENSEML ID as identifier of each raw
-
-colnames(counts_raw) <- sub(
-  pattern = "^fpkm_uq_unstranded_", # remove "unstranded"
-  replacement = "",
-  x = colnames(counts_raw))
-
-head(colnames(counts_raw))
-
 # Check for duplicates
 
 # Ensembl IDs
@@ -73,10 +74,6 @@ sum(duplicated(rownames(counts_raw)))
 # Duplicate samples
 
 sum(duplicated(colnames(counts_raw)))
-
-# Symbol
-
-sum(duplicated(gene_annotation$gene_name))
 
 # Search for Na in counts
 
@@ -106,7 +103,7 @@ genes <- biomaRt::getBM(
 counts_data <- counts_raw[rownames(counts_raw) %in% genes$hgnc_symbol ,]
 
 colnames(counts_data) <- sub(
-  pattern = "^fpkm_uq_unstranded_",
+  pattern = "^unstranded_",
   replacement = "",
   x = colnames(counts_data))
 
@@ -117,7 +114,7 @@ colnames(counts_data) <- sub(
 
 head(colnames(counts_data))
 
-counts_data <- log(counts_data + 1)
+vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
