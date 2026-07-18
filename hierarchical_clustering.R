@@ -6,44 +6,44 @@ gene_list <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", "CLUAP1", "CO
 
 # Keep only genes for clustering
 
-counts_data_hc <- counts_data[rownames(counts_data) %in% gene_list, ]
+vst_counts_hc <- vst_counts[rownames(vst_counts) %in% gene_list, ]
 
 # Transpose so pt in rows and geenes in columns
 
-counts_data_hc <-
-  counts_data_hc %>%
+vst_counts_hc <-
+  vst_counts_hc %>%
   t()
 
 # Clustering ----------------------------------------------------------
 
-fviz_nbclust(counts_data_hc, FUN = hcut, method = "silhouette")
+fviz_nbclust(vst_counts_hc, FUN = hcut, method = "silhouette")
 
 # Distance matrix between samples
 
-dist_microarray.brca <- get_dist(counts_data_hc, method = "euclidean")
+dist_counts <- get_dist(vst_counts_hc, method = "pearson")
 
 # Clustering 
 
-hc.out_microarray.brca <- hclust(dist_microarray.brca, method = "ward.D2")
+hc_counts <- hclust(dist_counts, method = "ward.D2")
 
 # Clustering characteristics ------------------------------------------
 
 # Dendrogram
 
 plot(
-  hc.out_microarray.brca,
+  hc_counts,
   labels = FALSE,
   hang = -1,
   main = "CLUSTERING JERÁRQUICO METABRIC"
 )
 
-rect.hclust(hc.out_microarray.brca,
-            k = 2,
+rect.hclust(hc_counts,
+            k = 3,
             border = "purple") # bottom up approach
 
 # Tree of clusters
 
-clusters <- cutree(hc.out_microarray.brca, k = 2)
+clusters <- cutree(hc_counts, k = 3)
 
 # Observe how many patients in each cluster
 
@@ -55,10 +55,13 @@ cluster_df <- data.frame(clusters = clusters)
 
 # Asign a column named sample with the rownames such that we can then merge based on that column
 
-cluster_df$sample <- rownames(counts_data_hc)
+cluster_df$sample <- rownames(vst_counts_hc)
 
 # Merge object so that in the metadata there is a column corresponding to that patients cluster
 
 metadata_os <- 
   metadata_os %>% 
   left_join(cluster_df, by = "sample")
+
+
+ rm(list = setdiff(ls(), c("vst_counts", "counts_data", "metadata_os")))
