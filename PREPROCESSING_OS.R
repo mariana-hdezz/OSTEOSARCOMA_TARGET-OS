@@ -118,31 +118,41 @@ vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
-metadata_query <- XenaGenerate(subset = XenaDatasets == "TARGET-OS.clinical.tsv") %>% 
-  XenaQuery()
+# 2.1 Download 
 
-# 2.2 Download 
+# install.packages('BiocManager')
+# BiocManager::install("seandavi/TargetOsteoAnalysis")
 
-xe_download <- XenaDownload(metadata_query, destdir = os_directory)
+library(TargetOsteoAnalysis)
+metadata_raw <- TargetOsteoAnalysis::target_load_clinical()
 
-metadata_raw <- XenaPrepare(xe_download)
+names(metadata_raw)[names(metadata_raw) == "TARGET USI"] <- "sample"
 
-metadata_os <- metadata_raw
+# 2.2 Prepare
 
-metadata_os <- metadata_os %>% 
+# Check for sample duplicates and keep only one
+
+sum(duplicated(metadata_raw$sample)
+metadata_raw$sample[duplicated(metadata_raw$sample)]
+    
+metadata_raw <- metadata_raw %>%
+  distinct(sample, .keep_all = TRUE) # Keep only 1 sample per patient 
+
+# Keep only the patients with available counts
+metadata_os <- metadata_raw %>% 
   filter(sample %in% colnames(counts_data))
 
-metadata_os <- metadata_os %>% 
+
+# Add modified columns needed for further analysis 
+metadata_os <- metadata_os %>%
   mutate(
     metastasis_at_diagnosis = ifelse(
-      metastasis_at_diagnosis.diagnoses == "Metastasis, NOS",
-      yes = 1,
-      no = 0 
-    ),
-    survival_status = ifelse(
-      vital_status.demographic == "Dead",
+      `Disease at diagnosis` == "Metastatic (confirmed)" |
+        `Disease at diagnosis` == "Metastatic",
       yes = 1,
       no = 0
-    )
+    ),
+    survival_stat = ifelse(`Vital Status` == "Dead", yes = 1, no = 0),
+    relapse_stat = ifelse(`First Event` == "Relapse", yes = 1, no = 0), # 1 = relapse, 0 = death, censored, SMN or no EVENT
+    
   )
-
