@@ -31,19 +31,19 @@ hc_counts <- hclust(dist_counts, method = "ward.D2")
 # Dendrogram
 
 plot(
-  hc.out_microarray.brca,
+  hc_counts,
   labels = FALSE,
   hang = -1,
   main = "CLUSTERING JERÁRQUICO METABRIC"
 )
 
-rect.hclust(hc.out_microarray.brca,
-            k = 3,
+rect.hclust(hc_counts,
+            k = 4,
             border = "purple") # bottom up approach
 
 # Tree of clusters
 
-clusters <- cutree(hc.out_microarray.brca, k = 3)
+clusters <- cutree(hc_counts, k = 3)
 
 # Observe how many patients in each cluster
 
