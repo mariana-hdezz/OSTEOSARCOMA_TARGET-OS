@@ -1,5 +1,6 @@
 # Intento de red con 43 genes de primer boruta
-## Falta comentar, tal vez hago enrichment, pero más bien voy a intentar otra cosa
+## Falta comentar, tal vez hago enrichment, pero más bien voy a intentar otra cosa con todos los genes de TARGET
+## Demo para aprender, pero interesante
 #### Hola
 
 
