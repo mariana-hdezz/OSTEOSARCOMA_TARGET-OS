@@ -124,6 +124,7 @@ vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
 # BiocManager::install("seandavi/TargetOsteoAnalysis")
 
 library(TargetOsteoAnalysis)
+
 metadata_raw <- TargetOsteoAnalysis::target_load_clinical()
 
 names(metadata_raw)[names(metadata_raw) == "TARGET USI"] <- "sample"
@@ -132,7 +133,8 @@ names(metadata_raw)[names(metadata_raw) == "TARGET USI"] <- "sample"
 
 # Check for sample duplicates and keep only one
 
-sum(duplicated(metadata_raw$sample)
+sum(duplicated(metadata_raw$sample))
+
 metadata_raw$sample[duplicated(metadata_raw$sample)]
     
 metadata_raw <- metadata_raw %>%

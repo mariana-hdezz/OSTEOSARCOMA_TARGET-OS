@@ -34,11 +34,11 @@ plot(
   hc_counts,
   labels = FALSE,
   hang = -1,
-  main = "CLUSTERING JERÁRQUICO METABRIC"
+  main = "CLUSTERING JERÁRQUICO TARGET-OS"
 )
 
 rect.hclust(hc_counts,
-            k = 4,
+            k = 3,
             border = "purple") # bottom up approach
 
 # Tree of clusters
