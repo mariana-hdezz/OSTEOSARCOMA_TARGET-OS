@@ -116,36 +116,38 @@ head(colnames(counts_data))
 
 vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
 
-# ---------- 2 - METADATA PREPREOCCESSING ----------------
 
-# 2.1 Download 
+# ---------- 2 - METADATA PREPREOCCESSING ----------------
 
 # install.packages('BiocManager')
 # BiocManager::install("seandavi/TargetOsteoAnalysis")
 
 library(TargetOsteoAnalysis)
 
+
 metadata_raw <- TargetOsteoAnalysis::target_load_clinical()
 
 names(metadata_raw)[names(metadata_raw) == "TARGET USI"] <- "sample"
-
-# 2.2 Prepare
 
 # Check for sample duplicates and keep only one
 
 sum(duplicated(metadata_raw$sample))
 
 metadata_raw$sample[duplicated(metadata_raw$sample)]
-    
+
+
 metadata_raw <- metadata_raw %>%
   distinct(sample, .keep_all = TRUE) # Keep only 1 sample per patient 
+
 
 # Keep only the patients with available counts
 metadata_os <- metadata_raw %>% 
   filter(sample %in% colnames(counts_data))
 
 
-# Add modified columns needed for further analysis 
+# Add modified columns needed for further analysis (metastasis and survival)
+
+# Complete metadata
 metadata_os <- metadata_os %>%
   mutate(
     metastasis_at_diagnosis = ifelse(
@@ -155,6 +157,9 @@ metadata_os <- metadata_os %>%
       no = 0
     ),
     survival_stat = ifelse(`Vital Status` == "Dead", yes = 1, no = 0),
+    survival_time = `Overall Survival Time in Days`,
     relapse_stat = ifelse(`First Event` == "Relapse", yes = 1, no = 0), # 1 = relapse, 0 = death, censored, SMN or no EVENT
-    
+    time_to_first_event = `Time to First Event in Days`,
   )
+
+
