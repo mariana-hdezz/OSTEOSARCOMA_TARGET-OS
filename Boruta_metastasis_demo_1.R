@@ -7,19 +7,26 @@ library(dplyr)
 
 boruta_df_small <- readRDS("/datos/home/marh/OSTEOSARCOMA/boruta_df_1.rds")
 
-boruta_df_small <- boruta_df_small %>% 
-  dplyr::select(-metastasis_at_diagnosis)
+# Load and transpose data
+
+vst_counts <- t(vst_counts)
+
+counts_data <- t(counts_data)
+
+# Filter counts
+
+keep_expression <- colSums(counts_data > 1) >= ceiling(0.10 * nrow(x_data)) # genes with more than 1 count on more than 10% of patients
+
+boruta_counts <- vst_counts[, keep_expression, drop = FALSE]
 
 
-# 5.3 Fix any non-standard gene names 
+# Join with metadata
 
-colnames(boruta_df_small) <- make.names(colnames(boruta_df_small))
+# create x data and y data
 
-boruta_df_small <- boruta_df_small %>% 
-  mutate(survival_status = factor(survival_status))
+x_data
 
-
-dim(boruta_df_small)
+y_data
 
 # 6. Parallel Function  ---------------------------------
 
@@ -45,36 +52,10 @@ impRangerSurv <- function(x, y, ...) {
 
 set.seed(111)
 
-# Prepare clean X and Y
-
-x_data <- boruta_df_small[, setdiff(colnames(boruta_df_small), "survival_status")]
-
-y_data <- boruta_df_small$survival_status
-
-# log2 transformation (FPKM + 1)
-x_log2 <- log2(x_data + 1)
-
-
-# Genes expresados en al menos 10% de los pacientes
-keep_expression <- colSums(x_data > 1) >= ceiling(0.10 * nrow(x_data))
-
-x_log2_filtered <- x_log2[, keep_expression, drop = FALSE]
-
-# Eliminate genes with zero variance
-gene_variance <- apply(x_log2_filtered, 2, var, na.rm = TRUE)
-
-x_log2_filtered <- x_log2_filtered[
-  ,
-  is.finite(gene_variance) & gene_variance > 0,
-  drop = FALSE
-]
-
-dim(x_log2_filtered)
-
 # Run boruta
 
 boruta.signature <- Boruta(
-  x = x_log2_filtered,
+  x = x_data,
   y = y_data,
   getImp = impRangerSurv, 
   doTrace = 3,
