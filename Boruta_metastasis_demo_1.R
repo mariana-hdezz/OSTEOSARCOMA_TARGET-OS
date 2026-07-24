@@ -24,7 +24,7 @@ boruta_counts <- vst_counts[, keep_expression, drop = FALSE]
 
 # create x data and y data
 
-x_data
+x_data <-  boruta_df[, setdiff(colnames(boruta_df), "surv_obj")]
 
 y_data
 
