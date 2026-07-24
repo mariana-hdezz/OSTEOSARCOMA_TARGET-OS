@@ -47,7 +47,7 @@ tail(counts_col)
 
 counts_raw <- os_data %>% 
   dplyr::select(all_of(counts_col),
-         gene_name)
+                gene_name)
 
 
 counts_raw$variance <- apply(counts_raw %>% dplyr::select(-gene_name),1 , var, na.rm = TRUE)
@@ -58,7 +58,7 @@ counts_raw <- counts_raw %>%
   ungroup %>% 
   tibble::column_to_rownames("gene_name") %>% 
   dplyr::select(-variance)
-  
+
 
 
 class(counts_raw)
@@ -112,10 +112,14 @@ colnames(counts_data) <- sub(
   replacement = "",
   x = colnames(counts_data))
 
+colnames(counts_data) <- sub(
+  pattern = "-01A", 
+  replacement = "",
+  x = colnames(counts_data))
+
 head(colnames(counts_data))
 
-vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
-
+vst_counts <- vst(as.matrix(counts_data), blind = TRUE)[-1,]
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
@@ -142,7 +146,7 @@ metadata_raw <- metadata_raw %>%
 
 # Keep only the patients with available counts
 metadata_os <- metadata_raw %>% 
-  filter(sample %in% colnames(counts_data))
+  filter(sample %in% colnames(vst_counts))
 
 
 # Add modified columns needed for further analysis (metastasis and survival)
@@ -161,5 +165,15 @@ metadata_os <- metadata_os %>%
     relapse_stat = ifelse(`First Event` == "Relapse", yes = 1, no = 0), # 1 = relapse, 0 = death, censored, SMN or no EVENT
     time_to_first_event = `Time to First Event in Days`,
   )
+
+
+
+
+# # Survival analysis 
+# metadata_os_surv <- metadata_os %>% 
+#   as.data.frame()
+#   mutate(EVENT_STAT = as.numeric(survival_status),
+#          EVENT_DAYS = as.numeric (survival_time))
+
 
 
