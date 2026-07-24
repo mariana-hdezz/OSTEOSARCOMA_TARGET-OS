@@ -5,7 +5,11 @@ library(ranger)
 library(tidyverse)
 library(dplyr)
 
-boruta_df_small <- readRDS("/datos/home/marh/OSTEOSARCOMA/boruta_df_1.rds")
+counts_data <- readRDS("/datos/home/marh/OSTEOSARCOMA/Boruta_1/Boruta_1/counts_data.rds")
+
+metadata_os <- readRDS("/datos/home/marh/OSTEOSARCOMA/Boruta_1/Boruta_1/metadata_os.rds")
+
+vst_counts <- readRDS("/datos/home/marh/OSTEOSARCOMA/Boruta_1/Boruta_1/vst_counts.rds")
 
 # Load and transpose data
 
@@ -15,18 +19,34 @@ counts_data <- t(counts_data)
 
 # Filter counts
 
-keep_expression <- colSums(counts_data > 1) >= ceiling(0.10 * nrow(x_data)) # genes with more than 1 count on more than 10% of patients
+keep_expression <- colSums(counts_data > 1) >= ceiling(0.10 * nrow(counts_data)) # genes with more than 1 count on more than 10% of patients
 
-boruta_counts <- vst_counts[, keep_expression, drop = FALSE]
+boruta_counts <- vst_counts %>% 
+  as.data.frame() %>% 
+  dplyr::select(names(keep_expression == TRUE)[-1]) 
 
 
 # Join with metadata
+
+boruta_df <- boruta_counts %>% 
+  rownames_to_column("sample") %>% 
+  left_join(metadata_os %>% 
+              dplyr::select(relapse_stat, time_to_first_event, sample), by = "sample") %>% 
+  column_to_rownames("sample") %>% 
+  drop_na(relapse_stat)
+  
+# Create surv_obj
+
+boruta_df <- boruta_df %>% 
+  as.data.frame() %>% 
+  mutate(surv_obj = Surv(time = boruta_df$time_to_first_event, event = boruta_df$relapse_stat)) %>% 
+  select(-c(relapse_stat, time_to_first_event))
 
 # create x data and y data
 
 x_data <-  boruta_df[, setdiff(colnames(boruta_df), "surv_obj")]
 
-y_data
+y_data <- boruta_df$surv_obj
 
 # 6. Parallel Function  ---------------------------------
 
@@ -83,17 +103,17 @@ cat(tentative_only, sep = ", ")
 
 
 # Define path
-out_path <- "/datos/home/marh/OSTEOSARCOMA/sign_demos"
+out_path <- "/datos/home/marh/OSTEOSARCOMA/sign_demos/31_gene_sign/"
 
 # 1. Force the decision on those 22 tentative genes
 final_boruta_decided <- TentativeRoughFix(boruta.signature)
 
 final_boruta_decided$finalDecision[final_boruta_decided$finalDecision == "Confirmed"]
 
-saveRDS(boruta.signature, paste0(out_path, "/boruta_met_sign-1.rds"))
+saveRDS(boruta.signature, paste0(out_path, "/boruta_sign_surv_31.rds"))
 
 # 2. Save the final model object
-saveRDS(final_boruta_decided, paste0(out_path, "/final_boruta_met_decided-1.rds"))
+saveRDS(final_boruta_decided, paste0(out_path, "/final_boruta_met_decided_surv_31.rds"))
 
 stats <- attStats(boruta.signature)
 
@@ -102,11 +122,12 @@ stats <- attStats(boruta.signature)
 final_gene_names <- getSelectedAttributes(final_boruta_decided)
 
 # 4. Save the gene list as a CSV
-write.csv(final_gene_names, paste0(out_path, "/final_gene_met_sign-1.csv"), row.names = FALSE)
+write.csv(final_gene_names, paste0(out_path, "/final_gene_surv_sign_31.csv"), row.names = FALSE)
 
 # 5. Export the importance values (the numbers used in your plot)
 stats <- attStats(final_boruta_decided)
-write.csv(stats, paste0(out_path, "/gene_met_importance_full_stats-1.csv"))
+write.csv(stats, paste0(out_path, "/gene_importance_full_stats_surv_31.csv"))
+
 
 
 # 9.- Load data ---------------------------
