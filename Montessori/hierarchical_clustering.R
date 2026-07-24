@@ -2,7 +2,9 @@ library(factoextra)
 
 # List obtained from Boruta
 
-gene_list <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", "DHRS11", "DLX1", "ERCC4", "F13A1", "FAM110D", "FAT1", "FKBP11", "GALNT14", "GBP1", "GMIP", "GRAMD1B", "HSD11B2", "INPP4A", "KERA", "KIF25", "LGR6", "LURAP1L", "MEF2A", "MRTFB", "MXI1", "NUBP1", "SF3B3", "SLC12A4", "SLC45A4", "SLC8A3", "STAT5B", "TIMM50", "TPD52", "TRIM68", "TSHZ3", "UBE2D4", "UNC5B", "VMP1")
+gene_list1 <- c("ACTA2", "ACTG2", "ATG4A", "CGREF1", "CORO6", "DENND2C", "EDIL3", "EFTUD2", "GBP1", "GRAMD1B", "MINDY2", "MMP27", "MRC2", "MXI1", "NSUN6", "PODXL2", "RHBDL2", "SMPD3", "TAC4", "TTC9B", "TUBA1A", "ZNF587B")
+
+gene_list <- c("ACTA2", "ACTG2", "ADAM10", "BBOX1", "BMP8B", "CLK3", "COL13A1", "COL22A1", "ERICH1", "GBP1", "GCNT4", "PCDHB6", "PIP5K1C", "PPIL2", "PUM3", "RHBDL2", "SLC12A4", "SNAPC3", "SPICE1", "TAF5L", "TAS2R10")
 
 # Keep only genes for clustering
 
@@ -20,7 +22,7 @@ fviz_nbclust(vst_counts_hc, FUN = hcut, method = "silhouette")
 
 # Distance matrix between samples
 
-dist_counts <- get_dist(vst_counts_hc, method = "pearson")
+dist_counts <- get_dist(vst_counts_hc, method = "manhattan")
 
 # Clustering 
 
@@ -65,3 +67,26 @@ metadata_os <-
 
 
  rm(list = setdiff(ls(), c("vst_counts", "counts_data", "metadata_os")))
+
+ metadata_os %>% 
+   group_by(clusters) %>% 
+   dplyr::count(survival_stat)
+ 
+ metadata_os %>% 
+   mutate(survival_stat = factor(survival_stat),
+          clusters = factor(clusters)) %>% 
+   tidyr::drop_na(survival_stat) %>% 
+   ggplot(aes(x = survival_stat, fill = clusters)) +
+   geom_histogram(stat = "count")
+ 
+ metadata_os %>% 
+   mutate(survival_stat = factor(survival_stat),
+          clusters = factor(clusters),
+          metastasis_at_diagnosis = factor(metastasis_at_diagnosis)) %>% 
+   tidyr::drop_na(survival_stat) %>% 
+   ggplot(aes(x = survival_stat, fill = `First Event` == "Relapse")) + 
+   geom_histogram(stat = "count") + 
+   facet_wrap(~ clusters)
+ 
+ metadata_os$clusters <- NULL
+ 
