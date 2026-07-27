@@ -2,9 +2,9 @@ library(factoextra)
 
 # List obtained from Boruta
 
-gene_list1 <- c("ACTA2", "ACTG2", "ATG4A", "CGREF1", "CORO6", "DENND2C", "EDIL3", "EFTUD2", "GBP1", "GRAMD1B", "MINDY2", "MMP27", "MRC2", "MXI1", "NSUN6", "PODXL2", "RHBDL2", "SMPD3", "TAC4", "TTC9B", "TUBA1A", "ZNF587B")
+gene_list_bor_sur <- c("ACTA2", "ACTG2", "ATG4A", "CGREF1", "CORO6", "DENND2C", "EDIL3", "EFTUD2", "GBP1", "GRAMD1B", "MINDY2", "MMP27", "MRC2", "MXI1", "NSUN6", "PODXL2", "RHBDL2", "SMPD3", "TAC4", "TTC9B", "TUBA1A", "ZNF587B")
 
-gene_list <- c("ACTA2", "ACTG2", "ADAM10", "BBOX1", "BMP8B", "CLK3", "COL13A1", "COL22A1", "ERICH1", "GBP1", "GCNT4", "PCDHB6", "PIP5K1C", "PPIL2", "PUM3", "RHBDL2", "SLC12A4", "SNAPC3", "SPICE1", "TAF5L", "TAS2R10")
+gene_list_bor_rec <- c("ACTA2", "ACTG2", "ADAM10", "BBOX1", "BMP8B", "CLK3", "COL13A1", "COL22A1", "ERICH1", "GBP1", "GCNT4", "PCDHB6", "PIP5K1C", "PPIL2", "PUM3", "RHBDL2", "SLC12A4", "SNAPC3", "SPICE1", "TAF5L", "TAS2R10")
 
 # Keep only genes for clustering
 
@@ -66,7 +66,7 @@ metadata_os <-
   left_join(cluster_df, by = "sample")
 
 
- rm(list = setdiff(ls(), c("vst_counts", "counts_data", "metadata_os")))
+ #rm(list = setdiff(ls(), c("vst_counts", "counts_data", "metadata_os")))
 
  metadata_os %>% 
    group_by(clusters) %>% 
@@ -88,5 +88,23 @@ metadata_os <-
    geom_histogram(stat = "count") + 
    facet_wrap(~ clusters)
  
- metadata_os$clusters <- NULL
+
  
+ 
+survival::coxph(Surv(metadata_os$survival_time, metadata_os$survival_stat) ~ factor(clusters), metadata_os)
+fit_km <- survival::survfit(Surv(metadata_os$survival_time, metadata_os$survival_stat) ~ clusters, metadata_os) 
+
+survminer::ggsurvplot(fit_km,
+           data = metadata_os,
+           pval = TRUE, 
+           risk.table = TRUE,
+           
+           xlim = c(0, 6000),        
+           break.time.by = 500,      
+           ggtheme = theme_minimal(), 
+           
+           linewidth = 3,                 # Line size
+           palette = c("#c380d3", "#33c1f4" ,"#ff89d4"),
+)
+
+metadata_os$clusters <- NULL
