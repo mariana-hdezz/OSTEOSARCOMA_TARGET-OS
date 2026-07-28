@@ -149,7 +149,7 @@ cox <- survival::coxph(
 
 firth_fit <- coxphf(
   formula = Surv(survival_time, survival_stat) ~ factor(clusters), 
-  data = metadata_os
+  data = metadata_os %>% drop_na(survival_stat)
 )
 
 summary(firth_fit)
