@@ -6,6 +6,7 @@
 #> metadata_os: complete metadata
 #> metadata_os_surv: metadata useful for survival analysis
 #> metadata_os_rec: metadata useful for recurrence analysis
+#> metadata_os_met: metadata useful for metastasis analysis
 
 
 
@@ -174,12 +175,20 @@ metadata_os <- metadata_os %>%
 metadata_os_surv <- metadata_os %>% 
   as.data.frame() %>% 
   mutate(EVENT_STAT = as.numeric(survival_stat),
-         EVENT_DAYS = as.numeric(survival_time))
+         EVENT_DAYS = as.numeric(survival_time)) %>% 
+  dplyr::select(-c(survival_stat, survival_time, metastasis_at_diagnosis, relapse_stat))
 
 
 # Relapse analysis
 metadata_os_rec <- metadata_os %>%
   as.data.frame() %>%
   mutate(EVENT_STAT = as.numeric(relapse_stat),
-         EVENT_DAYS = as.numeric(time_to_first_event))
+         EVENT_DAYS = as.numeric(time_to_first_event)) %>% 
+  dplyr::select(-c(survival_stat, survival_time, relapse_stat, metastasis_at_diagnosis))
 
+
+# Metastasis analysis
+metadata_os_met <- metadata_os_rec %>% 
+  as.data.frame() %>% 
+  mutate(EVENT_STAT = metastasis_at_diagnosis) %>% 
+  dplyr::select(-c(survival_stat, survival_time, relapse_stat, metastasis_at_diagnosis))
