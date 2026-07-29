@@ -3,7 +3,10 @@
 #> Main output objects:
 #> counts_data: Unnormalized object for future differential expression
 #> vst_counts: VST normalized object for most downstream analysis
-#> metadata_os: metadata
+#> metadata_os: complete metadata
+#> metadata_os_surv: metadata useful for survival analysis
+#> metadata_os_rec: metadata useful for recurrence analysis
+
 
 
 library(TCGAbiolinks)
@@ -167,13 +170,16 @@ metadata_os <- metadata_os %>%
   )
 
 
+# Survival analysis
+metadata_os_surv <- metadata_os %>% 
+  as.data.frame() %>% 
+  mutate(EVENT_STAT = as.numeric(survival_stat),
+         EVENT_DAYS = as.numeric(survival_time))
 
 
-# # Survival analysis 
-# metadata_os_surv <- metadata_os %>% 
-#   as.data.frame()
-#   mutate(EVENT_STAT = as.numeric(survival_status),
-#          EVENT_DAYS = as.numeric (survival_time))
-
-
+# Relapse analysis
+metadata_os_rec <- metadata_os %>%
+  as.data.frame() %>%
+  mutate(EVENT_STAT = as.numeric(relapse_stat),
+         EVENT_DAYS = as.numeric(time_to_first_event))
 
