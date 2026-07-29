@@ -7,6 +7,10 @@ library(tidyverse)
 library(CorLevelPlot)
 library(gridExtra)
 library(igraph)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+library(enrichplot)
 
 options(stringsAsFactors = FALSE)
 
@@ -397,8 +401,47 @@ head(red_hub_final, 20)
 
 
 
+# ------------- GO red module----------------
+
+red_module_genes
+
+# All human gene symbols available in the annotation database
+annotated_symbols <- AnnotationDbi::keys(org.Hs.eg.db, keytype = "SYMBOL")
+
+# Background: all annotated genes that innitially entered WGCNA
+go_universe <- intersect(colnames(datExpr), annotated_symbols)
+
+# Genes from the red module with available GO annotation
+go_red_genes <- intersect(red_module_genes, go_universe)
+length(go_red_genes)
+#[1] 642
 
 
+# ENRICHMENT
+go_red_BP <- clusterProfiler::enrichGO(
+  gene = go_red_genes,
+  universe = go_universe,
+  OrgDb = org.Hs.eg.db,
+  keyType = "SYMBOL",
+  ont = "BP",
+  pAdjustMethod = "BH",
+  pvalueCutoff = 0.05,
+  qvalueCutoff = 0.20,
+  minGSSize = 10,
+  maxGSSize = 500,
+  readable = FALSE
+)
 
 
+# RESULTS
+go_red_BP_results <- as.data.frame(go_red_BP) %>%
+  arrange(p.adjust)
 
+dim(go_red_BP_results)
+
+head(go_red_BP_results, 20)
+
+
+# Enrichment plot
+enrichplot::dotplot(go_red_BP, showCategory = 20) +
+  ggplot2::ggtitle("GO BP enrichment - red module")
