@@ -31,6 +31,9 @@ gene_list_bor_metbin_19 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2",
                              "GUF1", "IL17RA", "ITPR3", "MAP7D1", "MYO19", 
                              "RAP1B", "TCAP", "TFDP1", "TNK2")
 
+gene_list <- gene_list_bor_survbin_43
+
+
 # Keep only genes for clustering
 
 vst_counts_hc <- vst_counts[rownames(vst_counts) %in% gene_list, ]
@@ -62,11 +65,11 @@ plot(hc_counts,
      hang = -1,
      main = "CLUSTERING JERÁRQUICO TARGET-OS")
 
-rect.hclust(hc_counts, k = 2, border = "purple") # bottom up approach
+rect.hclust(hc_counts, k = 4, border = "purple") # bottom up approach
 
 # Tree of clusters
 
-clusters <- cutree(hc_counts, k = 3)
+clusters <- cutree(hc_counts, k = )
 
 # Observe how many patients in each cluster
 
