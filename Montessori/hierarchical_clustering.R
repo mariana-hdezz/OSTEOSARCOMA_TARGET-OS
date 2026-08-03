@@ -1,5 +1,7 @@
 library(factoextra)
 library(tidyverse)
+library(survival)
+library(coxphf)
 
 # List obtained from Boruta
 
@@ -64,7 +66,7 @@ rect.hclust(hc_counts, k = 2, border = "purple") # bottom up approach
 
 # Tree of clusters
 
-clusters <- cutree(hc_counts, k = 4)
+clusters <- cutree(hc_counts, k = 3)
 
 # Observe how many patients in each cluster
 

@@ -95,10 +95,10 @@ df <- data.frame(
 
 ggplot(df, aes(x = factor(Path_Length), y = Count)) +
   geom_bar(stat = "identity", fill = "steelblue", color = "white") 
-  ) 
+
 
 # Community
-
+set.seed(124)
 und_g <- as_undirected(g)
 
 set.seed(123)
@@ -118,7 +118,7 @@ ggplot(n_of_members, aes(x = names, y = values)) +
 module_list <- list()
 
 for (i in 1:length(communities(lc))) {
-  if(length(V(g)$name[V(g)$member == i]) >50){
+  if(length(V(g)$name[V(g)$member == i]) > 50){
     und_g <- subgraph(g, V(g)$name[V(g)$member == i])
     
     if(median(E(und_g)$eb) > 2 & median(degree(und_g, V(und_g), "all")) >= 1){
@@ -176,11 +176,65 @@ for (i in module_list) {
 
 sig_genes <- list()
 
-for (i in c(12)) {
+for (i in c(3)) {
   
-  sig_genes[[i]] <- V(g)$name[V(g)$member == i & V(g)$degree > 10]
+  sig_genes[[i]] <- V(g)$name[V(g)$member == i & V(g)$degree > 5]
   
 }
 
 
 sig_g <- as.character(unlist(sig_genes))
+
+
+module_list
+
+# Find all target nodes and their 2-step neighbors
+target_nodes <- V(g)[member %in% c(12, 17)]
+all_ego_nodes <- ego(g, order = 2, nodes = target_nodes, mode = "all")
+
+# Flatten the list of vertex sequences into a single unique set of nodes
+combined_nodes <- unique(do.call(c, all_ego_nodes))
+
+# Build one combined subgraph
+combined_subgraph <- induced_subgraph(g, combined_nodes)
+
+
+x <- as.undirected(combined_subgraph)
+
+
+# --- Step 1: Filter Labels ---
+d <- degree(x, mode = "all")
+threshold <- 5  # Adjust this value based on your network's degree distribution
+
+v_labels <- V(x)$name  # Get node names
+v_labels[d <= threshold] <- NA  # Hide labels for low-degree nodes
+
+# --- Step 2: Expand Layout ---
+l <- layout_with_kk(x)
+l <- l * 2.5  # Increase multiplier to disperse nodes more
+
+# --- Step 3: Plot ---
+plot(
+  x,
+  layout = l,
+  vertex.label = v_labels,
+  vertex.label.dist = 0.5,
+  vertex.label.cex = 0.6,
+  vertex.color = V(x)$member,
+  vertex.size = sqrt(V(x)$degree) * 10,
+  edge.color = adjustcolor("black", alpha.f = 0.1),
+  rescale = FALSE,
+  xlim = range(l[,1]), 
+  ylim = range(l[,2])
+)
+
+E(g)[E(g)$eb == max(E(g)$eb[V(g)$member == 1])]
+
+module_list
+list_1 <- list()
+for (i in gene_list_vst_sur){
+  print(i)
+  list_1[[i]] <- (V(g)$member[V(g)$name == i])
+  cat("-------\n")
+}
+table(unlist(list_1))
