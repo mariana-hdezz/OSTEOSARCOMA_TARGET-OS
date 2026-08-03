@@ -259,7 +259,7 @@ metadata_os_rec <- metadata_os %>%
 
 
 # Metastasis analysis
-metadata_os_met <- metadata_os_rec %>% 
+metadata_os_met <- metadata_os %>% 
   as.data.frame() %>% 
   mutate(EVENT_STAT = metastasis_at_diagnosis) %>% 
   dplyr::select(-c(survival_stat, survival_time, relapse_stat, metastasis_at_diagnosis))
