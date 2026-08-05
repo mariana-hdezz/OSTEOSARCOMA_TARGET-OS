@@ -1,10 +1,12 @@
-library(dplyr)
 library(DESeq2)
 library(apeglm)
 library(tidyverse)
 library(ggiraph)
 library(clusterProfiler)
 library(enrichplot)
+library(igraph)
+library(ggplot2)
+library(tidyr)
 
 # Add clusters column to each sample of the metadata
 metadata_os_clusters <- metadata_os %>% 
@@ -12,16 +14,20 @@ metadata_os_clusters <- metadata_os %>%
   mutate(clusters = factor(clusters))
 
 
-keep_expression <- rowSums(counts_data > 10) >= ceiling(0.10 * ncol(counts_data)) # genes with more than 1 count on more than 10% of patients
+keep_expression <- rowSums(counts_data >= 10) >= ceiling(0.25 * ncol(counts_data)) # genes with more than 1 count on more than 10% of patients
 
 
 counts_data_dseq <- counts_data[rownames(counts_data) %in% names(keep_expression)[keep_expression == TRUE], colnames(counts_data) %in% metadata_os_clusters$sample]
+
+all(colnames(counts_data_dseq) == metadata_os$sample) # check if samples in counts and metadata are in the same order
+
+counts_data_dseq <- counts_data_dseq[ , metadata_os$sample]
 
 
 #Pt in columns
 #-------------------- DIFFERENTIAL EXPRESSION DESeq2 --------------------------
 
-dds <- DESeqDataSetFromMatrix(countData = counts_data_dseq[-1, ],
+dds <- DESeqDataSetFromMatrix(countData = counts_data_dseq,
                               colData = metadata_os_clusters,
                               design= ~ clusters)
 
@@ -37,28 +43,53 @@ resultsNames(dds) # lists the coefficients
 
 
 # or to shrink log fold changes association with condition:
-res <- lfcShrink(dds, coef = "clusters_1_vs_2", type = "apeglm")
+res <- lfcShrink(dds, coef = "clusters_3_vs_2", type = "apeglm")
 
+
+
+#------- PREPARE INPUT DATA ---------
+
+# Read results from DESeq2 analysis
+
+df <- res
+
+# Extract log2foldchange (column we are interested in)
+original_gene_list <- df$log2FoldChange
+names(original_gene_list) <- rownames(df)
+
+sum(is.na(original_gene_list))
+
+# Omit the missing values if present
+gene_list <- na.omit(original_gene_list)
+
+
+# Sorting in a descending order (required for clusterProfiler)
+gene_list <- sort(gene_list, decreasing = TRUE)
+
+# Set the organism 
+library(org.Hs.eg.db)
 
 
 #---------- GENE SET ENRICHMENT ------------
 
 gse <- gseGO(
   geneList = gene_list,
-  ont = "All", # One of "BP", "MF, and "CC subontologies or "ALL"
-  OrgDb = org.Hs.eg.db,
+  ont = "BP", # One of "BP", "MF, and "CC subontologies or "ALL"
+  OrgDb = "org.Hs.eg.db",
   keyType = "SYMBOL",
-  minGSSize = 50, # Minimum number of genes in set (gene sets with lower than this many genes in your dataset will be ignored).
+  minGSSize = 30, # Minimum number of genes in set (gene sets with lower than this many genes in your dataset will be ignored).
   maxGSSize = 500,
-  pvalueCutoff = 0.05,
+  pvalueCutoff = 0.01,
   pAdjustMethod = "BH",
   verbose = TRUE,  # Print message or not
   seed = TRUE,
-  nPermSimple   = 10000,
+  nPermSimple = 10000,
   eps = 0
   )
 
+gse_df <- as.data.frame(gse)
 
+View(gse_df)
 # nPerm = 1000, # The higher the no. of permutations, the more accurate the result, but the longer the analysis will take
 
 # ------------- CREATE DOTPLOT -----------
@@ -86,6 +117,7 @@ p1 <- heatplot(gse, showCategory = 3)
 p2 <- heatplot(gse, foldChange = gene_list, showCategory = 5)
 
 cowplot::plot_grid(p1, p2, ncol = 1, labels = LETTERS[1:2])
+
 
 
 
@@ -128,4 +160,18 @@ library(europepmc)
 
 terms <- gse$Description[1:3]
 pmcplot(terms, 2010:2024, proportion = FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
