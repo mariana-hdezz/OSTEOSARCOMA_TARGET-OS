@@ -37,9 +37,9 @@ dds <- DESeq(dds)
 
 resultsNames(dds) # lists the coefficients
 
-# res_1_vs_2 <- results(dds, name = "clusters_1_vs_2")
-# 
-# res_3_vs_2 <- results(dds, name = "clusters_3_vs_2")
+res_1_vs_2 <- results(dds, name = "clusters_1_vs_2", lfcThreshold = 0.58)
+
+res_3_vs_2 <- results(dds, name = "clusters_3_vs_2", lfcThreshold = 0.58)
 
 
 # or to shrink log fold changes association with condition:
@@ -133,3 +133,4 @@ gse_kegg <- gseKEGG(
 )
 
 
+View(as.data.frame(gse_kegg))
