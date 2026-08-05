@@ -45,66 +45,25 @@ counts_col <- grep(
   value = TRUE)
 
 
-length(counts_col)
-head(counts_col)
-tail(counts_col)
-
 counts_raw <- os_data %>% 
   dplyr::select(all_of(counts_col),
-                gene_name)
+                gene_name,
+                gene_type)
 
+counts_raw <- 
+  counts_raw %>% 
+  filter(gene_type == "protein_coding") %>% 
+  dplyr::select(- gene_type)
 
-counts_raw$variance <- apply(counts_raw %>% dplyr::select(-gene_name),1 , var, na.rm = TRUE)
+counts_raw$variance <- apply(counts_raw %>% dplyr::select(- gene_name),1 , var, na.rm = TRUE)
 
-counts_raw <- counts_raw %>% 
+counts_data <- counts_raw %>% 
   group_by(gene_name) %>%
   slice_max(order_by = variance, n = 1, with_ties = FALSE) %>% 
   ungroup %>% 
   tibble::column_to_rownames("gene_name") %>% 
   dplyr::select(-variance)
 
-
-
-class(counts_raw)
-dim(counts_raw)
-
-
-# Check for duplicates
-
-# Ensembl IDs
-
-sum(duplicated(rownames(counts_raw)))
-
-# Duplicate samples
-
-sum(duplicated(colnames(counts_raw)))
-
-# Search for Na in counts
-
-anyNA(counts_raw)
-
-# Negative values
-
-any(counts_raw < 0)
-
-
-mart <- useEnsembl(
-  biomart = "genes",
-  dataset = "hsapiens_gene_ensembl")
-
-
-genes <- biomaRt::getBM(
-  attributes = c(
-    "hgnc_symbol",
-    "transcript_biotype"
-  ),
-  filters = c("transcript_biotype"),
-  values = list("protein_coding"),
-  mart = mart
-)
-
-
-counts_data <- counts_raw[rownames(counts_raw) %in% genes$hgnc_symbol ,]
 
 colnames(counts_data) <- sub(
   pattern = "^unstranded_",
@@ -120,81 +79,6 @@ colnames(counts_data) <- sub(
   pattern = "-01A", 
   replacement = "",
   x = colnames(counts_data))
-
-head(colnames(counts_data))
-
-vst_counts <- vst(as.matrix(counts_data), blind = TRUE)[-1,]
-
-
-# FPKM Preprocessing ------------------------------------------------------
-
-# Extract FPKM names
-
-counts_col_fpkm <- grep(
-  pattern = "^fpkm_uq_unstranded_",
-  x = names(os_data),
-  value = TRUE)
-
-counts_raw_fpkm <- os_data %>% 
-  dplyr::select(all_of(counts_col_fpkm),
-                gene_name)
-
-
-counts_raw_fpkm$variance <- apply(counts_raw_fpkm %>% dplyr::select( - gene_name),1 , var, na.rm = TRUE)
-
-counts_raw_fpkm <- counts_raw_fpkm %>% 
-  group_by(gene_name) %>%
-  slice_max(order_by = variance, n = 1, with_ties = FALSE) %>% 
-  ungroup %>% 
-  tibble::column_to_rownames("gene_name") %>% 
-  dplyr::select(-variance)
-
-
-# Use ENSEML ID as identifier of each raw
-
-colnames(counts_raw_fpkm) <- sub(
-  pattern = "^fpkm_uq_unstranded_", # remove "unstranded"
-  replacement = "",
-  x = colnames(counts_raw_fpkm))
-
-head(colnames(counts_raw_fpkm))
-
-
-mart_fpkm <- useEnsembl(
-  biomart = "genes",
-  dataset = "hsapiens_gene_ensembl")
-
-
-genes_fpkm <- biomaRt::getBM(
-  attributes = c(
-    "hgnc_symbol",
-    "transcript_biotype"
-  ),
-  filters = c("transcript_biotype"),
-  values = list("protein_coding"),
-  mart = mart_fpkm
-)
-
-
-fpkm_data <- counts_raw_fpkm[rownames(counts_raw_fpkm) %in% genes_fpkm$hgnc_symbol ,]
-
-colnames(fpkm_data) <- sub(
-  pattern = "^fpkm_uq_unstranded_",
-  replacement = "",
-  x = colnames(fpkm_data))
-
-colnames(fpkm_data) <- sub(
-  pattern = "-01R", 
-  replacement = "",
-  x = colnames(fpkm_data))
-
-colnames(fpkm_data) <- sub(
-  pattern = "-01A", 
-  replacement = "",
-  x = colnames(fpkm_data))
-
-fpkm_data_log <- log(fpkm_data + 1)
-
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
@@ -221,7 +105,7 @@ metadata_raw <- metadata_raw %>%
 
 # Keep only the patients with available counts
 metadata_os <- metadata_raw %>% 
-  filter(sample %in% colnames(vst_counts))
+  filter(sample %in% colnames(counts_data))
 
 
 # Add modified columns needed for further analysis (metastasis and survival)
@@ -263,3 +147,73 @@ metadata_os_met <- metadata_os %>%
   as.data.frame() %>% 
   mutate(EVENT_STAT = metastasis_at_diagnosis) %>% 
   dplyr::select(-c(survival_stat, survival_time, relapse_stat, metastasis_at_diagnosis))
+
+
+
+# Counts data final adjust ------------------------------------------------
+
+counts_data <- counts_data[, colnames(counts_data) %in% metadata_os$sample]
+
+
+# VST and FPKM ------------------------------------------------------------
+
+
+vst_counts <- vst(as.matrix(counts_data), blind = TRUE)[-1,]
+
+
+# FPKM Preprocessing ------------------------------------------------------
+
+# Extract FPKM names
+
+counts_col_fpkm <- grep(
+  pattern = "^fpkm_uq_unstranded_",
+  x = names(os_data),
+  value = TRUE)
+
+counts_raw_fpkm <- os_data %>% 
+  dplyr::select(all_of(counts_col_fpkm),
+                gene_name,
+                gene_type)
+
+counts_raw_fpkm <- 
+  counts_raw_fpkm %>% 
+  filter(gene_type == "protein_coding") %>% 
+  dplyr::select(- gene_type)
+
+
+
+counts_raw_fpkm$variance <- apply(counts_raw_fpkm %>% dplyr::select( - gene_name),1 , var, na.rm = TRUE)
+
+fpkm_data <- counts_raw_fpkm %>% 
+  group_by(gene_name) %>%
+  slice_max(order_by = variance, n = 1, with_ties = FALSE) %>% 
+  ungroup %>% 
+  tibble::column_to_rownames("gene_name") %>% 
+  dplyr::select(-variance)
+
+
+# Use ENSEML ID as identifier of each raw
+
+colnames(fpkm_data) <- sub(
+  pattern = "^fpkm_uq_unstranded_", # remove "unstranded"
+  replacement = "",
+  x = colnames(fpkm_data))
+
+head(colnames(fpkm_data))
+
+
+colnames(fpkm_data) <- sub(
+  pattern = "-01R", 
+  replacement = "",
+  x = colnames(fpkm_data))
+
+colnames(fpkm_data) <- sub(
+  pattern = "-01A", 
+  replacement = "",
+  x = colnames(fpkm_data))
+
+
+fpkm_data <- fpkm_data[, colnames(fpkm_data) %in% metadata_os$sample]
+
+
+fpkm_data_log <- log(fpkm_data + 1)
