@@ -7,17 +7,7 @@ library(cluster)
 # List obtained from Boruta
 
 
-gene_list_bor_sur_22 <- c("ACTA2", "ACTG2", "ATG4A", "CGREF1", "CORO6", "DENND2C",
-                          "EDIL3", "EFTUD2", "GBP1", "GRAMD1B", "MINDY2", "MMP27", 
-                          "MRC2", "MXI1", "NSUN6", "PODXL2", "RHBDL2", "SMPD3", 
-                          "TAC4", "TTC9B", "TUBA1A", "ZNF587B")
-
-gene_list_bor_rec_21 <- c("ACTA2", "ACTG2", "ADAM10", "BBOX1", "BMP8B", "CLK3", 
-                          "COL13A1", "COL22A1", "ERICH1", "GBP1", "GCNT4", "PCDHB6", 
-                          "PIP5K1C", "PPIL2", "PUM3", "RHBDL2", "SLC12A4", "SNAPC3", 
-                          "SPICE1", "TAF5L", "TAS2R10")
-
-gene_list_bor_survbin_43 <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
+gene_list_surv_bin_43 <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
                               "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", 
                               "DHRS11", "DLX1", "ERCC4", "F13A1", "FAM110D", 
                               "FAT1", "FKBP11", "GALNT14", "GBP1", "GMIP", 
@@ -27,10 +17,20 @@ gene_list_bor_survbin_43 <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1"
                               "STAT5B", "TIMM50", "TPD52", "TRIM68", "TSHZ3", 
                               "UBE2D4", "UNC5B", "VMP1")
 
-gene_list_bor_metbin_19 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
+gene_list_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
                              "DOCK8", "FBXW8", "GADD45GIP1", "GPC1", "GSTCD", 
                              "GUF1", "IL17RA", "ITPR3", "MAP7D1", "MYO19", 
-                             "RAP1B", "TCAP", "TFDP1", "TNK2")
+                             "RAP1B", "TFDP1", "TNK2")
+
+
+gene_list_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EID2B",
+                          "F13A1", "FOXA3", "GATA3", "GBP5", "MRPL48", "PAWR", 
+                          "PIP5K1C", "PROSER2", "RHBDL2", "RTN4RL2", "SIT1", 
+                          "SLC30A4", "SMAD7", "TBC1D8")
+
+gene_list <- gene_list_surv_bin_43 
+
+
 
 gene_list <- gene_list_bor_survbin_43
 
