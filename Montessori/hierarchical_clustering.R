@@ -7,7 +7,7 @@ library(cluster)
 # List obtained from Boruta
 
 
-gene_list_surv_bin_43 <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
+pucky <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
                               "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", 
                               "DHRS11", "DLX1", "ERCC4", "F13A1", "FAM110D", 
                               "FAT1", "FKBP11", "GALNT14", "GBP1", "GMIP", 
@@ -28,11 +28,9 @@ gene_list_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EID2B",
                           "PIP5K1C", "PROSER2", "RHBDL2", "RTN4RL2", "SIT1", 
                           "SLC30A4", "SMAD7", "TBC1D8")
 
-gene_list <- gene_list_surv_bin_43 
 
 
-
-gene_list <- gene_list_bor_survbin_43
+gene_list <- pucky
 
 
 # Keep only genes for clustering
