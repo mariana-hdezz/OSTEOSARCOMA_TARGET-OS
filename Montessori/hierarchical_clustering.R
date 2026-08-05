@@ -2,6 +2,7 @@ library(factoextra)
 library(tidyverse)
 library(survival)
 library(coxphf)
+library(cluster)
 
 # List obtained from Boruta
 

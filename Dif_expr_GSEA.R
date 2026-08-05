@@ -90,88 +90,46 @@ gse <- gseGO(
 gse_df <- as.data.frame(gse)
 
 View(gse_df)
-# nPerm = 1000, # The higher the no. of permutations, the more accurate the result, but the longer the analysis will take
-
-# ------------- CREATE DOTPLOT -----------
-require(DOSE)
 
 
-dotplot(gse, showCategory = 15,  split = ".sign") + 
-  facet_grid(.~.sign) + # apply "facet_grid" to the plot by specified variable (e.g., "ONTOLOGY", "category" and "intersect")
-  theme(
-    axis.text.x = element_text(angle = 10, hjust = 1),
-    axis.text.y = element_text(size = 7)
-  )
+# Convert Ensembl to Entrez (KEGG format)
 
-# --------- CREATE CNETPLOT -----------
-  # depicts the linkages of genes and biological concepts (e.g. GO terms or KEGG pathways) as a network (helpful 
-  # to see which genes are involved in enriched pathways and genes that may belong to multiple annotation categories).
+entrez_df <- bitr(names(gene_list), 
+                  fromType = "SYMBOL", 
+                  toType = "ENTREZID", 
+                  OrgDb = org.Hs.eg.db)
 
-cnetplot(gse, foldChange = gene_list, showCategory = 3)
+# Keep available genes
 
+gene_list_kegg <- gene_list[names(gene_list) %in% entrez_df$SYMBOL]
 
+# Keep unique entrez
 
-# --------- CREATE HEATMAP -----------
+entrez_df <- entrez_df[entrez_df$SYMBOL %in% names(gene_list_kegg), ] %>% 
+  group_by(SYMBOL) %>% 
+  slice_head()
 
-p1 <- heatplot(gse, showCategory = 3)
-p2 <- heatplot(gse, foldChange = gene_list, showCategory = 5)
+# Join entrez with value
 
-cowplot::plot_grid(p1, p2, ncol = 1, labels = LETTERS[1:2])
+x <- as.data.frame(gene_list_kegg) %>% 
+  rownames_to_column("SYMBOL") %>% 
+  filter(SYMBOL %in% entrez_df$SYMBOL) %>% 
+  left_join(entrez_df, by = "SYMBOL")
 
+genes_values <- x$gene_list_kegg
 
+names(genes_values) <- make.names(x$ENTREZID)
 
+names(genes_values) <- gsub("^X", "", names(genes_values))
 
-# -------- RIDGEPLOT ------------
-# Helpful to interpret up/down-regulated pathways.
-
-library(ggridges)
-
-ridgeplot(gse) +
-  labs(x = "Enrichment Distribution") +
-  theme(axis.text.y = element_text(size = 8))
-
-
-#--------- CREATE GSEAPLOT -----------
-
-# For a gene set as the analysis walks down the ranked gene list, 
-# including the location of the maximum enrichment score (the red line).
-
-# The black lines in the Running Enrichment Score show where the members 
-# of the gene set appear in the ranked list of genes, indicating the leading edge subset.
-
-# The Ranked list metric shows the value of the ranking metric (log2 fold change) as you
-# move down the list of ranked genes. The ranking metric measures a gene’s correlation with a phenotype.
-
-
-gseaplot(gse, by = "all", title = gse$Description[1], geneSetID = 1)
-
-
-gseaplot2(gse, title = gse$Description[1], geneSetID = 1)
-
-
-gseaplot2(gse, geneSetID = 1:3,
-          color = c("lightpink", "lightgreen", "lightblue"))
-
-
-
-#--------- CREATE PMCPLOT -----
-
-library(europepmc)
-
-terms <- gse$Description[1:3]
-pmcplot(terms, 2010:2024, proportion = FALSE)
-
-
-
-
-
-
-
-
-
-
-
-
-
+gse_kegg <- gseKEGG(
+  geneList = genes_values, # Objeto creado anteriormente que ordena de manera descendente
+  keyType = "kegg", # El codigo de identificación de los genes
+  pvalueCutoff = 0.01, 
+  organism = "hsa", # Organismo en este caso Homo sapiens (a diferencia de org.Mm.eg.db que es de raton o org.Sc.eg.db que es de levadura) 
+  minGSSize = 30, # Tamaño minimo de ada set para analisis
+  maxGSSize = 500, # Tamaño maximo de genes anotados para analizar
+  BPPARAM = BiocParallel::SerialParam()
+)
 
 
