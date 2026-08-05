@@ -56,6 +56,7 @@ dist_counts <- get_dist(vst_counts_hc, method = "manhattan")
 
 hc_counts <- hclust(dist_counts, method = "ward.D2")
 
+
 # Clustering characteristics ------------------------------------------
 
 # Dendrogram
@@ -65,11 +66,18 @@ plot(hc_counts,
      hang = -1,
      main = "CLUSTERING JERÁRQUICO TARGET-OS")
 
-rect.hclust(hc_counts, k = 4, border = "purple") # bottom up approach
+rect.hclust(hc_counts, k = 3, border = "purple") # bottom up approach
 
 # Tree of clusters
 
-clusters <- cutree(hc_counts, k = )
+clusters <- cutree(hc_counts, k = 3)
+
+sil <- silhouette(clusters, dist_counts)
+
+mean(sil[, "sil_width"])
+
+# 6. Plot the silhouette profile
+plot(sil, col = 2:(length(unique(as.integer(clusters))) + 1), main = "Hierarchical Silhouette Plot")
 
 # Observe how many patients in each cluster
 
@@ -95,12 +103,6 @@ metadata_os %>%
   group_by(clusters) %>%
   dplyr::count(survival_stat)
 
-metadata_os %>%
-  mutate(survival_stat = factor(survival_stat),
-         clusters = factor(clusters)) %>%
-  tidyr::drop_na(survival_stat) %>%
-  ggplot(aes(x = survival_stat, fill = clusters)) +
-  geom_histogram(stat = "count")
 
 metadata_os %>%
   mutate(
@@ -111,8 +113,11 @@ metadata_os %>%
   tidyr::drop_na(survival_stat) %>%
   ggplot(aes(x = survival_stat, fill = `First Event` == "Relapse")) +
   geom_histogram(stat = "count") +
-  facet_wrap( ~ clusters)
-
+  facet_wrap( ~ clusters) + 
+  scale_fill_manual(values = c("#8d79dd", "#55c3fcfb"), labels = c("FALSE" = "No relapse", "TRUE" = "Relapse")) +
+  scale_x_discrete(labels = c("0" = "Alive", "1" = "Deceased")) + 
+  labs(x = "Survival", y = "N. of patients", fill = "Relapse") +
+  theme_classic()
 
 metadata_os$clusters <- relevel(factor(metadata_os$clusters), 2)
 
@@ -125,7 +130,7 @@ firth_fit <- coxphf(
   formula = Surv(survival_time, survival_stat) ~ factor(clusters), 
   data = metadata_os %>% drop_na(survival_stat)
 )
-
+summary(cox)
 summary(firth_fit)
 
 pha <- survival::cox.zph(cox)
