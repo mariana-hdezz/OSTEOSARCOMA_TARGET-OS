@@ -50,6 +50,14 @@ counts_raw <- os_data %>%
                 gene_name,
                 gene_type)
 
+gene_dist <- os_data %>% 
+  dplyr::select(gene_name,
+                gene_type,
+                gene_id)
+
+
+gene_dist$ensembl <- gsub("\\..", "", gene_dist$gene_id)
+
 counts_raw <- 
   counts_raw %>% 
   filter(gene_type == "protein_coding") %>% 
