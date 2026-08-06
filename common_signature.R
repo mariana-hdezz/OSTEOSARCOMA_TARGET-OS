@@ -18,6 +18,9 @@ symbol_anot <- data.frame(Gene = unlist(mget(
   x = as.character(annot$ILMN_ID[, 5]) , envir = illuminaHumanv2SYMBOL
 )))
 
+accnum_anot <- data.frame(Gene = unlist(mget(
+  x = as.character(annot$ILMN_ID[, 5]) , envir = illuminaHumanv2ACCNUM
+)))
 
 # Convert signature to its ENSEMBL counterpart
 
@@ -39,3 +42,42 @@ sym_in_EnPucky <- gene_dist$gene_name[gene_dist$ensembl %in% pucky_ensembl[pucky
 
 
 common_pucky <- unique(c(sym_in_EnPucky, pucky[pucky %in% annot$Symbol], pucky[pucky %in% as.character(sym_from_entr)]))
+
+
+pucky_probe <- mapIds(
+  illuminaHumanv2.db,
+  keys = common_pucky,
+  column = "PROBEID",
+  keytype = "SYMBOL",
+  multiVals = "first"
+)
+
+pucky_accnum <- mapIds(
+  illuminaHumanv2.db,
+  keys = common_pucky,
+  column = "ACCNUM",
+  keytype = "SYMBOL",
+  multiVals = "first"
+)
+
+
+ mapIds(
+  illuminaHumanv2.db,
+  keys = pucky_accnum,
+  column = "PROBEID",
+  keytype = "ACCNUM",
+  multiVals = "first"
+)
+
+pucky_accnum %in% annot$ILMN_ID[,3]
+pucky_probe %in% annot$ILMN_ID[,5]
+probes <- as.character(annot$ILMN_ID[,1][annot$ILMN_ID[,5] %in% pucky_probe])
+
+pucky_gse <- unique(annot$Symbol[annot$Illumina_Gene %in% probes])
+
+pucky[pucky%in%pucky_gse]
+
+
+pucky[!(pucky%in%pucky_gse)]
+pucky_gse[!(pucky_gse %in% pucky)]
+
