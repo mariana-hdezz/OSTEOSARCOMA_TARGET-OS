@@ -167,6 +167,60 @@ surv_plot$plot <- surv_plot$plot +
 
 surv_plot
 
-metadata_os$clusters <- NULL
+# ------ Recurrence -----------
+
+metadata_os$clusters <- relevel(factor(metadata_os$clusters), 2)
+
+cox_rec <- survival::coxph(
+  Surv(metadata_os$time_to_first_event, metadata_os$relapse_stat) ~ clusters,
+  metadata_os %>% mutate(clusters = factor(clusters))
+)
+
+# firth_fit <- coxphf(
+#   formula = Surv(metadata_os$time_to_first_event, metadata_os$relapse_stat) ~ factor(clusters), 
+#   data = metadata_os %>% drop_na(relapse_stat)
+# )
+
+summary(cox)
+summary(firth_fit)
+
+pha <- survival::cox.zph(cox_rec)
+fit_km_rec <- survival::survfit(Surv(metadata_os$time_to_first_event, metadata_os$relapse_stat) ~ clusters,
+                                metadata_os)
+
+surv_plot_rec <- survminer::ggsurvplot(
+  fit_km_rec,
+  data = metadata_os,
+  pval = TRUE,
+  risk.table = TRUE,
+  
+  xlim = c(0, 6000),
+  break.time.by = 500,
+  ggtheme = theme_minimal(),
+  
+  
+  
+  linewidth = 3,
+  # Line size
+  palette = c("#c380d3" , "#ff89d4", "#33ccff"),
+)
+
+surv_plot_rec$plot <- surv_plot_rec$plot + 
+  annotate(
+    geom = "text", 
+    x = 500,          # X-axis position
+    y = 0.10,         # Y-axis position
+    label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
+    color = "black", 
+    size = 5, 
+    fontface = "bold"
+  )
+
+surv_plot_rec
+
+
+
+
+
 
 #rm(list = setdiff(ls(), c("vst_counts", "counts_data", "metadata_os")))
