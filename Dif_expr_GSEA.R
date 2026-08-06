@@ -31,7 +31,7 @@ dds <- DESeqDataSetFromMatrix(countData = counts_data_dseq,
                               colData = metadata_os_clusters,
                               design= ~ clusters)
 
-dds$clusters <- relevel(dds$clusters, ref = "2")
+dds$clusters <- relevel(dds$clusters, ref = "3")
 
 dds <- DESeq(dds)
 
@@ -39,11 +39,21 @@ resultsNames(dds) # lists the coefficients
 
 res_1_vs_2 <- results(dds, name = "clusters_1_vs_2", lfcThreshold = 0.58)
 
+res_sig_1v2 <- subset(res_1_vs_2, res_1_vs_2$padj < 0.05) %>% 
+  as.data.frame()
+
 res_3_vs_2 <- results(dds, name = "clusters_3_vs_2", lfcThreshold = 0.58)
 
+res_sig_3v2 <- subset(res_3_vs_2, res_3_vs_2$padj < 0.05) %>% 
+  as.data.frame()
+
+res_1_vs_3 <- results(dds, name = "clusters_1_vs_3", lfcThreshold = 0.58)
+
+res_sig_1v3 <- subset(res_1_vs_3, res_1_vs_3$padj < 0.05) %>% 
+  as.data.frame()
 
 # or to shrink log fold changes association with condition:
-res <- lfcShrink(dds, coef = "clusters_3_vs_2", type = "apeglm")
+res <- lfcShrink(dds, coef = "clusters_1_vs_3", type = "apeglm")
 
 
 
@@ -74,12 +84,12 @@ library(org.Hs.eg.db)
 
 gse <- gseGO(
   geneList = gene_list,
-  ont = "BP", # One of "BP", "MF, and "CC subontologies or "ALL"
+  ont = "ALL", # One of "BP", "MF, and "CC subontologies or "ALL"
   OrgDb = "org.Hs.eg.db",
   keyType = "SYMBOL",
   minGSSize = 30, # Minimum number of genes in set (gene sets with lower than this many genes in your dataset will be ignored).
   maxGSSize = 500,
-  pvalueCutoff = 0.01,
+  pvalueCutoff = 0.05,
   pAdjustMethod = "BH",
   verbose = TRUE,  # Print message or not
   seed = TRUE,
@@ -125,7 +135,7 @@ names(genes_values) <- gsub("^X", "", names(genes_values))
 gse_kegg <- gseKEGG(
   geneList = genes_values, # Objeto creado anteriormente que ordena de manera descendente
   keyType = "kegg", # El codigo de identificación de los genes
-  pvalueCutoff = 0.01, 
+  pvalueCutoff = 0.05, 
   organism = "hsa", # Organismo en este caso Homo sapiens (a diferencia de org.Mm.eg.db que es de raton o org.Sc.eg.db que es de levadura) 
   minGSSize = 30, # Tamaño minimo de ada set para analisis
   maxGSSize = 500, # Tamaño maximo de genes anotados para analizar
@@ -134,3 +144,22 @@ gse_kegg <- gseKEGG(
 
 
 View(as.data.frame(gse_kegg))
+
+msigdbr_collections()
+
+m_df <- msigdbr(species = "Homo sapiens", category = "H")
+
+msig_t2g <- m_df %>% dplyr::select(gs_name, gene_symbol)
+
+set.seed(123) # For reproducibility
+
+gsea_res <- GSEA(
+  geneList     = gene_list,
+  TERM2GENE    = msig_t2g,
+  pvalueCutoff = 0.05,
+  pAdjustMethod = "BH",
+  verbose      = FALSE
+)
+
+gsea_df <- as.data.frame(gsea_res)
+View(gsea_df)

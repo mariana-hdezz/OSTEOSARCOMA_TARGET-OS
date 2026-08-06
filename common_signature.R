@@ -41,7 +41,7 @@ pucky_ensembl[pucky_ensembl %in% ensembl_annot$Gene] # signature in ensembl anno
 sym_in_EnPucky <- gene_dist$gene_name[gene_dist$ensembl %in% pucky_ensembl[pucky_ensembl %in% ensembl_annot$Gene]] # Obtain symbol form available ensembl
 
 
-common_pucky <- unique(c(sym_in_EnPucky, pucky[pucky %in% annot$Symbol], pucky[pucky %in% as.character(sym_from_entr)]))
+common_pucky <- unique(c(sym_in_EnPucky, pucky[pucky %in% annot$Symbol], pucky[pucky %in% pucky[pucky %in% symbol_anot$Gene]]))
 
 
 pucky_probe <- mapIds(
