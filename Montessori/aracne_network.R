@@ -1,5 +1,5 @@
 library(igraph)
-library(tidyverse)
+library(dplyr)
 library(ggraph)
 library(RColorBrewer)
 library(dplyr)
