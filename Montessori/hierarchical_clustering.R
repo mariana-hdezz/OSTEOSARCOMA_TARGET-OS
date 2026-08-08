@@ -29,6 +29,7 @@ gene_list_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EID2B",
                           "PIP5K1C", "PROSER2", "RHBDL2", "RTN4RL2", "SIT1", 
                           "SLC30A4", "SMAD7", "TBC1D8")
 
+pucky_comp_gse <- setdiff(pucky, c("GRAMD1B", "SLC12A4", "VMP1"))
 
 
 gene_list <- pucky

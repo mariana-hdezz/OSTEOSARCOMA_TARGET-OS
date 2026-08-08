@@ -1,8 +1,6 @@
-library(oligo)
 library(GEOquery)
 library(dplyr)
 library(tibble)
-library(limma)
 library(hgu133a.db)
 
 # getGEOSuppFiles(GEO = "GSE21257", makeDirectory = TRUE, baseDir = "d:/")
@@ -170,3 +168,4 @@ counts_data_gse33382 <-
 # Metadata
 
 pheno_gse33382
+
