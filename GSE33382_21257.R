@@ -167,5 +167,61 @@ counts_data_gse33382 <-
 
 # Metadata
 
-pheno_gse33382
+metadata_33382 <- pheno_gse33382 %>% 
+  mutate(
+    age = gsub("^(.*) months" , "\\1",  `age:ch1`),
+    gender = factor(`gender:ch1`),
+    hist_sub = factor(`histological subtype:ch1`),
+    huvos = factor(`huvos grade:ch1`),
+    metastasis_5y = factor(`metastasis within 5yrs:ch1`),
+    tumor_loc = `tumor location:ch1`,
+    tissue = `type:ch1`
+  ) %>% 
+  dplyr::select(- c(
+    extract_protocol_ch1,
+    `matching copy number data:ch1`,
+    label_ch1,
+    label_protocol_ch1,
+    hyb_protocol,
+    scan_protocol,
+    description,
+    data_processing,
+    contact_name,
+    contact_laboratory,
+    contact_institute,
+    contact_address,
+    contact_city,
+    `contact_zip/postal_code`,
+    contact_country,
+    supplementary_file,
+    supplementary_file.1,
+    data_row_count,
+    `growth protocol:ch1`,
+    title,
+    status,
+    submission_date,
+    last_update_date,
+    source_name_ch1,
+    channel_count,
+    organism_ch1,
+    characteristics_ch1.1,
+    characteristics_ch1.2,
+    characteristics_ch1.3,
+    characteristics_ch1.4,
+    characteristics_ch1.5,
+    characteristics_ch1.6,
+    characteristics_ch1.7,
+    taxid_ch1,
+    `age:ch1`,
+    `gender:ch1`,
+    `histological subtype:ch1`,
+    `huvos grade:ch1`,
+    `matching copy number data:ch1`,
+    `metastasis within 5yrs:ch1`,
+    `tumor location:ch1`,
+    type,
+    characteristics_ch1
+  )) %>% 
+  filter(tissue == "biopsy")
 
+counts_data_gse33382 <- counts_data_gse33382[, colnames(counts_data_gse33382) %in% metadata_33382$geo_accession]
