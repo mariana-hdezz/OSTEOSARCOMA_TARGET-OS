@@ -67,4 +67,4 @@ pucky[!(pucky%in%pucky_gse)]
 pucky_gse[!(pucky_gse %in% pucky)]
 
 
-rm(list = ls()[!(ls() %in% c("vst_counts", "pucky", "counts_data", "metadata_os", "pucky_gse", "annot"))])
+rm(list = ls()[!(ls() %in% c("vst_counts", "pucky", "counts_data", "metadata_os", "pucky_gse", "annot", "metadata_33382", "counts_data_gse33382"))])
