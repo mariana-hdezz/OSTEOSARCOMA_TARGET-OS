@@ -1,3 +1,5 @@
+library(dplyr)
+library(tibble)
 
 dictionary_genes <- 
   list(
@@ -126,10 +128,3 @@ cluster_val <- data.frame(
 
 metadata_centroids <- metadata_centroids %>% 
   left_join(cluster_val, by = "geo_accession")
-
-
-
-
-metadata_centroids %>% 
-  group_by(clusters) %>% 
-  dplyr::count(metastasis_5y)
