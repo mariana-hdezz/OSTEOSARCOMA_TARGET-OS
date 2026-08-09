@@ -45,7 +45,7 @@ dictionary_genes <-
     "ZNF537" = "TSHZ3",
     "UBE2D4" = "UBE2D4",
     "UNC5B" = "UNC5B",
-    "VMP1" = "VMP1"
+    "TMEM49" = "VMP1"
   )
 
 
@@ -128,3 +128,4 @@ cluster_val <- data.frame(
 
 metadata_centroids <- metadata_centroids %>% 
   left_join(cluster_val, by = "geo_accession")
+

@@ -171,11 +171,14 @@ metadata_33382 <- pheno_gse33382 %>%
   mutate(
     age = gsub("^(.*) months" , "\\1",  `age:ch1`),
     gender = factor(`gender:ch1`),
-    hist_sub = factor(`histological subtype:ch1`),
+    hist_sub = factor(gsub(" osteosarcoma$", "" , `histological subtype:ch1`)),
     huvos = factor(`huvos grade:ch1`),
     metastasis_5y = factor(`metastasis within 5yrs:ch1`),
     tumor_loc = `tumor location:ch1`,
-    tissue = `type:ch1`
+    tissue = `type:ch1`,
+    hist_sub_sim = ifelse(hist_sub == "fibroblastic MFH-like" | hist_sub == "fibroblastic giant cell rich" | hist_sub == "gibroblastic",
+                          "fibroblastic",
+                          hist_sub)
   ) %>% 
   dplyr::select(- c(
     extract_protocol_ch1,

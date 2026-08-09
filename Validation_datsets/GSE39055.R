@@ -26,7 +26,7 @@ dim(expr_matrix)
 
 # 2.- Load Metadata GSE39055 ----------------------------------------------
 
-NOTE: No normalization step was needed because GSE39055 had already been 
+#NOTE: No normalization step was needed because GSE39055 had already been 
 # normalized using VST and quantile normalization
 
 pre_metadata <- pData(gse39055_data)
