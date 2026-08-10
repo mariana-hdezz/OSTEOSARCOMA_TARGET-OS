@@ -2,7 +2,6 @@
 
 library(GEOquery)
 library(tidyverse)
-library(Biobase)
 library(limma)
 library(illuminaHumanWGDASLv4.db)
 
