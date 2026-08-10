@@ -2,7 +2,7 @@
 
 library(GEOquery)
 library(tidyverse)
-library(limma)
+library(Biobase)
 library(illuminaHumanWGDASLv4.db)
 
 # Set directory
