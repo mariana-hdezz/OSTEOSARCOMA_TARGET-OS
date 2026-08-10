@@ -48,65 +48,69 @@ dictionary_genes <-
     "TMEM49" = "VMP1"
   )
 
+# Load needed objects (counts_data_test_centr, metadata_centroids, pucky, pucky_gse)
 
-counts_data_test_centr <- gene_expression_matrix
+counts_data_test_centr <- counts_data_gse21257
 
-metadata_centroids <- metadata_gse39055
+metadata_centroids <- metadata_gse21257 
+
 
 # Scale vst and convert to df
-
-vst_counts_t_43 <- t(vst_counts[pucky, ])
-
-scaled_counts <- scale(vst_counts_t_43)[metadata_os$sample, ]
+scaled_counts <- scale(t(vst_counts)[metadata_os$sample, ])
 
 scaled_counts_df <- as.data.frame(scaled_counts)
 
-scaled_counts_df$clusters <- metadata_os$clusters
+scaled_counts_gse <- scale(t(counts_data_test_centr)[metadata_centroids$geo_accession, ])
 
-# Obtain centroids
+scaled_counts_gse_df <- as.data.frame(scaled_counts_gse)
+
+# keep the genes in signature
+
+scaled_counts_df <- scaled_counts_df[, pucky] 
+
+if(all(pucky %in% colnames(scaled_counts_gse_df)) ){
+  
+  scaled_counts_gse_test <- scaled_counts_gse_df[, pucky]
+  
+}else{
+  scale_counts_gse_df_41 <- scaled_counts_gse_df[, pucky_gse] 
+  
+  all(colnames(scale_counts_gse_df_41) %in% names(dictionary_genes))
+  
+  # Position of the colnames on the dictionary
+  
+  idx <- match(colnames(scale_counts_gse_df_41), names(dictionary_genes))
+  
+  # Asign the other term of the dictionary to the previously determined position
+  
+  colnames(scale_counts_gse_df_41)[!is.na(idx)] <- unlist(dictionary_genes)[idx[!is.na(idx)]]
+  
+  scale_counts_gse_test <-  scale_counts_gse_df_41
+  
+  scaled_counts_df <- scaled_counts_df[, colnames(scale_counts_gse_test)]
+}
+
+# Centroids from training
+
+all(rownames(scaled_counts_df) == metadata_os$sample) # Same order
+
+scaled_counts_df$clusters <- metadata_os$clusters # Assign clusters
 
 train_centroids <- aggregate(. ~ clusters, data = scaled_counts_df, FUN = mean) %>% 
   column_to_rownames("clusters")
 
-if(all(pucky %in% rownames(counts_data_test_centr))){
-  counts_gse_centr <- t(counts_data_test_centr[rownames(counts_data_test_centr) %in% pucky, ])
-}else{
-  
-  # Kepp only the counts of the gene list (of the previously mapped genes on common_siugnature.R)
-  
-  counts_gse_centr <- t(counts_data_test_centr[rownames(counts_data_test_centr) %in% pucky_gse, ])
-  
-  all(colnames(counts_gse_centr) %in% names(dictionary_genes))
-  
-  # Position of the colnames on the dictionary
-  
-  idx <- match(colnames(counts_gse_centr), names(dictionary_genes))
-  
-  # Asign the other term of the dictionary to the previously determined position
-  
-  colnames(counts_gse_centr)[!is.na(idx)] <- unlist(dictionary_genes)[idx[!is.na(idx)]]
-  
-}
-
-# Scale
-
-counts_gse_centr_scaled <- scale(counts_gse_centr)
-
-# Recolect the genes in common
-
-common_genes <- intersect(colnames(train_centroids), colnames(counts_gse_centr_scaled))
 
 # Convert both to matrices
 
-train_centroids_mat <- as.matrix(train_centroids[, common_genes])
+train_centroids_mat <- as.matrix(train_centroids[, colnames(train_centroids)])
 
-test_mat <- as.matrix(counts_gse_centr_scaled[, common_genes])
+test_mat <- as.matrix(scale_counts_gse_test[, colnames(train_centroids)])
 
 all(colnames(train_centroids_mat) == colnames(test_mat))
 
 # Eucliean distances
 
-cluster_list <- list() # outpu list
+cluster_list <- list() # output list
 
 for (i in 1:nrow(test_mat)) { # Repeat to all rows on test matrix
   x <- as.numeric(test_mat[i, ]) # Convert that row intonumeric vector
@@ -134,4 +138,3 @@ cluster_val <- data.frame(
 
 metadata_centroids <- metadata_centroids %>% 
   left_join(cluster_val, by = "geo_accession")
-
