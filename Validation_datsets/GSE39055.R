@@ -11,8 +11,8 @@ gse39055_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso/GSE39055"
 
 # 1.--------------- Load processed expression data -----------------
 
-#NOTE: No normalization step was needed because GSE39055 was already 
-# normalized with VST and quantile normalization
+#NOTE: No normalization step was needed because GSE39055 had already been
+# normalized using VST and quantile normalization
 
 getGEOSuppFiles("GSE39055", baseDir = gse39055_directory)
 
@@ -101,10 +101,11 @@ metadata_gse39055 <- metadata_gse39055_pre %>%
     SURV_STAT = case_when(`death:ch1` == "Y" ~ 1, `death:ch1` == "N" ~ 0),
   )
 
+# Add GEO sample accession as a simplified sample identifier
 metadata_gse39055 <- metadata_gse39055 %>%
   mutate(id = geo_accession)
 
-
+# Verify that expression data and metadata contain the same samples in the same order
 identical(colnames(gene_expression_matrix), metadata_gse39055$id)
 
 
