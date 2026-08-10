@@ -14,8 +14,6 @@ gse39055_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso/GSE39055"
 #NOTE: No normalization step was needed because GSE39055 had already been
 # normalized using VST and quantile normalization
 
-getGEOSuppFiles("GSE39055", baseDir = gse39055_directory)
-
 gse39055 <- getGEO("GSE39055", GSEMatrix = TRUE, getGPL = FALSE)
 
 length(gse39055)
