@@ -7,8 +7,7 @@ library(lumiHumanIDMapping)
 
 annot$ILMN_ID <- nuID2IlluminaID(as.character(annot$ID), chipVersion = "Human-6 v2")
 
-# The following lines correspond to mapping to ENSEMBL, ENTREZ and SYMBOL from the previous step
-
+# The following lines correspond to mapping to ENSEMBL
 
 ensembl_annot <- data.frame(Gene = unlist(mget(
   x = as.character(annot$ILMN_ID[, 5]) , envir = illuminaHumanv2ENSEMBL
@@ -17,23 +16,22 @@ ensembl_annot <- data.frame(Gene = unlist(mget(
 
 mart <- useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl") 
 
-#We create myannot, with GC content, biotype, info for length & names per transcript
 
 myannot <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
                  filters = "ensembl_gene_id", 
-                 values =  ensembl_annot$Gene,  #annotate the genes in the count matrix 
+                 values =  ensembl_annot$Gene,   
                  mart = mart)
 
-common <- intersect(pucky, myannot$hgnc_symbol)
+common <- intersect(pucky, myannot$hgnc_symbol) # Keep available genes in signature form ensembl
 
 
-y <- intersect(pucky, annot$Symbol)
+y <- intersect(pucky, annot$Symbol) # Original available genes
 
-"TMEM49" %in% annot$Symbol
+"TMEM49" %in% annot$Symbol # Hand searcehd gene equivalent to VMP1 
 
-true_common <- unique(c(common, y, "TMEM49"))
+true_common <- unique(c(common, y, "TMEM49")) 
 
-probes <- mapIds(
+probes <- mapIds( # VMP1 and SLC45A4 are not mapped to probe ids, still SLC45A4 appears in the GLP object, and VMP1 appears as TNEN49
   illuminaHumanv2.db,
   keys = true_common,
   "PROBEID",
