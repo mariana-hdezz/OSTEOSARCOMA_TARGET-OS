@@ -1,6 +1,7 @@
-
+library(biomaRt)
 library(lumi)
 library(illuminaHumanv2.db)
+library(lumiHumanIDMapping)
 
 # 1. Convert nuID to ILMN Probe ID
 
@@ -14,57 +15,41 @@ ensembl_annot <- data.frame(Gene = unlist(mget(
 )))
 
 
-symbol_anot <- data.frame(Gene = unlist(mget(
-  x = as.character(annot$ILMN_ID[, 5]) , envir = illuminaHumanv2SYMBOL
-)))
+mart <- useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl") 
 
-accnum_anot <- data.frame(Gene = unlist(mget(
-  x = as.character(annot$ILMN_ID[, 5]) , envir = illuminaHumanv2ACCNUM
-)))
+#We create myannot, with GC content, biotype, info for length & names per transcript
 
-# Convert signature to its ENSEMBL counterpart
+myannot <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
+                 filters = "ensembl_gene_id", 
+                 values =  ensembl_annot$Gene,  #annotate the genes in the count matrix 
+                 mart = mart)
 
-pucky_ensembl <- gene_dist$ensembl[gene_dist$gene_name %in% pucky]
-
-# Signature in symbol anottation from probe IDs
-
-pucky[pucky %in% symbol_anot$Gene]
-
-# Signature from GLP
-
-pucky[pucky %in% annot$Symbol]
-
- # Obtaiun gene name in ensembl version of the signature that can be found in thge direct ensembl annot
-
-pucky_ensembl[pucky_ensembl %in% ensembl_annot$Gene] # signature in ensembl annotation
-
-sym_in_EnPucky <- gene_dist$gene_name[gene_dist$ensembl %in% pucky_ensembl[pucky_ensembl %in% ensembl_annot$Gene]] # Obtain symbol form available ensembl
+common <- intersect(pucky, myannot$hgnc_symbol)
 
 
-common_pucky <- unique(c(sym_in_EnPucky, pucky[pucky %in% annot$Symbol], pucky[pucky %in% symbol_anot$Gene]))
+y <- intersect(pucky, annot$Symbol)
 
+"TMEM49" %in% annot$Symbol
 
-pucky_probe <- mapIds(
+true_common <- unique(c(common, y, "TMEM49"))
+
+probes <- mapIds(
   illuminaHumanv2.db,
-  keys = common_pucky,
-  column = "PROBEID",
+  keys = true_common,
+  "PROBEID",
   keytype = "SYMBOL",
   multiVals = "first"
 )
 
+pucky_gse <- c(annot$Symbol[annot$ILMN_ID[,5] %in% probes], "TMEM49", "SLC45A4")
 
 
 
-pucky_probe %in% annot$ILMN_ID[,5]
-probes <- as.character(annot$ILMN_ID[,1][annot$ILMN_ID[,5] %in% pucky_probe])
-
-pucky_gse <- unique(c(annot$Symbol[annot$Illumina_Gene %in% probes], pucky[pucky %in% annot$Symbol]))
-
-pucky[pucky%in%pucky_gse]
 
 
-pucky[!(pucky%in%pucky_gse)]
-pucky_gse[!(pucky_gse %in% pucky)]
 
 
-rm(list = ls()[!(ls() %in% c("vst_counts", "pucky", "counts_data", "metadata_os", "pucky_gse", "annot", "metadata_33382", "counts_data_gse33382"))])
+
+
+
+
