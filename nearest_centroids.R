@@ -49,9 +49,9 @@ dictionary_genes <-
   )
 
 
-counts_data_test_centr <- counts_data_gse33382
+counts_data_test_centr <- gene_expression_matrix
 
-metadata_centroids <- metadata_33382
+metadata_centroids <- metadata_gse39055
 
 # Scale vst and convert to df
 
@@ -68,19 +68,25 @@ scaled_counts_df$clusters <- metadata_os$clusters
 train_centroids <- aggregate(. ~ clusters, data = scaled_counts_df, FUN = mean) %>% 
   column_to_rownames("clusters")
 
-# Kepp only the counts of the gene list (of the previously mapped genes on common_siugnature.R)
-
-counts_gse_centr <- t(counts_data_test_centr[rownames(counts_data_test_centr) %in% pucky_gse, ])
-
-all(colnames(counts_gse_centr) %in% names(dictionary_genes))
-
-# Position of the colnames on the dictionary
-
-idx <- match(colnames(counts_gse_centr), names(dictionary_genes))
-
-# Asign the other term of the dictionary to the previously determined position
-
-colnames(counts_gse_centr)[!is.na(idx)] <- unlist(dictionary_genes)[idx[!is.na(idx)]]
+if(all(pucky %in% rownames(counts_data_test_centr))){
+  counts_gse_centr <- t(counts_data_test_centr[rownames(counts_data_test_centr) %in% pucky, ])
+}else{
+  
+  # Kepp only the counts of the gene list (of the previously mapped genes on common_siugnature.R)
+  
+  counts_gse_centr <- t(counts_data_test_centr[rownames(counts_data_test_centr) %in% pucky_gse, ])
+  
+  all(colnames(counts_gse_centr) %in% names(dictionary_genes))
+  
+  # Position of the colnames on the dictionary
+  
+  idx <- match(colnames(counts_gse_centr), names(dictionary_genes))
+  
+  # Asign the other term of the dictionary to the previously determined position
+  
+  colnames(counts_gse_centr)[!is.na(idx)] <- unlist(dictionary_genes)[idx[!is.na(idx)]]
+  
+}
 
 # Scale
 
