@@ -131,6 +131,12 @@ metadata_os <- metadata_os %>%
     survival_time = `Overall Survival Time in Days`,
     relapse_stat = ifelse(`First Event` == "Relapse", yes = 1, no = 0), # 1 = relapse, 0 = death, censored, SMN or no EVENT
     time_to_first_event = `Time to First Event in Days`,
+    hist_res = gsub(".*\\b(\\d+/\\d+)\\b.*", "\\1", hist_res),
+    necrosis_at_surg = as.numeric(gsub("< ", "", necrosis_at_surg)),
+    huvos_bin = case_when(
+      hist_res == "1/2" | hist_res == "0-90" | necrosis_at_surg < 90 ~ "Bad response",
+      hist_res == "3/4" | hist_res == "91-100" | necrosis_at_surg > 90 ~ "Good response"
+    )
   )
 
 
