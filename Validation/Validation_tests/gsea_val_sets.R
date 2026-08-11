@@ -5,6 +5,8 @@ library(clusterProfiler)
 library(ggridges)
 library(enrichplot)
 library(msigdbr)
+library(ComplexHeatmap)
+library(circilize)
 
 
 res$entrez <- mapIds(org.Hs.eg.db,
@@ -137,17 +139,31 @@ gsea_res <- GSEA(
 gsea_df <- as.data.frame(gsea_res)
 View(gsea_df)
 
+
+# Create objects for heatmaps ---------------------------------------------
+
+# if else conditional logic where if in the contrast.matrix object generated on diff_expr_val_sets.R the contrast is between cluster i and j 
+# then that section of the script will run
+# For example, since the contrast matrix looks like this in c3 vs c1 
+#> contrast.matrix
+#> cluster 1          -1
+#> cluster 2           0
+#> cluster 3           1
+#> Then the sum of (cluster 1)^2 and (clsuter 3)^2 = 2 meanwhile the sum of (cluster 2)^2 with any of the other 2 will yield 1 so that means 
+#> cluster 2 is not taken into account in this round
+
 if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2){
-  c3_vs_c2_GO <- data.frame(row.names = gse$Description,
+  c3_vs_c2_GO <- data.frame(row.names = gse$Description, # GO cluster 3 vs cluster 2
                             c3_vs_c2  = gse$NES)
   
   
-  c3_vs_c2_KEGG <- data.frame(row.names = gse_kegg$Description,
+  c3_vs_c2_KEGG <- data.frame(row.names = gse_kegg$Description, # KEGG cluster 3 vs cluster 2
                               c3_vs_c2  = gse_kegg$NES)
   
   
-  c3_vs_c2_hallmark <- data.frame(row.names = gsea_res$Description,
+  c3_vs_c2_hallmark <- data.frame(row.names = gsea_res$Description, # hallmarks cluster 3 vs cluster 2
                                   c3_vs_c2  = gsea_res$NES)
+  
 }else if((contrast.matrix[2,])^2 + (contrast.matrix[1,])^2 == 2){
   c1_vs_c2_GO <- data.frame(row.names = gse$Description,
                             c1_vs_c2  = gse$NES)
@@ -159,6 +175,7 @@ if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2){
   
   c1_vs_c2_hallmark <- data.frame(row.names = gsea_res$Description,
                                   c1_vs_c2  = gsea_res$NES)
+  
 }else if((contrast.matrix[3,])^2 + (contrast.matrix[1,])^2 == 2){
 
 c3_vs_c1_GO <- data.frame(row.names = gse$Description,
@@ -173,17 +190,20 @@ c3_vs_c1_hallmark <- data.frame(row.names = gsea_res$Description,
                                 c3_vs_c1  = gsea_res$NES)
 }
 
+# Keep only the top
 
 
 c3_vs_c2_GO_10 <- c3_vs_c2_GO %>% 
-  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.1))
+  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
 
 c1_vs_c2_GO_10 <- c1_vs_c2_GO %>% 
-  filter(c1_vs_c2_GO > quantile(c1_vs_c2, 0.95) | c1_vs_c2_GO < quantile(c1_vs_c2, 0.1))
+  filter(c1_vs_c2_GO > quantile(c1_vs_c2, 0.95) | c1_vs_c2_GO < quantile(c1_vs_c2, 0.05))
 
 c3_vs_c1_GO_10 <- c3_vs_c1_GO %>% 
-  filter(c3_vs_c1_GO > quantile(c3_vs_c1, 0.95) | c3_vs_c1_GO < quantile(c3_vs_c1, 0.1))
+  filter(c3_vs_c1_GO > quantile(c3_vs_c1, 0.95) | c3_vs_c1_GO < quantile(c3_vs_c1, 0.05))
 
+
+# Join and convert to matrix
 
 gsea_GO_mat <- merge(c3_vs_c2_GO_10, (merge(c1_vs_c2_GO_10, c3_vs_c1_GO_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
 
@@ -191,15 +211,9 @@ gsea_GO_mat <- gsea_GO_mat %>%
   column_to_rownames("Row.names") %>% 
   as.matrix()
   
-# 1. Replace NAs with 0
 gsea_GO_mat[is.na(gsea_GO_mat)] <- 0
 
-
-library(ComplexHeatmap)
-library(circlize)
-
-# Example: nes_matrix is a matrix where rows = Pathways, cols = Contrasts
-# Columns: c("GroupB_vs_GroupA", "GroupC_vs_GroupA", "GroupC_vs_GroupB")
+# Plot
 
 col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
 
@@ -208,65 +222,24 @@ Heatmap(
   name = "NES",
   col = col_fun,
   cluster_rows = TRUE,
-  cluster_columns = FALSE, # Keep logical contrast order
+  cluster_columns = FALSE, 
   show_row_names = TRUE,
   row_names_gp = gpar(fontsize = 8),
   column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
 )
 
-
-
-
-c3_vs_c2_GO_10 <- c3_vs_c2_GO %>% 
-  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.1))
-
-c1_vs_c2_GO_10 <- c1_vs_c2_GO %>% 
-  filter(c1_vs_c2_GO > quantile(c1_vs_c2, 0.95) | c1_vs_c2_GO < quantile(c1_vs_c2, 0.1))
-
-c3_vs_c1_GO_10 <- c3_vs_c1_GO %>% 
-  filter(c3_vs_c1_GO > quantile(c3_vs_c1, 0.95) | c3_vs_c1_GO < quantile(c3_vs_c1, 0.1))
-
-
-gsea_GO_mat <- merge(c3_vs_c2_GO_10, (merge(c1_vs_c2_GO_10, c3_vs_c1_GO_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
-
-gsea_GO_mat <- gsea_GO_mat %>% 
-  column_to_rownames("Row.names") %>% 
-  as.matrix()
-  
-# 1. Replace NAs with 0
-gsea_GO_mat[is.na(gsea_GO_mat)] <- 0
-
-
-library(ComplexHeatmap)
-library(circlize)
-
-# Example: nes_matrix is a matrix where rows = Pathways, cols = Contrasts
-# Columns: c("GroupB_vs_GroupA", "GroupC_vs_GroupA", "GroupC_vs_GroupB")
-
-col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
-
-Heatmap(
-  gsea_GO_mat,
-  name = "NES",
-  col = col_fun,
-  cluster_rows = TRUE,
-  cluster_columns = FALSE, # Keep logical contrast order
-  show_row_names = TRUE,
-  row_names_gp = gpar(fontsize = 8),
-  column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
-)
 
 
 ###############################################################################
 
 c3_vs_c2_KEGG_10 <- c3_vs_c2_KEGG %>% 
-  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.1))
+  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
 
 c1_vs_c2_KEGG_10 <- c1_vs_c2_KEGG %>% 
-  filter(c1_vs_c2_KEGG > quantile(c1_vs_c2, 0.95) | c1_vs_c2_KEGG < quantile(c1_vs_c2, 0.1))
+  filter(c1_vs_c2_KEGG > quantile(c1_vs_c2, 0.95) | c1_vs_c2_KEGG < quantile(c1_vs_c2, 0.05))
 
 c3_vs_c1_KEGG_10 <- c3_vs_c1_KEGG %>% 
-  filter(c3_vs_c1_KEGG > quantile(c3_vs_c1, 0.95) | c3_vs_c1_KEGG < quantile(c3_vs_c1, 0.1))
+  filter(c3_vs_c1_KEGG > quantile(c3_vs_c1, 0.95) | c3_vs_c1_KEGG < quantile(c3_vs_c1, 0.05))
 
 
 gsea_KEGG_mat <- merge(c3_vs_c2_KEGG_10, (merge(c1_vs_c2_KEGG_10, c3_vs_c1_KEGG_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
@@ -275,15 +248,9 @@ gsea_KEGG_mat <- gsea_KEGG_mat %>%
   column_to_rownames("Row.names") %>% 
   as.matrix()
 
-# 1. Replace NAs with 0
 gsea_KEGG_mat[is.na(gsea_KEGG_mat)] <- 0
 
 
-library(ComplexHeatmap)
-library(circlize)
-
-# Example: nes_matrix is a matrix where rows = Pathways, cols = Contrasts
-# Columns: c("GroupB_vs_GroupA", "GroupC_vs_GroupA", "GroupC_vs_GroupB")
 
 col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
 
@@ -292,7 +259,7 @@ Heatmap(
   name = "NES",
   col = col_fun,
   cluster_rows = TRUE,
-  cluster_columns = FALSE, # Keep logical contrast order
+  cluster_columns = FALSE, 
   show_row_names = TRUE,
   row_names_gp = gpar(fontsize = 8),
   column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
@@ -302,13 +269,13 @@ Heatmap(
 ##############################################################################
 
 c3_vs_c2_hallmark_10 <- c3_vs_c2_hallmark %>% 
-  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.1))
+  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
 
 c1_vs_c2_hallmark_10 <- c1_vs_c2_hallmark %>% 
-  filter(c1_vs_c2_hallmark > quantile(c1_vs_c2, 0.95) | c1_vs_c2_hallmark < quantile(c1_vs_c2, 0.1))
+  filter(c1_vs_c2_hallmark > quantile(c1_vs_c2, 0.95) | c1_vs_c2_hallmark < quantile(c1_vs_c2, 0.05))
 
 c3_vs_c1_hallmark_10 <- c3_vs_c1_hallmark %>% 
-  filter(c3_vs_c1_hallmark > quantile(c3_vs_c1, 0.95) | c3_vs_c1_hallmark < quantile(c3_vs_c1, 0.1))
+  filter(c3_vs_c1_hallmark > quantile(c3_vs_c1, 0.95) | c3_vs_c1_hallmark < quantile(c3_vs_c1, 0.05))
 
 
 gsea_hallmark_mat <- merge(c3_vs_c2_hallmark_10, (merge(c1_vs_c2_hallmark_10, c3_vs_c1_hallmark_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
@@ -317,15 +284,8 @@ gsea_hallmark_mat <- gsea_hallmark_mat %>%
   column_to_rownames("Row.names") %>% 
   as.matrix()
 
-# 1. Replace NAs with 0
 gsea_hallmark_mat[is.na(gsea_hallmark_mat)] <- 0
 
-
-library(ComplexHeatmap)
-library(circlize)
-
-# Example: nes_matrix is a matrix where rows = Pathways, cols = Contrasts
-# Columns: c("GroupB_vs_GroupA", "GroupC_vs_GroupA", "GroupC_vs_GroupB")
 
 col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
 
@@ -334,7 +294,7 @@ Heatmap(
   name = "NES",
   col = col_fun,
   cluster_rows = TRUE,
-  cluster_columns = FALSE, # Keep logical contrast order
+  cluster_columns = FALSE, 
   show_row_names = TRUE,
   row_names_gp = gpar(fontsize = 8),
   column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
