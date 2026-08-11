@@ -220,8 +220,10 @@ surv_plot_rec$plot <- surv_plot_rec$plot +
 surv_plot_rec
 
 
+# Huvos chi squared -------------------------------------------------------
 
+huvos_meta <- metadata_os %>% 
+  tidyr::drop_na(huvos_bin)
 
-
-
-#rm(list = setdiff(ls(), c("vst_counts", "counts_data", "metadata_os")))
+x <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simulate.p.value = TRUE, B = 10000)
+x$residuals
