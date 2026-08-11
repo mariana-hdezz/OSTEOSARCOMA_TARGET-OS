@@ -3,9 +3,13 @@ library(dplyr)
 library(tibble)
 
 
+metadata_difex <- metadata_33382
+
+counts_data_difex <- counts_data_gse33382
+
 # 1.1 Generate column corresponding to clusters nodes, those that have 0 in one group and those with more than 0 in another
 
-col_data <- metadata_gse21257 %>% 
+col_data <- metadata_difex %>% 
   dplyr::select(geo_accession, clusters) %>% # Create only the object to use for Limma
   column_to_rownames("geo_accession")
 
@@ -17,7 +21,7 @@ col_data <- metadata_gse21257 %>%
 
 # 2.2 Data counts of the patients that had clusters node information in the metadata
 
-count_data <- counts_data_gse21257[colnames(counts_data_gse21257) %in% rownames(col_data)]
+count_data <- counts_data_difex[colnames(counts_data_difex) %in% rownames(col_data)]
 
 # 2.2.2 Making shure they are in the same order
 
@@ -40,7 +44,7 @@ fit <- lmFit(count_data, design)
 
 # 2.5.2 Contrast matrix comparing clusters 0 to > 0 clusters
 
-contrast.matrix <- makeContrasts(clusters3 - clusters2,
+contrast.matrix <- makeContrasts(clusters1 - clusters2,
                                  levels = design)
 
 # 2.5.3 Fit based on contrasts
