@@ -6,7 +6,7 @@ library(ggridges)
 library(enrichplot)
 library(msigdbr)
 library(ComplexHeatmap)
-library(circilize)
+library(circlize)
 
 
 res$entrez <- mapIds(org.Hs.eg.db,
@@ -197,10 +197,10 @@ c3_vs_c2_GO_10 <- c3_vs_c2_GO %>%
   filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
 
 c1_vs_c2_GO_10 <- c1_vs_c2_GO %>% 
-  filter(c1_vs_c2_GO > quantile(c1_vs_c2, 0.95) | c1_vs_c2_GO < quantile(c1_vs_c2, 0.05))
+  filter(c1_vs_c2 > quantile(c1_vs_c2, 0.95) | c1_vs_c2 < quantile(c1_vs_c2, 0.05))
 
 c3_vs_c1_GO_10 <- c3_vs_c1_GO %>% 
-  filter(c3_vs_c1_GO > quantile(c3_vs_c1, 0.95) | c3_vs_c1_GO < quantile(c3_vs_c1, 0.05))
+  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.95) | c3_vs_c1 < quantile(c3_vs_c1, 0.05))
 
 
 # Join and convert to matrix
@@ -236,10 +236,10 @@ c3_vs_c2_KEGG_10 <- c3_vs_c2_KEGG %>%
   filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
 
 c1_vs_c2_KEGG_10 <- c1_vs_c2_KEGG %>% 
-  filter(c1_vs_c2_KEGG > quantile(c1_vs_c2, 0.95) | c1_vs_c2_KEGG < quantile(c1_vs_c2, 0.05))
+  filter(c1_vs_c2 > quantile(c1_vs_c2, 0.95) | c1_vs_c2 < quantile(c1_vs_c2, 0.05))
 
 c3_vs_c1_KEGG_10 <- c3_vs_c1_KEGG %>% 
-  filter(c3_vs_c1_KEGG > quantile(c3_vs_c1, 0.95) | c3_vs_c1_KEGG < quantile(c3_vs_c1, 0.05))
+  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.95) | c3_vs_c1 < quantile(c3_vs_c1, 0.05))
 
 
 gsea_KEGG_mat <- merge(c3_vs_c2_KEGG_10, (merge(c1_vs_c2_KEGG_10, c3_vs_c1_KEGG_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
@@ -275,7 +275,7 @@ c1_vs_c2_hallmark_10 <- c1_vs_c2_hallmark %>%
   filter(c1_vs_c2_hallmark > quantile(c1_vs_c2, 0.95) | c1_vs_c2_hallmark < quantile(c1_vs_c2, 0.05))
 
 c3_vs_c1_hallmark_10 <- c3_vs_c1_hallmark %>% 
-  filter(c3_vs_c1_hallmark > quantile(c3_vs_c1, 0.95) | c3_vs_c1_hallmark < quantile(c3_vs_c1, 0.05))
+  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.95) | c3_vs_c1 < quantile(c3_vs_c1, 0.05))
 
 
 gsea_hallmark_mat <- merge(c3_vs_c2_hallmark_10, (merge(c1_vs_c2_hallmark_10, c3_vs_c1_hallmark_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
