@@ -1,6 +1,14 @@
 library(limma)
 library(dplyr)
 library(tibble)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(clusterProfiler)
+library(ggridges)
+library(enrichplot)
+library(msigdbr)
+library(ComplexHeatmap)
+library(circlize)
 
 
 metadata_difex <- metadata_33382
@@ -42,10 +50,27 @@ colnames(design) <- make.names(colnames(design))
 
 fit <- lmFit(count_data, design)
 
-# 2.5.2 Contrast matrix comparing clusters 0 to > 0 clusters
 
-contrast.matrix <- makeContrasts(clusters1 - clusters2,
-                                 levels = design)
+for (i in 1:ncol(design)) {
+  fit <- lmFit(count_data, design)
+  if(i == 1){
+    # 2.5.2 Contrast matrix comparing clusters 0 to > 0 clusters
+    
+    contrast.matrix <- makeContrasts(clusters1 - clusters2,
+                                     levels = design)
+    
+  }else if(i == 2){
+    
+    contrast.matrix <- makeContrasts(clusters3 - clusters2,
+                                     levels = design)
+  }else if(i == 3){
+    
+    contrast.matrix <- makeContrasts(clusters3 - clusters1,
+                                     levels = design)
+  }
+
+
+
 
 # 2.5.3 Fit based on contrasts
 
@@ -62,6 +87,91 @@ res <- topTable(fit, coef = 1, number = Inf)
 
 res_sig <- res %>%
   filter(adj.P.Val < 0.05 & abs(logFC) > 1.5) # 0.1
-res_sig
+print(res_sig)
 
-intersect(pucky_gse, rownames(res_sig))
+print(intersect(pucky_gse, rownames(res_sig)))
+
+
+source("Validation/Validation_tests/gsea_val_sets.R")
+
+
+}
+
+
+
+# Keep only the top
+
+
+c3_vs_c2_GO_10 <- c3_vs_c2_GO %>% 
+  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
+
+c1_vs_c2_GO_10 <- c1_vs_c2_GO %>% 
+  filter(c1_vs_c2 > quantile(c1_vs_c2, 0.95) | c1_vs_c2 < quantile(c1_vs_c2, 0.05))
+
+c3_vs_c1_GO_10 <- c3_vs_c1_GO %>% 
+  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.95) | c3_vs_c1 < quantile(c3_vs_c1, 0.05))
+
+
+# Join and convert to matrix
+
+gsea_GO_mat <- merge(c3_vs_c2_GO_10, (merge(c1_vs_c2_GO_10, c3_vs_c1_GO_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
+
+gsea_GO_mat <- gsea_GO_mat %>% 
+  column_to_rownames("Row.names") %>% 
+  as.matrix()
+
+gsea_GO_mat[is.na(gsea_GO_mat)] <- 0
+
+# Plot
+
+col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
+
+Heatmap(
+  gsea_GO_mat,
+  name = "NES",
+  col = col_fun,
+  cluster_rows = TRUE,
+  cluster_columns = FALSE, 
+  show_row_names = TRUE,
+  row_names_gp = gpar(fontsize = 8),
+  column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
+)
+
+
+
+
+
+##############################################################################
+
+c3_vs_c2_hallmark_10 <- c3_vs_c2_hallmark %>% 
+  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
+
+c1_vs_c2_hallmark_10 <- c1_vs_c2_hallmark %>% 
+  filter(c1_vs_c2_hallmark > quantile(c1_vs_c2, 0.95) | c1_vs_c2_hallmark < quantile(c1_vs_c2, 0.05))
+
+c3_vs_c1_hallmark_10 <- c3_vs_c1_hallmark %>% 
+  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.95) | c3_vs_c1 < quantile(c3_vs_c1, 0.05))
+
+
+gsea_hallmark_mat <- merge(c3_vs_c2_hallmark_10, (merge(c1_vs_c2_hallmark_10, c3_vs_c1_hallmark_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
+
+gsea_hallmark_mat <- gsea_hallmark_mat %>% 
+  column_to_rownames("Row.names") %>% 
+  as.matrix()
+
+gsea_hallmark_mat[is.na(gsea_hallmark_mat)] <- 0
+
+
+col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
+
+Heatmap(
+  gsea_hallmark_mat,
+  name = "NES",
+  col = col_fun,
+  cluster_rows = TRUE,
+  cluster_columns = FALSE, 
+  show_row_names = TRUE,
+  row_names_gp = gpar(fontsize = 8),
+  column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
+)
+
