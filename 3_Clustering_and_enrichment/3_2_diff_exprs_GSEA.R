@@ -199,6 +199,15 @@ c3_v_c1_HM <- data.frame(row.names = gsea_df_HM3.vs.1$Description,
 c3_v_c2_HM <- data.frame(row.names = gsea_df_HM3.vs.2$Description,
                          C3_vs_C2 = gsea_df_HM3.vs.2$NES)
 
+c1_v_c2_GO <- c1_v_c2_GO %>% 
+  filter(C1_vs_C2 > quantile(C1_vs_C2, 0.7) | C1_vs_C2 < quantile(C1_vs_C2, 0.25))
+
+c3_v_c1_GO <- c3_v_c1_GO %>% 
+  filter(C3_vs_C1 > quantile(C3_vs_C1, 0.75) | C3_vs_C1 < quantile(C3_vs_C1, 0.75))
+
+c3_v_c2_GO <- c3_v_c2_GO %>% 
+  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.75) | C3_vs_C2 < quantile(C3_vs_C2, 0.75))
+
 
 gsea_GO_heatmap_obj <-  merge(c1_v_c2_GO, c3_v_c1_GO , by = 0, all = TRUE) %>%
   column_to_rownames("Row.names") %>%
