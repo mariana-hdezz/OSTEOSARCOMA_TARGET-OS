@@ -7,8 +7,20 @@ library(enrichplot)
 library(igraph)
 library(ggplot2)
 library(tidyr)
+library(msigdbr)
+
+#############################################################################
+#> Script to perform differential expression analysis on TARGET-OS patients 
+#> comparing the clusters established on 3_Clustering_and_enrichment/3_1_hierarchical_clustering.R
+#> 
+#> Inputs: metadatao_os, counts_data
+#> 
+#> Outputs: 
+
+# Load data
 
 # Add clusters column to each sample of the metadata
+
 metadata_os_clusters <- metadata_os %>% 
   dplyr::select(sample, clusters) %>% 
   mutate(clusters = factor(clusters))
@@ -31,135 +43,171 @@ dds <- DESeqDataSetFromMatrix(countData = counts_data_dseq,
                               colData = metadata_os_clusters,
                               design= ~ clusters)
 
-dds$clusters <- relevel(dds$clusters, ref = "3")
+rm(list = setdiff(ls(), "dds"))
 
-dds <- DESeq(dds)
+results_list_go <- list()
+results_list_hm <- list()
 
-resultsNames(dds) # lists the coefficients
+for (i in 1:(length(unique(dds$clusters)) - 1)) {
+  dds$clusters <- relevel(dds$clusters, ref = i)
+  
+  dds <- DESeq(dds)
+  
+  resultsNames(dds) # lists the coefficients
+  
+  for (e in 1:i) {
+    
+    
+    if(i == 1){
+      res_3_vs_1 <- results(dds, name = "clusters_3_vs_1", lfcThreshold = 0.58)
+      
+      res_sig_3v1 <- subset(res_3_vs_1, res_3_vs_1$padj < 0.05) %>% 
+        as.data.frame()
+      
+      # or to shrink log fold changes association with condition:
+      
+      res <- lfcShrink(dds, coef = "clusters_3_vs_1", type = "apeglm")
+      
+    }else if(i == 2){
+      
+      if(e == 1){
+        
+        res_1_vs_2 <- results(dds, name = "clusters_1_vs_2", lfcThreshold = 0.58)
+        
+        res_sig_1v2 <- subset(res_1_vs_2, res_1_vs_2$padj < 0.05) %>% 
+          as.data.frame()
+        
+        res <- lfcShrink(dds, coef = "clusters_1_vs_2", type = "apeglm")
+        
+      }else if(e == 2){
+        
+        
+        res_3_vs_2 <- results(dds, name = "clusters_3_vs_2", lfcThreshold = 0.58)
+        
+        res_sig_3v2 <- subset(res_3_vs_2, res_3_vs_2$padj < 0.05) %>% 
+          as.data.frame()
+        
+        res <- lfcShrink(dds, coef = "clusters_3_vs_2", type = "apeglm")
+        
+      }
+      
+    }
+    
+    
+    #------- PREPARE INPUT DATA ---------
+    
+    # Read results from DESeq2 analysis
+    
+    df <- res
+    
+    # Extract log2foldchange (column we are interested in)
+    original_gene_list <- df$log2FoldChange
+    names(original_gene_list) <- rownames(df)
+    
+    sum(is.na(original_gene_list))
+    
+    # Omit the missing values if present
+    gene_list <- na.omit(original_gene_list)
+    
+    
+    # Sorting in a descending order (required for clusterProfiler)
+    gene_list <- sort(gene_list, decreasing = TRUE)
+    
+    # Set the organism 
+    library(org.Hs.eg.db)
+    
+    
+    #---------- GENE SET ENRICHMENT ------------
+    
+    gse <- gseGO(
+      geneList = gene_list,
+      ont = "ALL", # One of "BP", "MF, and "CC subontologies or "ALL"
+      OrgDb = "org.Hs.eg.db",
+      keyType = "SYMBOL",
+      minGSSize = 30, # Minimum number of genes in set (gene sets with lower than this many genes in your dataset will be ignored).
+      maxGSSize = 500,
+      pvalueCutoff = 0.01,
+      pAdjustMethod = "BH",
+      verbose = TRUE,  # Print message or not
+      seed = TRUE,
+      nPermSimple = 10000,
+      eps = 0
+    )
+    
+    gsea_go_df <- as.data.frame(gse)
+    
+    name_go <- paste0("gsea_df_GO", gsub("^X", "", make.names(gsub("^Wald test p-value: clusters (.*)", "\\1", mcols(res)$description[4]))))
+    
+    assign(name_go, gsea_go_df)
+    
+    results_list_go[[paste(i, e)]] <- name_go
+    
+    msigdbr_collections()
+    
+    m_df <- msigdbr(species = "Homo sapiens", category = "H")
+    
+    msig_t2g <- m_df %>% dplyr::select(gs_name, gene_symbol)
+    
+    set.seed(123) # For reproducibility
+    
+    gsea_res <- GSEA(
+      geneList     = gene_list,
+      TERM2GENE    = msig_t2g,
+      pvalueCutoff = 0.01,
+      pAdjustMethod = "BH",
+      verbose      = FALSE
+    )
+    
+    gsea_hm_df <- as.data.frame(gsea_res)
+    
+    name_hm <- paste0("gsea_df_HM", gsub("^X", "", make.names(gsub("^Wald test p-value: clusters (.*)", "\\1", mcols(res)$description[4]))))
+    
+    assign(name_hm, gsea_hm_df)
+    
+    results_list_hm[[paste(i, e)]] <- name_hm
+    
+  }
+}
 
-res_1_vs_2 <- results(dds, name = "clusters_1_vs_2", lfcThreshold = 0.58)
+objects <- paste0('"', c(unlist(results_list_go),
+unlist(results_list_hm)), '"', ", ")
 
-res_sig_1v2 <- subset(res_1_vs_2, res_1_vs_2$padj < 0.05) %>% 
-  as.data.frame()
+rm(list = setdiff(ls(), objects))
 
-res_3_vs_2 <- results(dds, name = "clusters_3_vs_2", lfcThreshold = 0.58)
+c1_v_c2_GO <- data.frame(row.names = gsea_df_GO1.vs.2$Description,
+                      C1_vs_C2 = gsea_df_GO1.vs.2$NES)
 
-res_sig_3v2 <- subset(res_3_vs_2, res_3_vs_2$padj < 0.05) %>% 
-  as.data.frame()
+c3_v_c1_GO <- data.frame(row.names = gsea_df_GO3.vs.1$Description,
+                      C3_vs_C1 = gsea_df_GO3.vs.1$NES)
 
-res_1_vs_3 <- results(dds, name = "clusters_1_vs_3", lfcThreshold = 0.58)
-
-res_sig_1v3 <- subset(res_1_vs_3, res_1_vs_3$padj < 0.05) %>% 
-  as.data.frame()
-
-# or to shrink log fold changes association with condition:
-res <- lfcShrink(dds, coef = "clusters_1_vs_3", type = "apeglm")
+c3_v_c2_GO <- data.frame(row.names = gsea_df_GO3.vs.2$Description,
+                         C3_vs_C2 = gsea_df_GO3.vs.2$NES)
 
 
+c1_v_c2_HM <- data.frame(row.names = gsea_df_HM1.vs.2$Description,
+                         C1_vs_C2 = gsea_df_HM1.vs.2$NES)
 
-#------- PREPARE INPUT DATA ---------
+c3_v_c1_HM <- data.frame(row.names = gsea_df_HM3.vs.1$Description,
+                         C3_vs_C1 = gsea_df_HM3.vs.1$NES)
 
-# Read results from DESeq2 analysis
+c3_v_c2_HM <- data.frame(row.names = gsea_df_HM3.vs.2$Description,
+                         C3_vs_C2 = gsea_df_HM3.vs.2$NES)
 
-df <- res
+gsea_GO_heatmap_obj <- merge(
+  (merge(c1_v_c2_GO, c3_v_c1_GO, all = TRUE, by = 0) %>% 
+  column_to_rownames("Row.names")),
+   c3_v_c2_GO,
+   all = TRUE,
+  by = 0
+   ) %>% 
+  column_to_rownames("Row.names")
 
-# Extract log2foldchange (column we are interested in)
-original_gene_list <- df$log2FoldChange
-names(original_gene_list) <- rownames(df)
+gsea_HM_heatmap_obj <- merge(
+  (merge(c1_v_c2_HM, c3_v_c1_HM, all = TRUE, by = 0) %>% 
+     column_to_rownames("Row.names")),
+  c3_v_c2_HM,
+  all = TRUE,
+  by = 0
+) %>% 
+  column_to_rownames("Row.names")
 
-sum(is.na(original_gene_list))
-
-# Omit the missing values if present
-gene_list <- na.omit(original_gene_list)
-
-
-# Sorting in a descending order (required for clusterProfiler)
-gene_list <- sort(gene_list, decreasing = TRUE)
-
-# Set the organism 
-library(org.Hs.eg.db)
-
-
-#---------- GENE SET ENRICHMENT ------------
-
-gse <- gseGO(
-  geneList = gene_list,
-  ont = "ALL", # One of "BP", "MF, and "CC subontologies or "ALL"
-  OrgDb = "org.Hs.eg.db",
-  keyType = "SYMBOL",
-  minGSSize = 30, # Minimum number of genes in set (gene sets with lower than this many genes in your dataset will be ignored).
-  maxGSSize = 500,
-  pvalueCutoff = 0.05,
-  pAdjustMethod = "BH",
-  verbose = TRUE,  # Print message or not
-  seed = TRUE,
-  nPermSimple = 10000,
-  eps = 0
-  )
-
-gse_df <- as.data.frame(gse)
-
-View(gse_df)
-
-
-# Convert Ensembl to Entrez (KEGG format)
-
-entrez_df <- bitr(names(gene_list), 
-                  fromType = "SYMBOL", 
-                  toType = "ENTREZID", 
-                  OrgDb = org.Hs.eg.db)
-
-# Keep available genes
-
-gene_list_kegg <- gene_list[names(gene_list) %in% entrez_df$SYMBOL]
-
-# Keep unique entrez
-
-entrez_df <- entrez_df[entrez_df$SYMBOL %in% names(gene_list_kegg), ] %>% 
-  group_by(SYMBOL) %>% 
-  slice_head()
-
-# Join entrez with value
-
-x <- as.data.frame(gene_list_kegg) %>% 
-  rownames_to_column("SYMBOL") %>% 
-  filter(SYMBOL %in% entrez_df$SYMBOL) %>% 
-  left_join(entrez_df, by = "SYMBOL")
-
-genes_values <- x$gene_list_kegg
-
-names(genes_values) <- make.names(x$ENTREZID)
-
-names(genes_values) <- gsub("^X", "", names(genes_values))
-
-gse_kegg <- gseKEGG(
-  geneList = genes_values, # Objeto creado anteriormente que ordena de manera descendente
-  keyType = "kegg", # El codigo de identificación de los genes
-  pvalueCutoff = 0.05, 
-  organism = "hsa", # Organismo en este caso Homo sapiens (a diferencia de org.Mm.eg.db que es de raton o org.Sc.eg.db que es de levadura) 
-  minGSSize = 30, # Tamaño minimo de ada set para analisis
-  maxGSSize = 500, # Tamaño maximo de genes anotados para analizar
-  BPPARAM = BiocParallel::SerialParam()
-)
-
-
-View(as.data.frame(gse_kegg))
-
-msigdbr_collections()
-
-m_df <- msigdbr(species = "Homo sapiens", category = "H")
-
-msig_t2g <- m_df %>% dplyr::select(gs_name, gene_symbol)
-
-set.seed(123) # For reproducibility
-
-gsea_res <- GSEA(
-  geneList     = gene_list,
-  TERM2GENE    = msig_t2g,
-  pvalueCutoff = 0.05,
-  pAdjustMethod = "BH",
-  verbose      = FALSE
-)
-
-gsea_df <- as.data.frame(gsea_res)
-View(gsea_df)
