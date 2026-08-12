@@ -178,7 +178,7 @@ metadata_33382 <- pheno_gse33382 %>%
     tissue = `type:ch1`,
     hist_sub_sim = ifelse(hist_sub == "fibroblastic MFH-like" | hist_sub == "fibroblastic giant cell rich" | hist_sub == "gibroblastic",
                           "fibroblastic",
-                          hist_sub)
+                          as.character(hist_sub))
   ) %>% 
   dplyr::select(- c(
     extract_protocol_ch1,
