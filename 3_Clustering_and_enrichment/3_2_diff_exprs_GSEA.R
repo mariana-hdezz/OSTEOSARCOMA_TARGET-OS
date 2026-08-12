@@ -19,6 +19,10 @@ library(msigdbr)
 
 # Load data
 
+metadata_os <- readRDS("./output_data/metadata_os.RDS")
+counts_data <- readRDS("./output_data/counts_data.RDS")
+
+
 # Add clusters column to each sample of the metadata
 
 metadata_os_clusters <- metadata_os %>% 
@@ -170,9 +174,11 @@ for (i in 1:(length(unique(dds$clusters)) - 1)) {
 }
 
 objects <- paste0('"', c(unlist(results_list_go),
-unlist(results_list_hm)), '"', ", ")
+unlist(results_list_hm)), '"', ", ", collapse = "")
 
-rm(list = setdiff(ls(), objects))
+objects <- sub(", $", "", objects)
+
+rm(list = setdiff(ls(), c("gsea_df_GO3.vs.1", "gsea_df_GO1.vs.2", "gsea_df_GO3.vs.2", "gsea_df_HM3.vs.1", "gsea_df_HM1.vs.2", "gsea_df_HM3.vs.2")))
 
 c1_v_c2_GO <- data.frame(row.names = gsea_df_GO1.vs.2$Description,
                       C1_vs_C2 = gsea_df_GO1.vs.2$NES)
@@ -193,21 +199,55 @@ c3_v_c1_HM <- data.frame(row.names = gsea_df_HM3.vs.1$Description,
 c3_v_c2_HM <- data.frame(row.names = gsea_df_HM3.vs.2$Description,
                          C3_vs_C2 = gsea_df_HM3.vs.2$NES)
 
-gsea_GO_heatmap_obj <- merge(
-  (merge(c1_v_c2_GO, c3_v_c1_GO, all = TRUE, by = 0) %>% 
-  column_to_rownames("Row.names")),
-   c3_v_c2_GO,
-   all = TRUE,
-  by = 0
-   ) %>% 
-  column_to_rownames("Row.names")
 
-gsea_HM_heatmap_obj <- merge(
-  (merge(c1_v_c2_HM, c3_v_c1_HM, all = TRUE, by = 0) %>% 
-     column_to_rownames("Row.names")),
-  c3_v_c2_HM,
-  all = TRUE,
-  by = 0
-) %>% 
-  column_to_rownames("Row.names")
+gsea_GO_heatmap_obj <-  merge(c1_v_c2_GO, c3_v_c1_GO , by = 0, all = TRUE) %>%
+  column_to_rownames("Row.names") %>%
+  merge(c3_v_c2_GO, by = 0, all = TRUE)
+
+gsea_GO_heatmap_obj[is.na(gsea_GO_heatmap_obj )] <- 0
+
+gsea_HM_heatmap_obj <-  merge(c1_v_c2_HM, c3_v_c1_HM , by = 0, all = TRUE) %>%
+  column_to_rownames("Row.names") %>%
+  merge(c3_v_c2_HM, by = 0, all = TRUE) %>%
+  column_to_rownames("Row.names") 
+
+gsea_HM_heatmap_obj[is.na(gsea_HM_heatmap_obj )] <- 0
+
+
+obj_for_GO <- gsea_GO_heatmap_obj %>% 
+  rownames_to_column("path") %>% 
+  pivot_longer(cols = c(C1_vs_C2, C3_vs_C1, C3_vs_C2),
+               names_to = "clusters")
+  
+obj_for_GO %>%
+  ggplot(aes(x = clusters, y = path, fill = value)) + 
+  geom_tile() +
+  scale_fill_distiller(palette = "Spectral")+
+  theme_classic()
+  
+
+obj_for_hm <- gsea_HM_heatmap_obj %>% 
+  rownames_to_column("path") %>% 
+  pivot_longer(cols = c(C1_vs_C2, C3_vs_C1, C3_vs_C2),
+               names_to = "clusters")
+
+obj_for_hm %>%
+  ggplot(aes(x = clusters, y = path, fill = value)) + 
+  geom_tile() +
+  scale_fill_distiller(palette = "Spectral")+
+  theme_classic()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
