@@ -18,7 +18,7 @@ library(UCSCXenaTools)
 library(DESeq2)
 
 
-os_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso"
+os_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso" # Directory for download and retrieval of data
 
 
 #1 - DOWNLOAD COUNTS DATA
@@ -57,6 +57,7 @@ gene_dist <- os_data %>%
 
 
 gene_dist$ensembl <- gsub("\\..", "", gene_dist$gene_id)
+
 
 counts_raw <- 
   counts_raw %>% 
@@ -231,3 +232,16 @@ fpkm_data <- fpkm_data[, colnames(fpkm_data) %in% metadata_os$sample]
 
 
 fpkm_data_log <- log(fpkm_data + 1)
+
+
+saveRDS(vst_counts, "./output_data/vst_counts.RDS")
+
+saveRDS(metadata_os, "./output_data/metadata_os.RDS")
+
+saveRDS(counts_data, "./output_data/counts_data.RDS")
+
+saveRDS(fpkm_data, "./output_data/fpkm_data.RDS")
+
+saveRDS(gene_dist, "./output_data/gene_dist.RDS")
+
+rm(list = ls())
