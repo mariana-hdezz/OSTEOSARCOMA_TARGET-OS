@@ -5,10 +5,40 @@ library(survival)
 library(coxphf)
 library(cluster)
 
+#############################################################################
+#> Hierarchical clustering on train set (TARGET_OS patients), utilizing
+#> the gene list obtained from Boruta.
+#> 
+#> Inputs: survival_signature, vst_counts, metadata_os
+#> 
+#> Outputs: Overwrite metadata_os to inclide clusters column for future analysis
+#> 
+#> Results:------------------------------------------------------------------ 
+#> 
+##> Plots:------------------------------------------------------------------ %>% 
+###> surv_plot: Kaplan Meier curve with survival as outcome
+###> surv_plot_rec: Kaplan Meier curve with recurrence as outcome
+#
+##> Statistics:-------------------------------------------------------------
+###> summary_cox: Cox analysis of survival as outcome
+###> summary_cox_rec: Cox analysis of recurrence as outcome
+#
+##> Accompanying plots and results (not as objects):------------------------
+###> Silhouette plots
+###> Silhouette mean
+###> Dendogram
+#############################################################################
+
 # List obtained from Boruta
 
 
-pucky <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
+# gene_signature <- readRDS("./output_data/survival_signature")
+
+vst_counts <- readRDS("./output_data/vst_counts.RDS")
+
+metadata_os <- readRDS("./output_data/metadata_os.RDS")
+
+gene_signature <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
                               "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", 
                               "DHRS11", "DLX1", "ERCC4", "F13A1", "FAM110D", 
                               "FAT1", "FKBP11", "GALNT14", "GBP1", "GMIP", 
@@ -18,26 +48,23 @@ pucky <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1",
                               "STAT5B", "TIMM50", "TPD52", "TRIM68", "TSHZ3", 
                               "UBE2D4", "UNC5B", "VMP1")
 
-gene_list_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
+gene_signature_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
                              "DOCK8", "FBXW8", "GADD45GIP1", "GPC1", "GSTCD", 
                              "GUF1", "IL17RA", "ITPR3", "MAP7D1", "MYO19", 
                              "RAP1B", "TFDP1", "TNK2")
 
 
-gene_list_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EID2B",
+gene_signature_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EID2B",
                           "F13A1", "FOXA3", "GATA3", "GBP5", "MRPL48", "PAWR", 
                           "PIP5K1C", "PROSER2", "RHBDL2", "RTN4RL2", "SIT1", 
                           "SLC30A4", "SMAD7", "TBC1D8")
 
-pucky_comp_gse <- setdiff(pucky, c("GRAMD1B", "SLC12A4", "VMP1"))
-
-
-gene_list <- pucky
+gene_signature_comp_gse <- setdiff(gene_signature, c("GRAMD1B", "SLC12A4", "VMP1"))
 
 
 # Keep only genes for clustering
 
-vst_counts_hc <- vst_counts[rownames(vst_counts) %in% gene_list, ]
+vst_counts_hc <- vst_counts[rownames(vst_counts) %in% gene_signature, ]
 
 # Transpose so pt in rows and geenes in columns
 
@@ -127,12 +154,7 @@ cox <- survival::coxph(
   metadata_os %>% mutate(clusters = factor(clusters))
 )
 
-firth_fit <- coxphf(
-  formula = Surv(survival_time, survival_stat) ~ factor(clusters), 
-  data = metadata_os %>% drop_na(survival_stat)
-)
-summary(cox)
-summary(firth_fit)
+summary_cox <- summary(cox)
 
 pha <- survival::cox.zph(cox)
 fit_km <- survival::survfit(Surv(metadata_os$survival_time, metadata_os$survival_stat) ~ clusters,
@@ -177,15 +199,9 @@ cox_rec <- survival::coxph(
   metadata_os %>% mutate(clusters = factor(clusters))
 )
 
-# firth_fit <- coxphf(
-#   formula = Surv(metadata_os$time_to_first_event, metadata_os$relapse_stat) ~ factor(clusters), 
-#   data = metadata_os %>% drop_na(relapse_stat)
-# )
+summary_cox_rec <- summary(cox_rec)
 
-summary(cox)
-summary(firth_fit)
-
-pha <- survival::cox.zph(cox_rec)
+pha_rec <- survival::cox.zph(cox_rec)
 fit_km_rec <- survival::survfit(Surv(metadata_os$time_to_first_event, metadata_os$relapse_stat) ~ clusters,
                                 metadata_os)
 
@@ -211,7 +227,7 @@ surv_plot_rec$plot <- surv_plot_rec$plot +
     geom = "text", 
     x = 500,          # X-axis position
     y = 0.10,         # Y-axis position
-    label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
+    label = paste0("PH assumption ", round(pha_rec$table[1,3], 2)), 
     color = "black", 
     size = 5, 
     fontface = "bold"
@@ -225,5 +241,19 @@ surv_plot_rec
 huvos_meta <- metadata_os %>% 
   tidyr::drop_na(huvos_bin)
 
-x <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simulate.p.value = TRUE, B = 10000)
-x$residuals
+huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simulate.p.value = TRUE, B = 10000)
+
+
+saveRDS(metadata_os, "./output_data/metadata_os.R")
+
+
+cat("--------------Cox results--------------\n")
+cat("#####################\nCluster", levels(metadata_os$clusters)[1], "as reference:\n\n", "Cox survival analysis:\n#####################\n\n\n"); print(summary_cox)
+cat("#####################\nCluster", levels(metadata_os$clusters)[1], "as reference:\n\n", "Cox recurrence analysis:\n#####################\n\n\n"); print(summary_cox_rec)
+
+cat("Comparing response to neoadjuvant treatment between clusters")
+cat("Chi squared results\n"); print(huvos_chi)
+cat("Residuals\n"); print(huvos_chi$residuals)
+
+
+rm(list = ls())
