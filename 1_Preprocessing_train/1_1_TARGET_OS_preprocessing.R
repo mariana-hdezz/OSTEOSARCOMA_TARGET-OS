@@ -37,6 +37,8 @@ os_data <- GDCprepare(
   directory = os_directory,
   summarizedExperiment = FALSE)
 
+# Harry Kato 
+
 # Raw counts
 
 counts_col <- grep(
