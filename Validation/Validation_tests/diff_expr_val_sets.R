@@ -11,9 +11,9 @@ library(ComplexHeatmap)
 library(circlize)
 
 
-metadata_difex <- metadata_33382
+metadata_difex <- metadata_gse21257
 
-counts_data_difex <- counts_data_gse33382
+counts_data_difex <- counts_data_gse21257
 
 # 1.1 Generate column corresponding to clusters nodes, those that have 0 in one group and those with more than 0 in another
 
@@ -122,35 +122,47 @@ gsea_GO_mat <- gsea_GO_mat %>%
 
 gsea_GO_mat[is.na(gsea_GO_mat)] <- 0
 
-# Plot
+row_hc_hist_GO <- hclust(dist(gsea_GO_mat))
+col_hc_hist_GO <- hclust(dist(t(gsea_GO_mat)))
 
-col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
-
-Heatmap(
-  gsea_GO_mat,
-  name = "NES",
-  col = col_fun,
-  cluster_rows = TRUE,
-  cluster_columns = FALSE, 
-  show_row_names = TRUE,
-  row_names_gp = gpar(fontsize = 8),
-  column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
-)
+gsea_GO_mat <-
+  gsea_GO_mat %>% 
+  as.data.frame() %>% 
+    tibble::rownames_to_column("path") %>% 
+    pivot_longer(cols = c("c3_vs_c2", "c1_vs_c2", "c3_vs_c1"), names_to = "clusters") 
 
 
+heat_hist_GO <- gsea_GO_mat %>% 
+  ggplot(aes(x = clusters, y = path, fill = value)) +
+  geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
+  scale_fill_distiller(palette = "Spectral", direction = -1) + 
+  theme_classic() +
+  labs(x = "Clusters", y = "Pathways", fill = "NES", title = "GSEA between clusters Gene Ontology")
+
+tree_right_hist_GO <- ggtree(row_hc_hist_GO, hang = -1) + 
+  scale_x_reverse() + 
+  scale_y_continuous(expand = c(0, 0))
+
+tree_top_hist_GO <- ggtree(col_hc_hist_GO, hang = -1) + 
+  layout_dendrogram() + 
+  scale_y_reverse(expand = c(0, 0))
+
+heat_hist_GO %>% 
+  insert_right(tree_right_hist_GO, width = 0.1) %>% 
+  insert_top(tree_top_hist_GO, height = 0.1)
 
 
 
 ##############################################################################
 
 c3_vs_c2_hallmark_10 <- c3_vs_c2_hallmark %>% 
-  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.95) | c3_vs_c2 < quantile(c3_vs_c2, 0.05))
+  filter(c3_vs_c2 > quantile(c3_vs_c2, 0.85) | c3_vs_c2 < quantile(c3_vs_c2, 0.85))
 
 c1_vs_c2_hallmark_10 <- c1_vs_c2_hallmark %>% 
-  filter(c1_vs_c2_hallmark > quantile(c1_vs_c2, 0.95) | c1_vs_c2_hallmark < quantile(c1_vs_c2, 0.05))
+  filter(c1_vs_c2_hallmark > quantile(c1_vs_c2, 0.85) | c1_vs_c2_hallmark < quantile(c1_vs_c2, 0.85))
 
 c3_vs_c1_hallmark_10 <- c3_vs_c1_hallmark %>% 
-  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.95) | c3_vs_c1 < quantile(c3_vs_c1, 0.05))
+  filter(c3_vs_c1 > quantile(c3_vs_c1, 0.85) | c3_vs_c1 < quantile(c3_vs_c1, 0.85))
 
 
 gsea_hallmark_mat <- merge(c3_vs_c2_hallmark_10, (merge(c1_vs_c2_hallmark_10, c3_vs_c1_hallmark_10, by = 0, all = TRUE) %>% column_to_rownames("Row.names")), by = 0, all = TRUE)
@@ -161,17 +173,34 @@ gsea_hallmark_mat <- gsea_hallmark_mat %>%
 
 gsea_hallmark_mat[is.na(gsea_hallmark_mat)] <- 0
 
+row_hc_hist_hallmark <- hclust(dist(gsea_hallmark_mat))
+col_hc_hist_hallmark <- hclust(dist(t(gsea_hallmark_mat)))
 
-col_fun = colorRamp2(c(-2.5, 0, 2.5), c("blue", "white", "red"))
 
-Heatmap(
-  gsea_hallmark_mat,
-  name = "NES",
-  col = col_fun,
-  cluster_rows = TRUE,
-  cluster_columns = FALSE, 
-  show_row_names = TRUE,
-  row_names_gp = gpar(fontsize = 8),
-  column_title = "GSEA Normalized Enrichment Scores Across Contrasts"
-)
+gsea_hallmark_mat <-
+  gsea_hallmark_mat %>% 
+  as.data.frame() %>% 
+  tibble::rownames_to_column("path") %>% 
+  pivot_longer(cols = c("c3_vs_c2", "c1_vs_c2", "c3_vs_c1"), names_to = "clusters") 
 
+
+
+
+heat_hist_hallmark <- gsea_hallmark_mat %>% 
+  ggplot(aes(x = clusters, y = path, fill = value)) +
+  geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
+  scale_fill_distiller(palette = "Spectral", direction = -1) + 
+  theme_classic() +
+  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA between clusters Gene Ontology")
+
+tree_right_hist_hallmark <- ggtree(row_hc_hist_hallmark, hang = -1) + 
+  scale_x_reverse() + 
+  scale_y_continuous(expand = c(0, 0))
+
+tree_top_hist_hallmark <- ggtree(col_hc_hist_hallmark, hang = -1) + 
+  layout_dendrogram() + 
+  scale_y_reverse(expand = c(0, 0))
+
+heat_hist_hallmark %>% 
+  insert_right(tree_right_hist_hallmark, width = 0.1) %>% 
+  insert_top(tree_top_hist_hallmark, height = 0.1)
