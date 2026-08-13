@@ -1,12 +1,17 @@
-# -------- PREPROCESSING OF GSE39055 DATABASE FOR EXTERNAL VALIDATION -------
+
+#############################################################################
+#> Script to perform preprocessing steps on GSE39055 
+#> 
+#> Inputs: gene_signature
+#> 
+#> Outputs: metadata_gse39055, gene_expression_matrix
+#> 
+#############################################################################
 
 library(GEOquery)
 library(tidyverse)
 library(Biobase)
 library(illuminaHumanWGDASLv4.db)
-
-# Set directory
-gse39055_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso/GSE39055"
 
 
 # 1.--------------- Load processed expression data -----------------
@@ -54,7 +59,7 @@ probe_gene_clean <- probe_gene_clean %>%
 
 
 # Probe ID to Symbol 
-gene_expression_matrix <- expr_matrix %>%
+counts_data_gse39055 <- expr_matrix %>%
   as.data.frame() %>%
   rownames_to_column("PROBEID") %>% # Move probe ID to column
   inner_join(probe_gene_clean, by = "PROBEID") %>% # Add Gene Symbolss
@@ -67,12 +72,12 @@ gene_expression_matrix <- expr_matrix %>%
   column_to_rownames("SYMBOL") %>% # SYMBOL as rowname
   as.matrix()
 
-dim(gene_expression_matrix)
-head(rownames(gene_expression_matrix))
-anyDuplicated(rownames(gene_expression_matrix))
-sum(is.na(gene_expression_matrix))
+dim(counts_data_gse39055)
+head(rownames(counts_data_gse39055))
+anyDuplicated(rownames(counts_data_gse39055))
+sum(is.na(counts_data_gse39055))
 
-  
+
 
 
 # 2.- Load Metadata GSE39055 ----------------------------------------------
@@ -104,18 +109,20 @@ metadata_gse39055 <- metadata_gse39055 %>%
   mutate(id = geo_accession)
 
 # Verify that expression data and metadata contain the same samples in the same order
-identical(colnames(gene_expression_matrix), metadata_gse39055$id)
+identical(colnames(counts_data_gse39055), metadata_gse39055$id)
 
 
 # Match common genes from TARGET-OS signature with GSE39055
-common_genes_TARGET_GSE39055 <- intersect(pucky, rownames(gene_expression_matrix))
+
+gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
+
+# Confirm all genes in signature are found in new gse
+
+common_genes_TARGET_GSE39055 <- intersect(gene_signature, rownames(counts_data_gse39055))
 
 length(common_genes_TARGET_GSE39055)
 
+saveRDS(metadata_gse39055, "output_data/metadata_gse39055.RDS")
+saveRDS(counts_data_gse39055, "output_data/counts_data_gse39055.RDS")
 
-
-
-
-
-
-
+rm(list = ls())
