@@ -353,3 +353,6 @@ heatmap_hm <- obj_for_hm %>%
 heatmap_hm %>% 
   insert_right(tree_right_hm, width = 0.1) %>% 
   insert_top(tree_top_hm, height = 0.1)
+
+
+rm(list = ls())

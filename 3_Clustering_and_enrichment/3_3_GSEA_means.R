@@ -1,8 +1,41 @@
 library(dplyr)
+library(tidyr)
+library(ggplot2)
 library(clusterProfiler)
 library(msigdbr)
 library(aplot)
 library(ggtree)
+
+#############################################################################
+#> Script to perform differential expression analysis on TARGET-OS patients 
+#> utilizing the means of each gene in each cluster.
+#> Steps: 
+##> Calculate mean of each gene of the patients in each cluster (similar to
+##> nearest centroids)
+##> Rank genes based on mean
+##> GSEA on ranked list
+#> 
+#>  
+#> Inputs: metadatao_os, vst_counts
+#> 
+#> Outputs: No outputs used in further analsis
+#> 
+#> Results: 
+##> Objects with GSEA results:
+###> c1_cent_GO
+###> c2_cent_hallmark
+###> c3_cent_GO
+###> c1_cent_hallmark
+###> c2_cent_GO
+###> c3_cent_hallmark
+#
+#############################################################################
+
+# Load data
+
+metadata_os <- readRDS("./output_data/metadata_os.RDS")
+vst_counts <- readRDS("./output_data/vst_counts.RDS")
+
 
 # Scale counts
 
@@ -159,8 +192,8 @@ tree_top <- ggtree(col_hc, hang = -1) +
 # Full heatmap
 
 heatmap_gsea %>% 
-  insert_right(p_right, width = 0.1) %>% 
-  insert_top(p_top, height = 0.1)
+  insert_right(tree_right, width = 0.1) %>% 
+  insert_top(tree_top, height = 0.1)
 
 ################################################################################
 
