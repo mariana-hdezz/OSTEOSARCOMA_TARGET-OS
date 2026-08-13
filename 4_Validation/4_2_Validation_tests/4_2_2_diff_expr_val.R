@@ -9,6 +9,8 @@ library(enrichplot)
 library(msigdbr)
 library(ComplexHeatmap)
 library(circlize)
+library(ggtree)
+library(aplot)
 
 
 metadata_difex <- metadata_gse21257
@@ -92,7 +94,7 @@ print(res_sig)
 print(intersect(pucky_gse, rownames(res_sig)))
 
 
-source("Validation/Validation_tests/gsea_val_sets.R")
+source("4_Validation/4_2_Validation_tests/4_2_3_gsea_val.R")
 
 
 }

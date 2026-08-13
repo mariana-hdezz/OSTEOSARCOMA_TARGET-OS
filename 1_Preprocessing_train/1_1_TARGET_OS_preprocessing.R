@@ -139,8 +139,57 @@ metadata_os <- metadata_os %>%
     huvos_bin = case_when(
       hist_res == "1/2" | hist_res == "0-90" | necrosis_at_surg < 90 ~ "Bad response",
       hist_res == "3/4" | hist_res == "91-100" | necrosis_at_surg > 90 ~ "Good response"
-    )
-  )
+    ),
+    age_yr = `Age at Diagnosis in Days` / 365,
+    ethnicity = Ethnicity,
+    race = Race,
+    tumor_site = `Primary tumor site`,
+    met_site = `Metastasis site`,
+    gender = Gender,
+    tumor_side = `Specific tumor side`,
+    tumor_site_spec = `Specific tumor site`,
+    tumor_reg = `Specific tumor region`,
+    rel_type = `Relapse Type`,
+    time_to_f_rel = `Time to first relapse in days`,
+    time_to_smn = `Time to first SMN in days`,
+    surgery = `Definitive Surgery`,
+    site_progression = `Primary site progression`,
+    treatment = Therapy,
+    first_event = "First Event"
+  ) %>% 
+  dplyr::select(- c(
+    "Gender",
+    "Race",
+    "Ethnicity",
+    "Age at Diagnosis in Days",
+    "First Event",
+    "Time to First Event in Days",
+    "Vital Status",
+    "Overall Survival Time in Days",
+    "Year of Diagnosis",
+    "Year of Last Follow Up",
+    "Protocol",
+    "Disease at diagnosis",
+    "Metastasis site",
+    "Primary tumor site",
+    "Specific tumor site",
+    "Specific tumor side",
+    "Specific tumor region",
+    "Definitive Surgery",
+    "Primary site progression",
+    "Site of initial relapse",
+    "Time to first relapse in days",
+    "Time to first enrollment on relapse protocol in days",
+    "Time to first SMN in days",
+    "Time to death in days",
+    "Histologic response",
+    "Percent necrosis",
+    "Relapse Type",
+    "Therapy",
+    "Comment",
+    "cohort",
+    "Percent necrosis at Definitive Surgery"
+  ))
 
 
 # Survival analysis

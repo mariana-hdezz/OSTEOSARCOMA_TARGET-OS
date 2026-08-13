@@ -139,7 +139,7 @@ metadata_os %>%
     metastasis_at_diagnosis = factor(metastasis_at_diagnosis)
   ) %>%
   tidyr::drop_na(survival_stat) %>%
-  ggplot(aes(x = survival_stat, fill = `First Event` == "Relapse")) +
+  ggplot(aes(x = survival_stat, fill = first_event == "Relapse")) +
   geom_histogram(stat = "count") +
   facet_wrap( ~ clusters) + 
   scale_fill_manual(values = c("#8d79dd", "#55c3fcfb"), labels = c("FALSE" = "No relapse", "TRUE" = "Relapse")) +
@@ -244,7 +244,7 @@ huvos_meta <- metadata_os %>%
 huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simulate.p.value = TRUE, B = 10000)
 
 
-saveRDS(metadata_os, "./output_data/metadata_os.R")
+saveRDS(metadata_os, "./output_data/metadata_os.RDS")
 
 
 cat("--------------Cox results--------------\n")
