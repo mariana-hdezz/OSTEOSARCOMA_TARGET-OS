@@ -254,13 +254,14 @@ c3_v_c2_HM <- data.frame(row.names = gsea_df_HM3_vs_2$Description,
 # limit how many paths t plot
 
 c1_v_c2_GO <- c1_v_c2_GO %>% 
-  filter(C1_vs_C2 > quantile(C1_vs_C2, 0.7) | C1_vs_C2 < quantile(C1_vs_C2, 0.25))
+  filter(C1_vs_C2 > quantile(C1_vs_C2, 0.7) | C1_vs_C2 < quantile(C1_vs_C2, 0.2))
 
 c3_v_c1_GO <- c3_v_c1_GO %>% 
+
   filter(C3_vs_C1 > quantile(C3_vs_C1, 0.85) | C3_vs_C1 < quantile(C3_vs_C1, 0.15))
 
 c3_v_c2_GO <- c3_v_c2_GO %>% 
-  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.75) | C3_vs_C2 < quantile(C3_vs_C2, 0.75))
+  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.7) | C3_vs_C2 < quantile(C3_vs_C2, 0.30))
 
 
 # Merge the isolated columns to be able tp plot

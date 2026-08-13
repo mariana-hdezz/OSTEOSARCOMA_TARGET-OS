@@ -34,9 +34,9 @@ library(cluster)
 
 # gene_signature <- readRDS("./output_data/survival_signature")
 
-vst_counts <- readRDS("./output_data/vst_counts.RDS")
+vst_counts <- readRDS("~/Documents/OSTEOSARCOMA/R.project/Hueso/output_data/vst_counts.RDS")
 
-metadata_os <- readRDS("./output_data/metadata_os.RDS")
+metadata_os <- readRDS("~/Documents/OSTEOSARCOMA/R.project/Hueso/output_data/metadata_os.RDS")
 
 gene_signature <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
                               "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", 
