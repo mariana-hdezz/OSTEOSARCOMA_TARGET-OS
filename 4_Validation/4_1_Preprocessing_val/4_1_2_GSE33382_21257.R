@@ -1,14 +1,17 @@
+
+#############################################################################
+#> Script to perform preprocessing steps on GSE21257 and GSE33382 
+#> 
+#> Inputs: None
+#> 
+#> Outputs: metadata_gse21257, metadata_33382, counts_data_gse21257, counts_data_gse33382, annot
+#> 
+#############################################################################
+
 library(GEOquery)
 library(dplyr)
 library(tibble)
 library(hgu133a.db)
-
-# getGEOSuppFiles(GEO = "GSE21257", makeDirectory = TRUE, baseDir = "d:/")
-
-
-
-# getGEOSuppFiles(GEO = "GSE33382", makeDirectory = TRUE, baseDir = "d:/")
-
 
 
 gpl <- getGEO("GPL10295", AnnotGPL = TRUE)
@@ -62,24 +65,25 @@ counts_data_gse21257 <-
 # Metadata
 
 metadata_gse21257 <- pheno_gse21257 %>%  
-  mutate(age_yr = round(as.numeric(as.character(gsub("^age: (.*) months$", "\\1", pheno_gse21257$characteristics_ch1))) / 12),
+  mutate(age_yr = round(parse_number(as.character(characteristics_ch1)) / 12),
          gender = `gender:ch1`,
          hist_sub = `histological subtype:ch1`,
          tumor_loc = `tumor location:ch1`,
          huvos = `huvos grade:ch1`,
-         survival_stat = ifelse(substr(`status:ch1`, 1,8) == "Deceased",
-                                1,
-                                0),
-         survival_time = ifelse(substr(`status:ch1`, 1,8) == "Deceased",
-                                gsub("Deceased (at|after) (.*) (=?months).*", "\\2", `status:ch1`),
-                                gsub("Alive at (.*) (=?months).*", "\\1", `status:ch1`)),
+         survival_stat = ifelse(str_starts(`status:ch1`, "Deceased"), 
+                                yes = 1, 
+                                no = 0),
+         survival_time = as.numeric(parse_number(`status:ch1`)),
          relapse_stat = as.numeric(as.character(ifelse(`group:ch1` == "No metastases",
                                0,
                                1))),
          relapse_time = case_when(
-           relapse_stat == 0 ~ as.numeric(as.character(survival_time)),
-           (relapse_stat == 1) & (substr(`group:ch1`, 1, 13) == "Metastases at") ~ as.numeric(gsub("^Metastases at (.*) (=?months).*", "\\1" , `group:ch1`)),
-           (relapse_stat == 1) & (substr(`group:ch1`, 1, 13) == "Metastases pr") ~ 0
+           relapse_stat == 0 ~ survival_time,
+           str_starts(`group:ch1`, "Metastases pr") ~ 0,
+           str_starts(`group:ch1`, "Metastases at") ~ parse_number(
+             ifelse(str_starts(`group:ch1`, "Metastases at"), `group:ch1`, NA_character_)
+           ),
+           TRUE ~ NA_real_
          )
          ) %>% 
   
@@ -228,3 +232,13 @@ metadata_33382 <- pheno_gse33382 %>%
   filter(tissue == "biopsy")
 
 counts_data_gse33382 <- counts_data_gse33382[, colnames(counts_data_gse33382) %in% metadata_33382$geo_accession]
+
+
+saveRDS(metadata_gse21257, "output_data/metadata_gse21257.RDS")
+saveRDS(metadata_33382, "output_data/metadata_33382.RDS")
+saveRDS(counts_data_gse21257, "output_data/counts_data_gse21257.RDS")
+saveRDS(counts_data_gse33382, "output_data/counts_data_gse33382.RDS")
+saveRDS(annot, "output_data/annot.RDS")
+
+
+rm(list = ls())
