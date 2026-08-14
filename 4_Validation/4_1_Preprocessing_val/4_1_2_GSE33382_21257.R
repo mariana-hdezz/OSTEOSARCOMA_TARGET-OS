@@ -4,13 +4,16 @@
 #> 
 #> Inputs: None
 #> 
-#> Outputs: metadata_gse21257, metadata_33382, counts_data_gse21257, counts_data_gse33382, annot
+#> Outputs: metadata_gse21257, metadata_33382, counts_data_gse21257, counts_data_gse33382, annot,
+#> counts_merged
 #> 
 #############################################################################
 
 library(GEOquery)
 library(dplyr)
 library(tibble)
+library(readr)
+library(stringr)
 library(hgu133a.db)
 
 
@@ -67,7 +70,9 @@ counts_data_gse21257 <-
 metadata_gse21257 <- pheno_gse21257 %>%  
   mutate(age_yr = round(parse_number(as.character(characteristics_ch1)) / 12),
          gender = `gender:ch1`,
-         hist_sub = `histological subtype:ch1`,
+         hist_sub = tolower(`histological subtype:ch1`),
+         hist_sub = gsub("^possibly ", "", hist_sub),
+         hist_sub = gsub("fibroma like", "fibroma-like", hist_sub),
          tumor_loc = `tumor location:ch1`,
          huvos = `huvos grade:ch1`,
          survival_stat = ifelse(str_starts(`status:ch1`, "Deceased"), 
@@ -84,7 +89,8 @@ metadata_gse21257 <- pheno_gse21257 %>%
              ifelse(str_starts(`group:ch1`, "Metastases at"), `group:ch1`, NA_character_)
            ),
            TRUE ~ NA_real_
-         )
+         ),
+         cohort = "GSE21257"
          ) %>% 
   
   dplyr::select(-c(status,
@@ -175,14 +181,15 @@ metadata_33382 <- pheno_gse33382 %>%
   mutate(
     age = gsub("^(.*) months" , "\\1",  `age:ch1`),
     gender = factor(`gender:ch1`),
-    hist_sub = factor(gsub(" osteosarcoma$", "" , `histological subtype:ch1`)),
+    hist_sub_com = factor(gsub(" osteosarcoma$", "" , `histological subtype:ch1`)),
     huvos = factor(`huvos grade:ch1`),
     metastasis_5y = factor(`metastasis within 5yrs:ch1`),
     tumor_loc = `tumor location:ch1`,
     tissue = `type:ch1`,
-    hist_sub_sim = ifelse(hist_sub == "fibroblastic MFH-like" | hist_sub == "fibroblastic giant cell rich" | hist_sub == "gibroblastic",
+    hist_sub = ifelse(hist_sub_com == "fibroblastic MFH-like" | hist_sub_com == "fibroblastic giant cell rich" | hist_sub_com == "gibroblastic",
                           "fibroblastic",
-                          as.character(hist_sub))
+                          as.character(hist_sub_com)),
+    cohort = "GSE33382"
   ) %>% 
   dplyr::select(- c(
     extract_protocol_ch1,
@@ -234,11 +241,71 @@ metadata_33382 <- pheno_gse33382 %>%
 counts_data_gse33382 <- counts_data_gse33382[, colnames(counts_data_gse33382) %in% metadata_33382$geo_accession]
 
 
+# Batch correction
+
+
+ 
+metadata_cohort <- bind_rows(metadata_33382 %>% 
+              dplyr::select(geo_accession,
+                     cohort),
+            metadata_gse21257 %>% 
+              dplyr::select(geo_accession,
+                            cohort) 
+            )
+
+
+counts_merged <- merge(counts_data_gse33382, counts_data_gse21257, by = 0 , all = TRUE) %>% 
+  tibble::column_to_rownames("Row.names")
+
+pca_data <- prcomp(t(counts_merged), center = TRUE, scale. = FALSE)
+
+
+pca_df <- as_tibble(pca_data$x) %>%
+  mutate(geo_accession = rownames(pca_data$x)) %>%
+  left_join(metadata_cohort, by = "geo_accession")
+
+
+ggplot(pca_df) +
+  aes(x = PC1, y = PC2, color = cohort) +
+  geom_point(size = 4, alpha = 0.8) +
+  labs(
+    title = "PCA",
+    x = "PC1",
+    y = "PC2"
+  ) +
+  theme_minimal()
+
+counts_merged <- counts_merged[, metadata_cohort$geo_accession]
+
+counts_batch <- limma::removeBatchEffect(counts_merged, batch = metadata_cohort$cohort)
+
+
+pca_data <- prcomp(t(counts_batch), center = TRUE, scale. = FALSE)
+
+
+pca_df <- as_tibble(pca_data$x) %>%
+  mutate(geo_accession = rownames(pca_data$x)) %>%
+  left_join(metadata_cohort, by = "geo_accession")
+
+
+ggplot(pca_df) +
+  aes(x = PC1, y = PC2, color = cohort) +
+  geom_point(size = 4, alpha = 0.8) +
+  labs(
+    title = "PCA",
+    x = "PC1",
+    y = "PC2"
+  ) +
+  theme_minimal()
+
+
+
 saveRDS(metadata_gse21257, "output_data/metadata_gse21257.RDS")
 saveRDS(metadata_33382, "output_data/metadata_33382.RDS")
 saveRDS(counts_data_gse21257, "output_data/counts_data_gse21257.RDS")
 saveRDS(counts_data_gse33382, "output_data/counts_data_gse33382.RDS")
 saveRDS(annot, "output_data/annot.RDS")
+saveRDS(counts_merged, "output_data/counts_merged.RDS")
 
 
 rm(list = ls())
