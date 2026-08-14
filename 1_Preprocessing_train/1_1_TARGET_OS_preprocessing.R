@@ -37,8 +37,6 @@ os_data <- GDCprepare(
   directory = os_directory,
   summarizedExperiment = FALSE)
 
-# Harry Kato
-
 # Raw counts
 
 counts_col <- grep(
@@ -294,5 +292,13 @@ saveRDS(counts_data, "./output_data/counts_data.RDS")
 saveRDS(fpkm_data, "./output_data/fpkm_data.RDS")
 
 saveRDS(gene_dist, "./output_data/gene_dist.RDS")
+
+saveRDS(metadata_os_surv,"./output_data/metadata_os_surv.RDS" )
+
+saveRDS(metadata_os_rec,"./output_data/metadata_os_rec.RDS" )
+
+saveRDS(metadata_os_met,"./output_data/metadata_os_met.RDS" )
+
+
 
 rm(list = ls())
