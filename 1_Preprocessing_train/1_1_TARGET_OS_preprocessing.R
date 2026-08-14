@@ -57,20 +57,39 @@ gene_dist <- os_data %>%
 
 gene_dist$ensembl <- gsub("\\..", "", gene_dist$gene_id)
 
+counts_raw$variance <- apply(counts_raw %>% dplyr::select(-gene_name),1 , var, na.rm = TRUE)
 
-counts_raw <- 
-  counts_raw %>% 
-  filter(gene_type == "protein_coding") %>% 
-  dplyr::select(- gene_type)
-
-counts_raw$variance <- apply(counts_raw %>% dplyr::select(- gene_name),1 , var, na.rm = TRUE)
-
-counts_data <- counts_raw %>% 
+counts_raw <- counts_raw %>% 
   group_by(gene_name) %>%
   slice_max(order_by = variance, n = 1, with_ties = FALSE) %>% 
   ungroup %>% 
   tibble::column_to_rownames("gene_name") %>% 
   dplyr::select(-variance)
+
+
+
+class(counts_raw)
+dim(counts_raw)
+
+
+mart <- useEnsembl(
+  biomart = "genes",
+  dataset = "hsapiens_gene_ensembl")
+
+
+genes <- biomaRt::getBM(
+  attributes = c(
+    "hgnc_symbol",
+    "transcript_biotype"
+  ),
+  filters = c("transcript_biotype"),
+  values = list("protein_coding"),
+  mart = mart
+)
+
+
+counts_data <- counts_raw[rownames(counts_raw) %in% genes$hgnc_symbol ,]
+
 
 
 colnames(counts_data) <- sub(
@@ -87,6 +106,8 @@ colnames(counts_data) <- sub(
   pattern = "-01A", 
   replacement = "",
   x = colnames(counts_data))
+
+
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
@@ -226,28 +247,21 @@ vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
 
 # FPKM Preprocessing ------------------------------------------------------
 
-# Extract FPKM names
 
 counts_col_fpkm <- grep(
   pattern = "^fpkm_uq_unstranded_",
   x = names(os_data),
   value = TRUE)
 
+
 counts_raw_fpkm <- os_data %>% 
   dplyr::select(all_of(counts_col_fpkm),
                 gene_name,
                 gene_type)
 
-counts_raw_fpkm <- 
-  counts_raw_fpkm %>% 
-  filter(gene_type == "protein_coding") %>% 
-  dplyr::select(- gene_type)
+counts_raw_fpkm$variance <- apply(counts_raw_fpkm %>% dplyr::select(-gene_name),1 , var, na.rm = TRUE)
 
-
-
-counts_raw_fpkm$variance <- apply(counts_raw_fpkm %>% dplyr::select( - gene_name),1 , var, na.rm = TRUE)
-
-fpkm_data <- counts_raw_fpkm %>% 
+counts_raw_fpkm <- counts_raw_fpkm %>% 
   group_by(gene_name) %>%
   slice_max(order_by = variance, n = 1, with_ties = FALSE) %>% 
   ungroup %>% 
@@ -255,15 +269,35 @@ fpkm_data <- counts_raw_fpkm %>%
   dplyr::select(-variance)
 
 
-# Use ENSEML ID as identifier of each raw
+
+class(counts_raw_fpkm)
+dim(counts_raw_fpkm)
+
+
+mart <- useEnsembl(
+  biomart = "genes",
+  dataset = "hsapiens_gene_ensembl")
+
+
+genes <- biomaRt::getBM(
+  attributes = c(
+    "hgnc_symbol",
+    "transcript_biotype"
+  ),
+  filters = c("transcript_biotype"),
+  values = list("protein_coding"),
+  mart = mart
+)
+
+
+fpkm_data <- counts_raw_fpkm[rownames(counts_raw_fpkm) %in% genes$hgnc_symbol ,]
+
+
 
 colnames(fpkm_data) <- sub(
-  pattern = "^fpkm_uq_unstranded_", # remove "unstranded"
+  pattern = "^fpkm_uq_unstranded_",
   replacement = "",
   x = colnames(fpkm_data))
-
-head(colnames(fpkm_data))
-
 
 colnames(fpkm_data) <- sub(
   pattern = "-01R", 
