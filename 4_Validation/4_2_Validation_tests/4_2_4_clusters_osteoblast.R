@@ -1,13 +1,24 @@
-metadata_33382_osteoblastic <- metadata_33382 %>% 
-  filter(hist_sub_sim == "osteoblastic",
-         !(clusters == 3))
 
-table(metadata_33382$hist_sub_sim, metadata_33382$clusters)
+
+metadata_gse33382_for_merge <- readRDS("output_data/metadata_gse33382_for_merge.RDS")
+metadata_gse21257_for_merge <- readRDS("output_data/metadata_gse21257_for_merge.RDS")
+counts_merged <- readRDS("output_data/counts_merged.RDS")
+gene_signature_gse <- scan("output_data/gene_signature_gse.csv", sep = ",", what = character())
+
+metadata_merged <- bind_rows(metadata_gse33382_for_merge,
+          metadata_gse21257_for_merge)
+
+
+metadata_merged_hist_sub <- metadata_merged %>% 
+  filter(hist_sub == "chondroblastic",
+         !(clusters == 1))
+
 
 
 
 library(limma)
 library(dplyr)
+library(ggplot2)
 library(tibble)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
@@ -21,14 +32,14 @@ library(ggtree)
 library(aplot)
 
 
-metadata_difex <- metadata_33382_osteoblastic
+metadata_difex <- metadata_merged_hist_sub
 
-counts_data_difex <- counts_data_gse33382
+counts_data_difex <- counts_merged
 
 # 1.1 Generate column corresponding to clusters nodes, those that have 0 in one group and those with more than 0 in another
 
 col_data <- metadata_difex %>% 
-  dplyr::select(geo_accession, clusters) %>% # Create only the object to use for Limma
+  dplyr::select(geo_accession, clusters, cohort) %>% # Create only the object to use for Limma
   column_to_rownames("geo_accession")
 
 
@@ -47,10 +58,11 @@ count_data <- count_data[match(rownames(col_data), colnames(count_data))]
 
 all(colnames(count_data) == rownames(col_data))
 
+col_data$clusters <- relevel(factor(col_data$clusters), ref = "2")
 
 # 2.4 Design based on object separating on clusters nodes
 
-design <- model.matrix(~ 0 + clusters, data = col_data)
+design <- model.matrix(~ cohort + clusters, data = col_data)
 
 # 2.4.2 Asign make.names objects as colnames
 
@@ -61,7 +73,7 @@ colnames(design) <- make.names(colnames(design))
 fit <- lmFit(count_data, design)
 
 
-contrast.matrix <- makeContrasts(clusters3 - clusters2,
+contrast.matrix <- makeContrasts(clusters3,
                                  levels = design)
 
 

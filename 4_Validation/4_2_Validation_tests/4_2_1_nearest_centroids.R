@@ -7,7 +7,8 @@
 #> gene_signature, gene_signature_gse
 #> 
 #> Outputs: Overwrite metadata_gse21257, metadata_33382, metadata_gse39055
-#> to contain clusters
+#> to contain clusters. Creates metadata_gse33382_for_merge and metadata_gse21257_for_merge
+#> where it contains the objects for limma diff ex metadata
 #> 
 #############################################################################
 
@@ -181,8 +182,24 @@ for (t in 1:3) {
   print(metadata_list[t])
 }
 
+metadata_gse33382_for_merge <- 
+  metadata_33382 %>% 
+  dplyr::select(geo_accession,
+                cohort, 
+                hist_sub,
+                clusters)
+
+metadata_gse21257_for_merge <- 
+  metadata_gse21257 %>% 
+  dplyr::select(geo_accession,
+                cohort, 
+                hist_sub,
+                clusters)
+
 saveRDS(metadata_gse21257, "output_data/metadata_gse21257.RDS")
 saveRDS(metadata_33382, "output_data/metadata_33382.RDS")
 saveRDS(metadata_gse39055, "output_data/metadata_gse39055.RDS")
+saveRDS(metadata_gse33382_for_merge, "output_data/metadata_gse33382_for_merge.RDS")
+saveRDS(metadata_gse21257_for_merge, "output_data/metadata_gse21257_for_merge.RDS")
 
 rm(list = ls())
