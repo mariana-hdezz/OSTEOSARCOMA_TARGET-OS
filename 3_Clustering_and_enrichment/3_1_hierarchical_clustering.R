@@ -142,7 +142,7 @@ metadata_os %>%
     metastasis_at_diagnosis = factor(metastasis_at_diagnosis)
   ) %>%
   tidyr::drop_na(survival_stat) %>%
-  ggplot(aes(x = survival_stat, fill = first_event == "Relapse")) +
+  ggplot(aes(x = survival_stat, fill = factor(relapse_stat))) +
   geom_histogram(stat = "count") +
   facet_wrap( ~ clusters) + 
   scale_fill_manual(values = c("#8d79dd", "#55c3fcfb"), labels = c("FALSE" = "No relapse", "TRUE" = "Relapse")) +
