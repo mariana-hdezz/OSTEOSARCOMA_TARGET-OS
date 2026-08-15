@@ -91,7 +91,7 @@ res_sig <- res %>%
   filter(adj.P.Val < 0.05 & abs(logFC) > 1.5) # 0.1
 print(res_sig)
 
-print(intersect(pucky_gse, rownames(res_sig)))
+print(intersect(gene_signature_gse, rownames(res_sig)))
 
 
 source("4_Validation/4_2_Validation_tests/4_2_3_gsea_val.R")

@@ -8,6 +8,9 @@ library(igraph)
 library(ggplot2)
 library(tidyr)
 library(msigdbr)
+library(ggtree)
+library(aplot)
+library(AnnotationDbi)
 
 #############################################################################
 #> Script to perform differential expression analysis on TARGET-OS patients 
@@ -42,7 +45,7 @@ library(msigdbr)
 
 metadata_os <- readRDS("./output_data/metadata_os.RDS")
 counts_data <- readRDS("./output_data/counts_data.RDS")
-
+counts_data <- counts_data[-1, ]
 
 # Add clusters column to each sample of the metadata
 
