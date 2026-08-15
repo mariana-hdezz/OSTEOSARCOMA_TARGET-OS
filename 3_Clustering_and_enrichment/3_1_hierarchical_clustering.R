@@ -38,7 +38,9 @@ vst_counts <- readRDS("./output_data/vst_counts.RDS")
 
 metadata_os <- readRDS("./output_data/metadata_os.RDS")
 
-gene_signature <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
+gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character()) 
+
+pucky <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
                               "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", 
                               "DHRS11", "DLX1", "ERCC4", "F13A1", "FAM110D", 
                               "FAT1", "FKBP11", "GALNT14", "GBP1", "GMIP", 
@@ -47,6 +49,7 @@ gene_signature <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1",
                               "NUBP1", "SF3B3", "SLC12A4", "SLC45A4", "SLC8A3", 
                               "STAT5B", "TIMM50", "TPD52", "TRIM68", "TSHZ3", 
                               "UBE2D4", "UNC5B", "VMP1")
+
 
 gene_signature_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
                              "DOCK8", "FBXW8", "GADD45GIP1", "GPC1", "GSTCD", 
