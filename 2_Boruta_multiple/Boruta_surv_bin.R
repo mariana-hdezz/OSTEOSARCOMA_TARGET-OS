@@ -5,11 +5,24 @@ library(ranger)
 library(tidyverse)
 library(dplyr)
 
-boruta_df_small <- readRDS("/datos/home/marh/OSTEOSARCOMA/boruta_df_1.rds")
+fpkm_data <- readRDS("output_data/fpkm_data.RDS")
+metadata_os <- readRDS("output_data/metadata_os.RDS")
 
+fpkm_data <- fpkm_data[-1,]
 
-boruta_df_small <- boruta_df_small %>% 
-  dplyr::select(-metastasis_at_diagnosis)
+metadata_os_bor <- metadata_os %>% 
+  dplyr::select(sample, 
+                survival_stat) 
+
+boruta_df_small <- 
+  fpkm_data %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  rownames_to_column("sample") %>% 
+  left_join(metadata_os_bor, by = "sample") %>% 
+  dplyr::rename(survival_status = survival_stat) %>% 
+  column_to_rownames("sample") %>% 
+  drop_na(survival_status) 
 
 
 # 5.3 Fix any non-standard gene names 
@@ -85,59 +98,27 @@ boruta.signature <- Boruta(
 
 print(boruta.signature)
 
-boruta.signature <- boruta.signature
-
-# Only the 11 confirmed genes
-confirmed_only <- getSelectedAttributes(boruta.signature, withTentative = FALSE)
-
-# The 22 tentative  genes
-# (We find these by taking the full list and removing the confirmed ones)
-
-all_selected <- getSelectedAttributes(boruta.signature, withTentative = TRUE)
-tentative_only <- setdiff(all_selected, confirmed_only)
-
-cat(confirmed_only, sep = ", ")
-cat(tentative_only, sep = ", ")
-
 
 # Define path
-out_path <- "/datos/home/marh/OSTEOSARCOMA/Final_signatures/Survival_bin_2"
+
+out_path <- "results/boruta/"
 
 # 1. Force the decision on those 22 tentative genes
 final_boruta_decided <- TentativeRoughFix(boruta.signature)
 
 final_boruta_decided <- final_boruta_decided$finalDecision[final_boruta_decided$finalDecision == "Confirmed"]
 
-saveRDS(boruta.signature, paste0(out_path, "/boruta_surv_bin_38.rds"))
-
 # 2. Save the final model object
-saveRDS(final_boruta_decided, paste0(out_path, "/final_boruta_decided_surv_bin.rds"))
 
-stats <- attStats(boruta.signature)
+saveRDS(final_boruta_decided, paste0(out_path, "/boruta_signature_surv_bin_target.RDS"))
 
 
 # 3. Get the names of all selected genes (Confirmed + Fixed Tentatives)
+
 final_gene_names <- names(final_boruta_decided)
 
 
 # 4. Save the gene list as a CSV
-write.csv(final_gene_names, paste0(out_path, "/final_gene_surv_bin.csv"), row.names = FALSE)
-
-# 5. Export the importance values (the numbers used in your plot)
-stats <- attStats(boruta.signature)
-write.csv(stats, paste0(out_path, "/gene_importance_full_stats_surv_bin.csv"))
 
 
-# 9.- Load data ---------------------------
-
-# Load the final decided Boruta object
-final_boruta <- readRDS(paste0(out_path, "final_boruta_decided.rds"))
-
-# Verify it loaded correctly
-print(final_boruta)
-
-final_boruta_decided$finalDecision
-
-cat(final_gene_names, sep = ", ")
-
-cat(paste0('"', names(final_boruta_decided) , '"'), sep = ", ")
+write.table(matrix(final_gene_names, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
