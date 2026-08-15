@@ -244,7 +244,7 @@ counts_data <- counts_data[, colnames(counts_data) %in% metadata_os$sample]
 # VST and FPKM ------------------------------------------------------------
 
 
-vst_counts <- vst(as.matrix(counts_data), blind = TRUE)
+vst_counts <- DESeq2::vst(as.matrix(counts_data), blind = TRUE)
 
 
 # FPKM Preprocessing ------------------------------------------------------
