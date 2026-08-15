@@ -148,7 +148,9 @@ metadata_os <- metadata_os %>%
       yes = 1,
       no = 0
     ),
-    survival_stat = ifelse(`Vital Status` == "Dead", yes = 1, no = 0),
+    survival_stat = case_when(`Vital Status` == "Dead" ~ 1,
+                              `Vital Status` == "Alive" ~ 0,
+                              .default = NA ),
     survival_time = `Overall Survival Time in Days`,
     relapse_stat = ifelse(`First Event` == "Relapse", yes = 1, no = 0), # 1 = relapse, 0 = death, censored, SMN or no EVENT
     time_to_first_event = `Time to First Event in Days`,
