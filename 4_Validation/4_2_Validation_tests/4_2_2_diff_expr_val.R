@@ -7,8 +7,39 @@
 #>  
 #> Inputs: respective GSE metadata and counts
 #> 
-#
-#############################
+#> Results consist on res objects which are the full differential expression results, res_sig
+#> which are thje genes filtered by a p value of 0.05 and a LFC of 1.5 and GSEA 
+#> results
+#> 
+##> gse21257_res_1v2_.csv
+##> gse21257_res_3v1_.csv
+##> gse21257_res_3v2_.csv
+##> gse33382_res_1v2_.csv
+##> gse33382_res_3v1_.csv
+##> gse33382_res_3v2_.csv
+##> 
+##> 
+##> gse21257_res_sig_1v2_.csv
+##> gse21257_res_sig_3v1_.csv
+##> gse21257_res_sig_3v2_.csv
+##> gse33382_res_sig_1v2_.csv
+##> gse33382_res_sig_3v1_.csv
+##> gse33382_res_sig_3v2_.csv
+##> 
+##> gsea_c1_vs_c2_GO_gse21257.csv
+##> gsea_c1_vs_c2_GO_gse33382.csv
+##> gsea_c1_vs_c2_hm_gse21257.csv
+##> gsea_c1_vs_c2_hm_gse33382.csv
+##> gsea_c3_vs_c1_GO_gse21257.csv
+##> gsea_c3_vs_c1_GO_gse33382.csv
+##> gsea_c3_vs_c1_hm_gse21257.csv
+##> gsea_c3_vs_c1_hm_gse33382.csv
+##> gsea_c3_vs_c2_GO_gse21257.csv
+##> gsea_c3_vs_c2_GO_gse33382.csv
+##> gsea_c3_vs_c2_hm_gse21257.csv
+##> gsea_c3_vs_c2_hm_gse33382.csv
+##> 
+############################################################################
 
 library(limma)
 library(dplyr)
