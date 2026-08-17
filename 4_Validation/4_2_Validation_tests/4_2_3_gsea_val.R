@@ -1,4 +1,5 @@
-
+library(stats)
+library(fgsea)
 
 
 res$entrez <- mapIds(org.Hs.eg.db,
@@ -45,12 +46,12 @@ gse <- gseGO(
   pvalueCutoff = 0.01, 
   OrgDb = "org.Hs.eg.db",
   minGSSize = 30, 
-  maxGSSize = 100 
+  maxGSSize = 100,
+  eps = 0
 )
   
+gsea_go_df <- as.data.frame(gse)
 # 9.4.1 Observar como data frame
-
-gse_df <- as.data.frame(gse)
 
 
 
@@ -67,11 +68,11 @@ gsea_res <- GSEA(
   TERM2GENE    = msig_t2g,
   pvalueCutoff = 0.01,
   pAdjustMethod = "BH",
-  verbose      = FALSE
+  verbose      = FALSE,
+  eps = 0
 )
 
-gsea_df <- as.data.frame(gsea_res)
-
+gsea_go_hm <- as.data.frame(gsea_res)
 
 # Create objects for heatmaps ---------------------------------------------
 
@@ -86,26 +87,31 @@ gsea_df <- as.data.frame(gsea_res)
 #> cluster 2 is not taken into account in this round
 
 if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2){
-  c3_vs_c2_GO <- data.frame(row.names = gse$Description, # GO cluster 3 vs cluster 2
-                            c3_vs_c2  = gse$NES)
+
   
+  out_path_3v2_go <- paste0("results/diffex_gsea_gse/", "gsea_c3_vs_c2_GO_", t, ".csv")
+  out_path_3v2_hm <- paste0("results/diffex_gsea_gse/", "gsea_c3_vs_c2_hm_", t, ".csv")
   
-  c3_vs_c2_hallmark <- data.frame(row.names = gsea_res$Description, # hallmarks cluster 3 vs cluster 2
-                                  c3_vs_c2  = gsea_res$NES)
+  write.csv(gsea_go_df, out_path_3v2_go)
+  write.csv(gsea_go_hm, out_path_3v2_hm)
   
 }else if((contrast.matrix[2,])^2 + (contrast.matrix[1,])^2 == 2){
-  c1_vs_c2_GO <- data.frame(row.names = gse$Description,
-                            c1_vs_c2  = gse$NES)
+
   
-  c1_vs_c2_hallmark <- data.frame(row.names = gsea_res$Description,
-                                  c1_vs_c2  = gsea_res$NES)
+  out_path_1v2_go <- paste0("results/diffex_gsea_gse/", "gsea_c1_vs_c2_GO_", t, ".csv")
+  out_path_1v2_hm <- paste0("results/diffex_gsea_gse/", "gsea_c1_vs_c2_hm_", t, ".csv")
+  
+  write.csv(gsea_go_df, out_path_1v2_go)
+  write.csv(gsea_go_hm, out_path_1v2_hm)
   
 }else if((contrast.matrix[3,])^2 + (contrast.matrix[1,])^2 == 2){
 
-c3_vs_c1_GO <- data.frame(row.names = gse$Description,
-                          c3_vs_c1  = gse$NES)
 
+  
+  out_path_3v1_go <- paste0("results/diffex_gsea_gse/", "gsea_c3_vs_c1_GO_", t, ".csv")
+  out_path_3v1_hm <- paste0("results/diffex_gsea_gse/", "gsea_c3_vs_c1_hm_", t, ".csv")
+  
+  write.csv(gsea_go_df, out_path_3v1_go)
+  write.csv(gsea_go_hm, out_path_3v1_hm)
 
-c3_vs_c1_hallmark <- data.frame(row.names = gsea_res$Description,
-                                c3_vs_c1  = gsea_res$NES)
 }
