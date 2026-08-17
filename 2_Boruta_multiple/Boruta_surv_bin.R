@@ -80,6 +80,10 @@ x_log2_filtered <- x_log2_filtered[
   drop = FALSE
 ]
 
+# Round for reproducibility since when testing on different computers, some decimals where different on positions >15 after log transformation
+
+x_log2_filtered <- round(x_log2_filtered, 10)
+
 dim(x_log2_filtered)
 
 # Run boruta
