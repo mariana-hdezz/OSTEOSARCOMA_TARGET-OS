@@ -1,4 +1,4 @@
-# This script preprocesses counts data and metadata
+# This script prepossesses counts data and metadata
 
 #> Main output objects:
 #> counts_data: Unnormalized object for future differential expression
@@ -8,6 +8,8 @@
 #> metadata_os_rec: metadata useful for recurrence analysis
 #> metadata_os_met: metadata useful for metastasis analysis
 
+install.packages("BiocManager")
+BiocManager::install("biomaRt")
 
 library(TCGAbiolinks)
 library(data.table)
@@ -15,6 +17,8 @@ library(dplyr)
 library(biomaRt)
 library(UCSCXenaTools)
 library(DESeq2)
+
+install.packages("TCGAbiolinks")
 
 
 os_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso" # Directory for download and retrieval of data
@@ -212,30 +216,6 @@ metadata_os <- metadata_os %>%
   ))
 
 
-# Survival analysis
-metadata_os_surv <- metadata_os %>% 
-  as.data.frame() %>% 
-  mutate(EVENT_STAT = as.numeric(survival_stat),
-         EVENT_DAYS = as.numeric(survival_time)) %>% 
-  dplyr::select(-c(survival_stat, survival_time, metastasis_at_diagnosis, relapse_stat))
-
-
-# Relapse analysis
-metadata_os_rec <- metadata_os %>%
-  as.data.frame() %>%
-  mutate(EVENT_STAT = as.numeric(relapse_stat),
-         EVENT_DAYS = as.numeric(time_to_first_event)) %>% 
-  dplyr::select(-c(survival_stat, survival_time, relapse_stat, metastasis_at_diagnosis))
-
-
-# Metastasis analysis
-metadata_os_met <- metadata_os %>% 
-  as.data.frame() %>% 
-  mutate(EVENT_STAT = metastasis_at_diagnosis) %>% 
-  dplyr::select(-c(survival_stat, survival_time, relapse_stat, metastasis_at_diagnosis))
-
-
-
 # Counts data final adjust ------------------------------------------------
 
 counts_data <- counts_data[, colnames(counts_data) %in% metadata_os$sample]
@@ -327,13 +307,6 @@ saveRDS(counts_data, "./output_data/counts_data.RDS")
 saveRDS(fpkm_data, "./output_data/fpkm_data.RDS")
 
 saveRDS(gene_dist, "./output_data/gene_dist.RDS")
-
-saveRDS(metadata_os_surv,"./output_data/metadata_os_surv.RDS" )
-
-saveRDS(metadata_os_rec,"./output_data/metadata_os_rec.RDS" )
-
-saveRDS(metadata_os_met,"./output_data/metadata_os_met.RDS" )
-
 
 
 rm(list = ls())
