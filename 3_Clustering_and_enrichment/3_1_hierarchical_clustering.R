@@ -38,17 +38,8 @@ vst_counts <- readRDS("./output_data/vst_counts.RDS")
 
 metadata_os <- readRDS("./output_data/metadata_os.RDS")
 
-gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character()) 
 
-pucky <- c("APEX2", "ARHGAP1", "ARHGEF39", "CCDC97", "CGREF1", 
-                              "CLUAP1", "COL22A1", "CPE", "CTNNBIP1", "CYFIP1", 
-                              "DHRS11", "DLX1", "ERCC4", "F13A1", "FAM110D", 
-                              "FAT1", "FKBP11", "GALNT14", "GBP1", "GMIP", 
-                              "GRAMD1B", "HSD11B2", "INPP4A", "KERA", "KIF25",
-                              "LGR6", "LURAP1L", "MEF2A", "MRTFB", "MXI1",
-                              "NUBP1", "SF3B3", "SLC12A4", "SLC45A4", "SLC8A3", 
-                              "STAT5B", "TIMM50", "TPD52", "TRIM68", "TSHZ3", 
-                              "UBE2D4", "UNC5B", "VMP1")
+gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character()) 
 
 
 gene_signature_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
@@ -129,7 +120,6 @@ metadata_os <-
   left_join(cluster_df, by = "sample")
 
 
-
 metadata_os %>%
   group_by(clusters) %>%
   dplyr::count(survival_stat)
@@ -194,6 +184,11 @@ surv_plot$plot <- surv_plot$plot +
 surv_plot
 
 # ------ Recurrence -----------
+
+
+metadata_os %>%
+  group_by(clusters) %>%
+  dplyr::count(relapse_stat)
 
 metadata_os$clusters <- relevel(factor(metadata_os$clusters), 2)
 
