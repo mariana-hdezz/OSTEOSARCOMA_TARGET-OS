@@ -5,7 +5,7 @@ library(ranger)
 library(tidyverse)
 library(dplyr)
 
-set.seed(111)
+
 
 fpkm_data <- readRDS("output_data/fpkm_data.RDS")
 metadata_os <- readRDS("output_data/metadata_os.RDS")
@@ -51,7 +51,6 @@ impRangerSurv <- function(x, y, ...) {
     importance = "permutation", 
     num.trees = 500,            
     num.threads = 6,            # Ensure threads are passed here
-    seed = 111,
     ...
   )
   return(res$variable.importance)
@@ -91,6 +90,7 @@ dim(x_log2_filtered)
 
 # Run boruta
 
+set.seed(111)
 
 boruta.signature <- Boruta(
   x = x_log2_filtered,
