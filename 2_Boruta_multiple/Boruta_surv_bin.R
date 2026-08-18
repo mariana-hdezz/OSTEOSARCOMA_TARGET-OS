@@ -49,6 +49,7 @@ impRangerSurv <- function(x, y, ...) {
     importance = "permutation", 
     num.trees = 500,            
     num.threads = 6,            # Ensure threads are passed here
+    seed = 111,
     ...
   )
   return(res$variable.importance)
