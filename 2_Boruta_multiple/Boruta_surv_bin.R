@@ -5,6 +5,9 @@ library(ranger)
 library(tidyverse)
 library(dplyr)
 
+set.seed(111)
+
+
 fpkm_data <- readRDS("output_data/fpkm_data.RDS")
 metadata_os <- readRDS("output_data/metadata_os.RDS")
 
@@ -89,7 +92,6 @@ dim(x_log2_filtered)
 
 # Run boruta
 
-set.seed(111)
 
 boruta.signature <- Boruta(
   x = x_log2_filtered,
