@@ -60,7 +60,7 @@ probes <- mapIds( # VMP1 and SLC45A4 are not mapped to probe ids, still SLC45A4 
   multiVals = "first"
 )
 
-gene_signature_gse <- c(annot$Symbol[annot$ILMN_ID[,5] %in% probes], "TMEM49", "SLC45A4")
+gene_signature_gse <- c(annot$Symbol[annot$ILMN_ID[,5] %in% probes], "TMEM49")
 
 write.table(matrix(gene_signature_gse, nrow = 1), file = "output_data/gene_signature_gse.csv", sep = ",", row.names = FALSE, col.names = FALSE)
 

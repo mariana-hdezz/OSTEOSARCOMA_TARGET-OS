@@ -30,8 +30,7 @@ RUN R -e 'install.packages("remotes", repos = "https://cloud.r-project.org")' \
  && R -e 'remotes::install_deps(dependencies = TRUE)'
 
 # 4. Set up output directories and copy project files
-RUN mkdir -p /app/output_data /app/results && chmod 777 /app/results
+RUN mkdir -p /app/results/boruta && chmod 777 /app/results /app/results/boruta
 COPY 2_Boruta_multiple/Boruta_surv_bin.R /app/2_Boruta_multiple/Boruta_surv_bin.R
-COPY output_data/ /app/output_data/
 
 CMD ["Rscript", "2_Boruta_multiple/Boruta_surv_bin.R"]

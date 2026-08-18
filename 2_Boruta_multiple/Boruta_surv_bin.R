@@ -48,7 +48,7 @@ impRangerSurv <- function(x, y, ...) {
     data = temp_df, # Data frame created before
     importance = "permutation", 
     num.trees = 500,            
-    num.threads = 16,            # Ensure threads are passed here
+    num.threads = 6,            # Ensure threads are passed here
     ...
   )
   return(res$variable.importance)
@@ -60,7 +60,7 @@ impRangerSurv <- function(x, y, ...) {
 
 x_data <- boruta_df_small[, setdiff(colnames(boruta_df_small), "survival_status")]
 
-y_data <- boruta_df_small$survival_stat
+y_data <- boruta_df_small$survival_status
 
 # log2 transformation (FPKM + 1)
 x_log2 <- log2(x_data + 1)
@@ -102,23 +102,8 @@ boruta.signature <- Boruta(
 
 print(boruta.signature)
 
-
-# 1. Force the decision on those 22 tentative genes
-final_boruta_decided <- TentativeRoughFix(boruta.signature)
-
-final_boruta_decided_names <- final_boruta_decided$finalDecision[final_boruta_decided$finalDecision == "Confirmed"]
-
 # 2. Save the final model object
 
-saveRDS(final_boruta_decided, "results/boruta/boruta_signature_surv_bin_target.RDS")
+saveRDS(boruta.signature, "results/boruta/boruta_signature.RDS")
 
 
-# 3. Get the names of all selected genes (Confirmed + Fixed Tentatives)
-
-final_gene_names <- names(final_boruta_decided_names)
-
-
-# 4. Save the gene list as a CSV
-
-
-write.table(matrix(final_gene_names, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)

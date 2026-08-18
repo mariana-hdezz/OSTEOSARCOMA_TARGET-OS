@@ -4,14 +4,18 @@ library(tidyr)
 library(survival)
 library(coxphf)
 library(cluster)
+library(Boruta)
 
 #############################################################################
 #> Hierarchical clustering on train set (TARGET_OS patients), utilizing
 #> the gene list obtained from Boruta.
 #> 
-#> Inputs: survival_signature, vst_counts, metadata_os
+#> It first creates the signature with the boruta output
 #> 
-#> Outputs: Overwrite metadata_os to inclide clusters column for future analysis
+#> Inputs: survival_signature, vst_counts, metadata_os, boruta_signature
+#> 
+#> Outputs: Overwrite metadata_os to inclide clusters column for future analysis,
+#> gene_signature
 #> 
 #> Results:------------------------------------------------------------------ 
 #> 
@@ -32,14 +36,11 @@ library(cluster)
 # List obtained from Boruta
 
 
-# gene_signature <- readRDS("./output_data/survival_signature")
+boruta_signature <- readRDS("./results/boruta/boruta_signature.RDS")
 
 vst_counts <- readRDS("./output_data/vst_counts.RDS")
 
 metadata_os <- readRDS("./output_data/metadata_os.RDS")
-
-
-gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character()) 
 
 
 gene_signature_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
@@ -55,6 +56,9 @@ gene_signature_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EI
 
 gene_signature_comp_gse <- setdiff(gene_signature, c("GRAMD1B", "SLC12A4", "VMP1"))
 
+# Create gene signature
+
+gene_signature <- names(boruta_signature$finalDecision)[boruta_signature$finalDecision == "Confirmed"]
 
 # Keep only genes for clustering
 
@@ -243,6 +247,8 @@ huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simula
 
 
 saveRDS(metadata_os, "./output_data/metadata_os.RDS")
+write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
+
 
 
 cat("--------------Cox results--------------\n")
