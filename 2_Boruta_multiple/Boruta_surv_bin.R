@@ -103,23 +103,19 @@ boruta.signature <- Boruta(
 print(boruta.signature)
 
 
-# Define path
-
-out_path <- "results/boruta/"
-
 # 1. Force the decision on those 22 tentative genes
 final_boruta_decided <- TentativeRoughFix(boruta.signature)
 
-final_boruta_decided <- final_boruta_decided$finalDecision[final_boruta_decided$finalDecision == "Confirmed"]
+final_boruta_decided_names <- final_boruta_decided$finalDecision[final_boruta_decided$finalDecision == "Confirmed"]
 
 # 2. Save the final model object
 
-saveRDS(final_boruta_decided, paste0(out_path, "/boruta_signature_surv_bin_target.RDS"))
+saveRDS(final_boruta_decided, "results/boruta/boruta_signature_surv_bin_target.RDS")
 
 
 # 3. Get the names of all selected genes (Confirmed + Fixed Tentatives)
 
-final_gene_names <- names(final_boruta_decided)
+final_gene_names <- names(final_boruta_decided_names)
 
 
 # 4. Save the gene list as a CSV

@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  r-analysis:
+    build: .
+    container_name: r-boruta-analysis
+    volumes:
+      - ./results:/app/results
+      - ./output_data:/app/output_data
+    working_dir: /app
+    environment:
+      - GITHUB_PAT=${GITHUB_PAT}
