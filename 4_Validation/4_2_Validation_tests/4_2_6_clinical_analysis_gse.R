@@ -4,6 +4,7 @@ library(ggplot2)
 metadata_gse21257 <- readRDS("output_data/metadata_gse21257.RDS")
 metadata_gse33382 <- readRDS("output_data/metadata_33382.RDS")
 
+
 cox <- survival::coxph(Surv(as.numeric(metadata_gse21257$relapse_time), metadata_gse21257$relapse_stat) ~ clusters, metadata_gse21257)
 
 
