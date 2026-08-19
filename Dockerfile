@@ -30,8 +30,22 @@ ENV GITHUB_PAT=$GITHUB_PAT
 RUN R -e 'install.packages("remotes", repos = "https://cloud.r-project.org")' \
  && R -e 'remotes::install_deps(dependencies = TRUE)'
 
+# Copy lockfile and activation scripts
+
+COPY renv.lock renv.lock
+COPY .Rprofile .Rprofile
+COPY renv/activate.R renv/activate.R
+COPY renv/settings.json renv/settings.json
+
+# Explicitly pass only the package names you need
+
+RUN R -e "renv::restore(packages = c('dplyr', 'Boruta', 'ranger', 'dplyr', 'tidyr', 'tibble'))"
+
 # 4. Set up output directories and copy project files
+
 RUN mkdir -p /app/results/boruta && chmod 777 /app/results /app/results/boruta
+RUN mkdir -p /app/output_data && chmod 777 /app/output_data
 COPY 2_Boruta_multiple/Boruta_surv_bin.R /app/2_Boruta_multiple/Boruta_surv_bin.R
+COPY output_data /app/output_data
 
 CMD ["Rscript", "2_Boruta_multiple/Boruta_surv_bin.R"]

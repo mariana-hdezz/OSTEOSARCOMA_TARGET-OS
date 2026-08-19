@@ -9,4 +9,6 @@ Imports:
     Boruta,
     ranger,
     survival,
-    tidyverse
+    dplyr,
+    tibble,
+    tidyr

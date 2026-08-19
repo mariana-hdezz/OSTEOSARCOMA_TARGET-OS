@@ -1,9 +1,12 @@
+
+print("all_instaled")
+
 library(Boruta)
 library(survival)
-library(parallel)
 library(ranger)
-library(tidyverse)
 library(dplyr)
+library(tibble)
+library(tidyr)
 
 
 
