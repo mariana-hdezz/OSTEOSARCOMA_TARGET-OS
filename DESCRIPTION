@@ -1,10 +1,10 @@
 Package: BorutaAnalysis
 Type: Project
 Title: Feature Selection and Survival Analysis Pipeline
-Version: 0.1.0
+Version: 0.1.1
 Description: Data processing, random forest feature selection, and survival analysis pipeline.
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.5.0)
 Imports:
     Boruta,
     ranger,

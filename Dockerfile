@@ -1,6 +1,7 @@
-FROM rocker/rstudio:4.1.1
+FROM rocker/r-base:4.5.0
 
 # 1. Install required system dependencies
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
