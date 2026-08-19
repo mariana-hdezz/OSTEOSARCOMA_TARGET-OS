@@ -58,7 +58,9 @@ gene_signature_comp_gse <- setdiff(gene_signature, c("GRAMD1B", "SLC12A4", "VMP1
 
 # Create gene signature
 
-gene_signature <- names(boruta_signature$finalDecision)[boruta_signature$finalDecision == "Confirmed"]
+fix_signature <- TentativeRoughFix(boruta_signature)
+
+gene_signature <- names(fix_signature$finalDecision)[fix_signature$finalDecision == "Confirmed"]
 
 # Keep only genes for clustering
 

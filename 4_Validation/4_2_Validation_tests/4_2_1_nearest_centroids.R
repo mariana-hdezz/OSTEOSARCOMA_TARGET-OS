@@ -47,7 +47,13 @@ dictionary_genes <-
     "TRIM68" = "TRIM68",
     "UBE2D4" = "UBE2D4",
     "UHRF2" = "UHRF2",
-    "TMEM49" = "VMP1"
+    "TMEM49" = "VMP1",
+    "ATG7" = "ATG7",
+    "CDK6" = "CDK6",
+    "F13A1" = "F13A1",
+    "ABC1" = "ABC1",
+    "KAZALD1" = "KAZALD1",
+    "NUDT13" = "NUDT13"
   )
 
 
