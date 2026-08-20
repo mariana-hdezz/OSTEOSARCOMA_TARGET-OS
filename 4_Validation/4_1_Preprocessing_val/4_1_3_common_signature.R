@@ -50,7 +50,9 @@ y <- intersect(gene_signature, annot$Symbol) # Original available genes
 
 "TMEM49" %in% annot$Symbol # Hand searcehd gene equivalent to VMP1 
 
-true_common <- unique(c(common, y, "TMEM49")) 
+"SLC45A4" %in% annot$Symbol
+
+true_common <- unique(c(common, y, "TMEM49", "SLC45A4")) 
 
 probes <- mapIds( # VMP1 and SLC45A4 are not mapped to probe ids, still SLC45A4 appears in the GLP object, and VMP1 appears as TNEN49
   illuminaHumanv2.db,
@@ -60,7 +62,7 @@ probes <- mapIds( # VMP1 and SLC45A4 are not mapped to probe ids, still SLC45A4 
   multiVals = "first"
 )
 
-gene_signature_gse <- c(annot$Symbol[annot$ILMN_ID[,5] %in% probes], "TMEM49")
+gene_signature_gse <- c(annot$Symbol[annot$ILMN_ID[,5] %in% probes], "TMEM49", "SLC45A4")
 
 write.table(matrix(gene_signature_gse, nrow = 1), file = "output_data/gene_signature_gse.csv", sep = ",", row.names = FALSE, col.names = FALSE)
 

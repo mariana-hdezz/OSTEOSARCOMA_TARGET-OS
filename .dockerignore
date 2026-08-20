@@ -1,0 +1,15 @@
+.git
+.gitignore
+.RDataTmp
+.DS_Store
+*.Rproj
+figures
+results
+*.png
+*.pdf
+*.csv
+*.xlsx
+*.RData
+.env
+Montessori
+README.md
