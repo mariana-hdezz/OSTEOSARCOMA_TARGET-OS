@@ -91,24 +91,41 @@ x_log2_filtered <- round(x_log2_filtered, 10)
 
 dim(x_log2_filtered)
 
-# Run boruta
 
-set.seed(111)
+boruta_list <- list()
+boruta_tent <- list()
+boruta_res <- list()
 
-boruta.signature <- Boruta(
-  x = x_log2_filtered,
-  y = y_data,
-  getImp = impRangerSurv, 
-  doTrace = 3,
-  maxRuns = 500
-)
+for (i in 1:100) {
+  print(i)
+  
+  # Run boruta
+  
+  set.seed(110 + i)
+  
+  boruta.signature <- Boruta(
+    x = x_log2_filtered,
+    y = y_data,
+    getImp = impRangerSurv, 
+    doTrace = 1,
+    maxRuns = 500
+  )
+  
+  
+  boruta_list[[i]] <- names(boruta.signature$finalDecision)[boruta.signature$finalDecision == "Confirmed"]
+  boruta_tent[[i]] <- names(TentativeRoughFix(boruta.signature)$finalDecision)[TentativeRoughFix(boruta.signature)$finalDecision == "Confirmed" &  boruta.signature$finalDecision == "Tentative"]
+  
+  boruta_res[[i]] <- boruta.signature
+  
+}
 
-#  8. View Results ------------------
-
-print(boruta.signature)
 
 # 2. Save the final model object
 
-saveRDS(boruta.signature, "results/boruta/boruta_signature.RDS")
+saveRDS(boruta_res, "results/boruta/boruta_signature.RDS")
+
+saveRDS(boruta_list, "results/boruta/boruta_conf.RDS")
+
+saveRDS(boruta_tent, "results/boruta/boruta_tent.RDS")
 
 
