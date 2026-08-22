@@ -67,15 +67,42 @@ for (i in 1:100) {
   
   set.seed(110 + i)
   
-  leave_5_out <- sample(c(1:85), 5, replace = FALSE)
+  if(i < 25){
+    leave_5_out <- sample(c(1:85), ceiling(85 * 0.05), replace = FALSE)
+    
+    boruta_df_small_pert <-  boruta_df_small[- leave_5_out, ]
+    
+    print(dim(boruta_df_small_pert))
+    
+  }else if(i >= 25 & i < 50){
+    leave_10_out <- sample(c(1:85), ceiling(85 * 0.1), replace = FALSE)
+    
+    boruta_df_small_pert <-  boruta_df_small[- leave_10_out, ]
+    
+    print(dim(boruta_df_small_pert))
+    
+  }else if(i >= 50 & i < 75){
+    
+    leave_15_out <- sample(c(1:85), ceiling(85 * 0.15), replace = FALSE)
+    
+    boruta_df_small_pert <-  boruta_df_small[- leave_15_out, ]
+    
+    print(dim(boruta_df_small_pert))
+    
+  }else if(i >= 75){
+    leave_20_out <- sample(c(1:85), ceiling(85 * 0.2), replace = FALSE)
+    
+    boruta_df_small_pert <-  boruta_df_small[- leave_20_out, ]
+    
+    print(dim(boruta_df_small_pert))
+  }
   
-  boruta_df_small[- leave_5_out, ]
   
   # Prepare clean X and Y
   
-  x_data <- boruta_df_small[, setdiff(colnames(boruta_df_small), "survival_status")]
+  x_data <- boruta_df_small_pert[, setdiff(colnames(boruta_df_small_pert), "survival_status")]
   
-  y_data <- boruta_df_small$survival_status
+  y_data <- boruta_df_small_pert$survival_status
   
   # log2 transformation (FPKM + 1)
   x_log2 <- log2(x_data + 1)
@@ -123,10 +150,10 @@ for (i in 1:100) {
 
 # 2. Save the final model object
 
-saveRDS(boruta_res, "results/boruta/boruta_signature_perm.RDS")
+saveRDS(boruta_res, "results/boruta/boruta_signature_pert.RDS")
 
-saveRDS(boruta_list, "results/boruta/boruta_conf_perm.RDS")
+saveRDS(boruta_list, "results/boruta/boruta_conf_pert.RDS")
 
-saveRDS(boruta_tent, "results/boruta/boruta_tent_perm.RDS")
+saveRDS(boruta_tent, "results/boruta/boruta_tent_pert.RDS")
 
 
