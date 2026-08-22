@@ -18,7 +18,7 @@ surv_plot <- survminer::ggsurvplot(
   data = metadata_gse21257,
   pval = TRUE,
   risk.table = TRUE,
-    
+  
   xlim = c(0, 300),
   break.time.by = 50,
   ggtheme = theme_minimal(),
@@ -26,7 +26,7 @@ surv_plot <- survminer::ggsurvplot(
   
   
   linewidth = 3,
-
+  
   palette = c("#c380d3" , "#ff89d4", "#33ccff"),
 )
 

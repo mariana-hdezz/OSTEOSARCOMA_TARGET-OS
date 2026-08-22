@@ -35,32 +35,11 @@ library(Boruta)
 
 # List obtained from Boruta
 
-
-boruta_signature <- readRDS("./results/boruta/boruta_signature.RDS")
-
 vst_counts <- readRDS("./output_data/vst_counts.RDS")
 
 metadata_os <- readRDS("./output_data/metadata_os.RDS")
 
-
-gene_signature_met_bin_18 <- c("AFMID", "ARHGEF2", "ATP6V0D1", "ATRX", "CKMT2", 
-                             "DOCK8", "FBXW8", "GADD45GIP1", "GPC1", "GSTCD", 
-                             "GUF1", "IL17RA", "ITPR3", "MAP7D1", "MYO19", 
-                             "RAP1B", "TFDP1", "TNK2")
-
-
-gene_signature_bin_rec_20 <- c("BBOX1", "CCDC3", "CD27", "COL22A1", "DMRT2", "EID2B",
-                          "F13A1", "FOXA3", "GATA3", "GBP5", "MRPL48", "PAWR", 
-                          "PIP5K1C", "PROSER2", "RHBDL2", "RTN4RL2", "SIT1", 
-                          "SLC30A4", "SMAD7", "TBC1D8")
-
-gene_signature_comp_gse <- setdiff(gene_signature, c("GRAMD1B", "SLC12A4", "VMP1"))
-
-# Create gene signature
-
-fix_signature <- TentativeRoughFix(boruta_signature)
-
-gene_signature <- names(fix_signature$finalDecision)[fix_signature$finalDecision == "Confirmed"]
+gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
 
 # Keep only genes for clustering
 
@@ -249,7 +228,6 @@ huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simula
 
 
 saveRDS(metadata_os, "./output_data/metadata_os.RDS")
-write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
 
 
 

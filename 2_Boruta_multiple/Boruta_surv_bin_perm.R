@@ -67,21 +67,21 @@ for (i in 1:100) {
   
   set.seed(110 + i)
   
-  if(i < 25){
+  if(i <= 25){
     leave_5_out <- sample(c(1:85), ceiling(85 * 0.05), replace = FALSE)
     
     boruta_df_small_pert <-  boruta_df_small[- leave_5_out, ]
     
     print(dim(boruta_df_small_pert))
     
-  }else if(i >= 25 & i < 50){
+  }else if(i > 25 & i <= 50){
     leave_10_out <- sample(c(1:85), ceiling(85 * 0.1), replace = FALSE)
     
     boruta_df_small_pert <-  boruta_df_small[- leave_10_out, ]
     
     print(dim(boruta_df_small_pert))
     
-  }else if(i >= 50 & i < 75){
+  }else if(i > 50 & i <= 75){
     
     leave_15_out <- sample(c(1:85), ceiling(85 * 0.15), replace = FALSE)
     
@@ -89,7 +89,7 @@ for (i in 1:100) {
     
     print(dim(boruta_df_small_pert))
     
-  }else if(i >= 75){
+  }else if(i > 75){
     leave_20_out <- sample(c(1:85), ceiling(85 * 0.2), replace = FALSE)
     
     boruta_df_small_pert <-  boruta_df_small[- leave_20_out, ]

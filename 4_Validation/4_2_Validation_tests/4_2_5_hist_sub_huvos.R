@@ -20,7 +20,7 @@ metad_heatmap_33382 <- metadata_33382 %>%
          ),
          cohort = "GSE33382") %>% 
   dplyr::select(clusters, hist_sub, huvos, response, metastasis_5y, cohort) %>% 
-  rename(hist_sub = "hist_sub" ,
+  dplyr::rename(hist_sub = "hist_sub" ,
          relapse_stat = "metastasis_5y")
 
 

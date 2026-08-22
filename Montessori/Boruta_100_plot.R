@@ -4,9 +4,33 @@ library(tidyr)
 library(ggplot2)
 library(forcats)
 library(patchwork)
+library(tidymodels)
+library(survminer)
+library(broom)
+library(survival)
+library(Boruta)
+
+
+
 
 boruta_list <- readRDS("results/boruta/boruta_conf.RDS")
 boruta_tent <- readRDS("results/boruta/boruta_tent.RDS")
+boruta_sign <- readRDS("results/boruta/boruta_signature.RDS")
+
+set_size <- list()
+
+for (i in 1:100) {
+  
+  x <- boruta_sign[[i]]
+  
+  x <- TentativeRoughFix(x)
+  
+  set_size[[i]] <- length(x$finalDecision[x$finalDecision == "Confirmed"])
+  
+}
+
+
+summary(unlist(set_size))
 
 confirmed <- as.data.frame(table(unlist(boruta_list))) %>% 
   rename(Confirmed = "Freq")
@@ -28,6 +52,14 @@ gene_counts_long <- confirmed %>%
   filter(!is.na(Count)) %>% 
   mutate(Var1 = fct_reorder(Var1, Count, .fun = sum, .desc = TRUE))
 
+
+total_counts <- gene_counts_long %>% 
+  group_by(Var1) %>% 
+  summarise(Count = sum(Count))
+
+gene_signature <- as.character(total_counts$Var1[1:37])
+
+
 p1 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Status)) +
   geom_col(position = "stack") +
   labs(
@@ -39,126 +71,63 @@ p1 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Status)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
-p1
 
-gene_counts_long %>% 
-  group_by(Var1) %>% 
-  summarise(sum = sum(Count)) %>% 
-  filter(sum > median(sum))
-
-total_counts <- gene_counts_long %>% 
-  group_by(Var1) %>% 
-  summarise(sum = sum(Count))
+# Perturbation analysis ---------------------------------------------------
 
 
 boruta_list_pert <- readRDS("results/boruta/boruta_conf_pert.RDS")
 boruta_tent_pert <- readRDS("results/boruta/boruta_tent_pert.RDS")
-
-confirmed_pert <- as.data.frame(table(unlist(boruta_list_pert))) %>% 
-  rename(Confirmed = "Freq")
-tentative_confirmed_pert <- as.data.frame(table(unlist(boruta_tent_pert))) %>%  
-  rename(Tentative = "Freq") 
+boruta_sing_pert <- readRDS("results/boruta/boruta_signature_pert.RDS")
 
 
-gene_counts_long_pert <- confirmed_pert %>%
-  full_join(tentative_confirmed_pert, by = "Var1") %>%
-  mutate(
-    Confirmed = as.numeric(Confirmed),
-    Tentative = as.numeric(Tentative)
-  ) %>%
-  pivot_longer(
-    cols = c(Confirmed, Tentative), 
-    names_to = "Status", 
-    values_to = "Count"
-  ) %>%
-  filter(!is.na(Count)) %>% 
-  mutate(Var1 = fct_reorder(Var1, Count, .fun = sum, .desc = TRUE))
+set_size_pert <- list()
 
-ggplot(gene_counts_long_pert, aes(x = Var1, y = Count, fill = Status)) +
-  geom_col(position = "stack") +
-  labs(
-    x = "Gene (Var1)",
-    y = "Total Appearances",
-    fill = "Category",
-    title = "Gene Counts: Confirmed vs. Tentative"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+for (i in 1:100) {
+  
+  y <- boruta_sing_pert[[i]]
+  
+  y <- TentativeRoughFix(y)
+  
+  set_size_pert[[i]] <- length(y$finalDecision[y$finalDecision == "Confirmed"])
+  
+}
 
-gene_counts_long_pert %>% 
-  group_by(Var1) %>% 
-  summarise(sum = sum(Count)) %>% 
-  filter(sum > 75)
+summary(unlist(set_size_pert))
 
+total_counts_pert <-as.data.frame(table(unlist(boruta_list_pert))) %>% 
+    rename(Confirmed = "Freq") %>% 
+  arrange(desc(Confirmed)) 
 
-total_counts_pert <- gene_counts_long_pert %>% 
-  group_by(Var1) %>% 
-  summarise(sum = sum(Count))
-
-
-
-
-confirmed_pert_5 <- as.data.frame(table(unlist(boruta_list_pert[1:24]))) %>% 
-  rename(Confirmed = "Freq")
+confirmed_pert_5 <- as.data.frame(table(unlist(boruta_list_pert[1:25]))) %>% 
+    rename(Confirmed = "Freq") %>% 
+  mutate(pert = "5%")
 
 confirmed_pert_10 <- as.data.frame(table(unlist(boruta_list_pert[25:49]))) %>% 
-  rename(Confirmed = "Freq")
+    rename(Confirmed = "Freq") %>% 
+  mutate(pert = "10%")
 
 confirmed_pert_15 <- as.data.frame(table(unlist(boruta_list_pert[50:74]))) %>% 
-  rename(Confirmed = "Freq")
-
+    rename(Confirmed = "Freq") %>% 
+  mutate(pert = "15%")
+ 
 confirmed_pert_20 <- as.data.frame(table(unlist(boruta_list_pert[75:100]))) %>% 
-  rename(Confirmed = "Freq")
+    rename(Confirmed = "Freq") %>% 
+  mutate(pert = "20%")
 
 
 total_counts_appear_all <- total_counts[total_counts$Var1 %in% confirmed_pert_5$Var1 & total_counts$Var1 %in% confirmed_pert_10$Var1 & total_counts$Var1 %in% confirmed_pert_15$Var1 & total_counts$Var1 %in% confirmed_pert_20$Var1, ]
 
 
-p2 <- ggplot(gene_counts_long[gene_counts_long$Var1 %in% total_counts_appear_all$Var1, ], aes(x = Var1, y = Count, fill = Status)) +
-  geom_col(position = "stack") +
-  labs(
-    x = "Gene (Var1)",
-    y = "Total Appearances",
-    fill = "Category",
-    title = "Gene Counts: Confirmed vs. Tentative"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
-
-p3 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% total_counts_appear_all$Var1 )) +
-  geom_col(position = "stack") +
-  labs(
-    x = "Gene (Var1)",
-    y = "Total Appearances",
-    fill = "Category",
-    title = "Gene Counts: Confirmed vs. Tentative"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-
-p1 / p3
-
-total_counts_pert[total_counts_pert$Var1 %in% total_counts_appear_all$Var1, ]
-
 
 total_counts_appear_all$rank_all <- seq_along(total_counts_appear_all$Var1)
 
+total_counts$rank_all <- seq_along(total_counts$Var1)
+
 total_counts_pert$rank_pert <- seq_along(total_counts_pert$Var1)
 
-
 total_counts_appear_all %>% 
   left_join(total_counts_pert, by = "Var1") %>% 
-  pivot_longer(cols = c(rank_all, rank_pert),
-               names_to = "rank",
-               values_to = "value") %>% 
-  ggplot(aes(x = Var1, y = value)) +
-  geom_col(position = "stack") +
-  facet_grid(~ rank)
-
-
-total_counts_appear_all %>% 
-  left_join(total_counts_pert, by = "Var1") %>% 
+  filter(Var1 %in% gene_signature) %>% 
   ggplot(aes(y = reorder(Var1, -rank_all))) +
   geom_segment(aes(x = rank_all, xend = rank_pert, yend = Var1), color = "grey70") +
   geom_point(aes(x = rank_all, color = "All"), size = 3) +
@@ -168,3 +137,51 @@ total_counts_appear_all %>%
   theme_minimal()
 
 
+
+# Visualization and gene signature creation ----------------------------------
+
+diff_list <- list()
+
+for (i in (1:(length(total_counts$Var1) -1))) {
+  
+  diff_list[[i]] <- total_counts$Count[i] - total_counts$Count[i + 1] 
+  
+  
+}
+
+diff_list <- unlist(diff_list)
+
+which(diff_list == max(diff_list))
+
+initial_genes <- as.character(total_counts$Var1[1:37])
+
+
+p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% total_counts_appear_all$Var1 )) +
+  geom_col(position = "stack") +
+  labs(
+    x = "Gene (Var1)",
+    y = "Total Appearances",
+    fill = "Category",
+    title = "Gene Counts: Confirmed vs. Tentative"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+  geom_hline(yintercept = 35)
+
+p1 / p2
+
+
+
+
+total_counts_appear_all %>% 
+  left_join(total_counts_pert, by = "Var1") %>% 
+  filter(Var1 %in% gene_signature) %>%
+  mutate(rank_diff = rank_all - rank_pert) %>% 
+  summarise(mean_diff = mean(rank_diff),
+            median_diff = median(rank_diff),
+            min_diff = min(rank_diff),
+            max_dii = max(rank_diff),
+            sd_diff = sd(rank_diff),
+            iqr_diff = IQR(rank_diff))
+
+write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)

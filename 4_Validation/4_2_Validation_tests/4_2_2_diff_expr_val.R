@@ -376,3 +376,6 @@ gse21257_plot_hist_go
 gse21257_plot_hist_hm
 gse33382_plot_hist_go
 gse33382_plot_hist_hm
+
+
+rm(list = ls())
