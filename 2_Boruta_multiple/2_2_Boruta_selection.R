@@ -17,20 +17,21 @@ boruta_list <- readRDS("results/boruta/boruta_conf.RDS")
 boruta_tent <- readRDS("results/boruta/boruta_tent.RDS")
 boruta_sign <- readRDS("results/boruta/boruta_signature.RDS")
 
-set_size <- list()
+# This part is for demosntrating that the mean, median and mode belong to 37 as gene set size
+# it is commented because it is heavy
 
-for (i in 1:100) {
-  
-  x <- boruta_sign[[i]]
-  
-  x <- TentativeRoughFix(x)
-  
-  set_size[[i]] <- length(x$finalDecision[x$finalDecision == "Confirmed"])
-  
-}
-
-
-summary(unlist(set_size))
+# set_size <- list()
+# 
+# for (i in 1:100) {
+#   
+#   x <- boruta_sign[[i]]
+#   
+#   x <- TentativeRoughFix(x)
+#   
+#   set_size[[i]] <- length(x$finalDecision[x$finalDecision == "Confirmed"])
+#   
+# }
+# summary(unlist(set_size))
 
 confirmed <- as.data.frame(table(unlist(boruta_list))) %>% 
   rename(Confirmed = "Freq")
@@ -77,22 +78,6 @@ p1 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Status)) +
 
 boruta_list_pert <- readRDS("results/boruta/boruta_conf_pert.RDS")
 boruta_tent_pert <- readRDS("results/boruta/boruta_tent_pert.RDS")
-boruta_sing_pert <- readRDS("results/boruta/boruta_signature_pert.RDS")
-
-
-set_size_pert <- list()
-
-for (i in 1:100) {
-  
-  y <- boruta_sing_pert[[i]]
-  
-  y <- TentativeRoughFix(y)
-  
-  set_size_pert[[i]] <- length(y$finalDecision[y$finalDecision == "Confirmed"])
-  
-}
-
-summary(unlist(set_size_pert))
 
 total_counts_pert <-as.data.frame(table(unlist(boruta_list_pert))) %>% 
     rename(Confirmed = "Freq") %>% 
@@ -125,6 +110,10 @@ total_counts$rank_all <- seq_along(total_counts$Var1)
 
 total_counts_pert$rank_pert <- seq_along(total_counts_pert$Var1)
 
+
+
+# Visualization and gene signature creation ----------------------------------
+
 total_counts_appear_all %>% 
   left_join(total_counts_pert, by = "Var1") %>% 
   filter(Var1 %in% gene_signature) %>% 
@@ -138,25 +127,10 @@ total_counts_appear_all %>%
 
 
 
-# Visualization and gene signature creation ----------------------------------
-
-diff_list <- list()
-
-for (i in (1:(length(total_counts$Var1) -1))) {
-  
-  diff_list[[i]] <- total_counts$Count[i] - total_counts$Count[i + 1] 
-  
-  
-}
-
-diff_list <- unlist(diff_list)
-
-which(diff_list == max(diff_list))
-
-initial_genes <- as.character(total_counts$Var1[1:37])
+gene_signature <- as.character(total_counts$Var1[1:37])
 
 
-p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% total_counts_appear_all$Var1 )) +
+p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% gene_signature )) +
   geom_col(position = "stack") +
   labs(
     x = "Gene (Var1)",
@@ -171,17 +145,6 @@ p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% total_c
 p1 / p2
 
 
-
-
-total_counts_appear_all %>% 
-  left_join(total_counts_pert, by = "Var1") %>% 
-  filter(Var1 %in% gene_signature) %>%
-  mutate(rank_diff = rank_all - rank_pert) %>% 
-  summarise(mean_diff = mean(rank_diff),
-            median_diff = median(rank_diff),
-            min_diff = min(rank_diff),
-            max_dii = max(rank_diff),
-            sd_diff = sd(rank_diff),
-            iqr_diff = IQR(rank_diff))
-
 write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
+
+rm(list = ls())
