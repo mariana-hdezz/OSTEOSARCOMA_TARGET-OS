@@ -41,6 +41,12 @@ metadata_os <- readRDS("./output_data/metadata_os.RDS")
 
 gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
 
+
+borutaaa <- readRDS("./results/boruta/boruta_signature.RDS")
+
+table(borutaaa$finalDecision == "Confirmed")
+table(borutaaa$roughfixed == "Tenative")
+
 # Keep only genes for clustering
 
 vst_counts_hc <- vst_counts[rownames(vst_counts) %in% gene_signature, ]
@@ -94,7 +100,7 @@ table(clusters)
 
 cluster_df <- data.frame(clusters = clusters)
 
-# Asign a column named sample with the rownames such that we can then merge based on that column
+# Assign a column named sample with the row names such that we can then merge based on that column
 
 cluster_df$sample <- rownames(vst_counts_hc)
 
