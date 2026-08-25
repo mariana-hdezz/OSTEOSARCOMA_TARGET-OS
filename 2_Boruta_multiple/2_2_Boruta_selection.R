@@ -148,3 +148,4 @@ p1 / p2
 write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
 
 rm(list = ls())
+gc()
