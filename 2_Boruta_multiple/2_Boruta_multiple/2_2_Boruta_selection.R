@@ -20,23 +20,18 @@ boruta_sign <- readRDS("results/boruta/boruta_signature.RDS")
 # This part is for demosntrating that the mean, median and mode belong to 37 as gene set size
 # it is commented because it is heavy
 
-set_size <- list()
-
-for (i in 1:100) {
-
-  x <- boruta_sign[[i]]
-
-  set_size[[i]] <- length(x$finalDecision[x$finalDecision == "Confirmed"])
-
-}
-
-# Summary
-
-summary(unlist(set_size))
-
-# Mode
-
-table(unlist(set_size))[table(unlist(set_size)) == max(table(unlist(set_size)))]
+# set_size <- list()
+# 
+# for (i in 1:100) {
+#   
+#   x <- boruta_sign[[i]]
+#   
+#   x <- TentativeRoughFix(x)
+#   
+#   set_size[[i]] <- length(x$finalDecision[x$finalDecision == "Confirmed"])
+#   
+# }
+# summary(unlist(set_size))
 
 confirmed <- as.data.frame(table(unlist(boruta_list))) %>% 
   dplyr::rename(Confirmed = "Freq")
@@ -167,7 +162,7 @@ p3 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% gene_si
   geom_hline(yintercept = 35)
 
 
-p1/ p2 / p3
+p1 / p2 / p3
 
 
 total_counts %>% 

@@ -91,15 +91,22 @@ x_log2_filtered <- round(x_log2_filtered, 10)
 
 dim(x_log2_filtered)
 
-temp_dir <- file.path(tempdir(), "boruta_iterations")
 
-dir.create(temp_dir, recursive = TRUE, showWarnings = FALSE)
+boruta_list <- list()
+boruta_tent <- list()
+boruta_res <- list()
 
-rm(list = setdiff(ls(), c("x_log2_filtered", "y_data", "impRangerSurv", "temp_dir")))
+
+
+saveRDS(boruta_res, "results/boruta/boruta_signature.RDS")
+
+saveRDS(boruta_list, "results/boruta/boruta_conf.RDS")
+
+saveRDS(boruta_tent, "results/boruta/boruta_tent.RDS")
+
+rm(list = (setdiff(ls(), c("x_log2_filtered", "y_data", "impRangerSurv"))))
 
 gc()
-
-print(temp_dir)
 
 for (i in 1:100) {
   print(i)
@@ -119,59 +126,35 @@ for (i in 1:100) {
   
   boruta.signature_tent_fix <- TentativeRoughFix(boruta.signature)
   
-
+  
+  boruta_list <- readRDS("results/boruta/boruta_conf.RDS")
+  boruta_tent  <- readRDS("results/boruta/boruta_tent.RDS")
     
-  conf_genes <- names(boruta.signature$finalDecision)[boruta.signature$finalDecision == "Confirmed"]
-  tent_genes <- names(boruta.signature_tent_fix$finalDecision)[boruta.signature_tent_fix$finalDecision == "Confirmed" &  boruta.signature$finalDecision == "Tentative"]
+  boruta_list[[i]] <- names(boruta.signature$finalDecision)[boruta.signature$finalDecision == "Confirmed"]
+  boruta_tent[[i]] <- names(boruta.signature_tent_fix$finalDecision)[boruta.signature_tent_fix$finalDecision == "Confirmed" &  boruta.signature$finalDecision == "Tentative"]
+  
+  saveRDS(boruta_tent, "results/boruta/boruta_tent.RDS")
+  
+  saveRDS(boruta_list, "results/boruta/boruta_conf.RDS")
+  
+  rm(list = (setdiff(ls(), c("x_log2_filtered", "y_data", "impRangerSurv", "i", "boruta.signature_tent_fix"))))
+  gc()
+  
+  boruta_res <- readRDS("results/boruta/boruta_signature.RDS")
   
   
-  full_obj <- boruta.signature_tent_fix
-
+  boruta_res[[i]] <- boruta.signature_tent_fix
   
-  iter_result <- list(
-    iteration = i,
-    confirmed = conf_genes,
-    tentative_fixed = tent_genes,
-    full_obj = boruta.signature_tent_fix
-  )
   
-  saveRDS(iter_result, file = file.path(temp_dir, paste0("boruta_iter_", i,".RDS")))
   
-  rm(boruta.signature, boruta.signature_tent_fix, iter_result, conf_genes, tent_genes)
-  gc(verbose = FALSE)
+  saveRDS(boruta_res, "results/boruta/boruta_signature.RDS")
   
+ 
+  rm(list = (setdiff(ls(), c("x_log2_filtered", "y_data", "impRangerSurv", "i"))))
+  gc()
+   
 }
 
-temp_files <- list.files(temp_dir, pattern = "boruta_iter_.*\\.RDS$", full.names = TRUE)
-
-boruta_list <- vector("list", length(temp_files))
-boruta_tent <- vector("list", length(temp_files))
-boruta_res  <- vector("list", length(temp_files))
-
-for (k in seq_along(temp_files)) {
-  
-  res <- readRDS(temp_files[k])
-  
-  boruta_list[[k]] <- res$confirmed
-  
-  boruta_tent[[k]] <- res$tentative_fixed
-  
-  boruta_res[[k]]  <- res$full_obj
-}
-
-saveRDS(boruta_list, "results/boruta/boruta_conf.RDS")
-saveRDS(boruta_tent, "results/boruta/boruta_tent.RDS")
-saveRDS(boruta_res, "results/boruta/boruta_signature.RDS")
 
 
-# Delete the temporary directory and all files inside
 
-unlink(temp_dir, recursive = TRUE)
-
-# Verify deletion
-
-if (!dir.exists(temp_dir)) {
-  message("Temporary directory was successfully deleted.")
-} else {
-  warning("Temporary directory still exists")
-}
