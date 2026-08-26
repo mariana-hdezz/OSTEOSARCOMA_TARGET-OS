@@ -58,8 +58,6 @@ total_counts <- gene_counts_long %>%
   group_by(Var1) %>% 
   summarise(Count = sum(Count))
 
-gene_signature <- as.character(total_counts$Var1[1:37])
-
 
 p1 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Status)) +
   geom_col(position = "stack") +
@@ -69,8 +67,10 @@ p1 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Status)) +
     fill = "Category",
     title = "Gene Counts: Confirmed vs. Tentative"
   ) +
-  theme_minimal() +
+  theme_classic(base_size = 13) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+
+gene_signature <- as.character(total_counts$Var1[1:37])
 
 
 # Perturbation analysis ---------------------------------------------------
@@ -110,6 +110,9 @@ total_counts$rank_all <- seq_along(total_counts$Var1)
 
 total_counts_pert$rank_pert <- seq_along(total_counts_pert$Var1)
 
+# Lasso
+
+source("2_Boruta_multiple/2_2_2_lasso_eleasticNet.R")
 
 
 # Visualization and gene signature creation ----------------------------------
@@ -127,22 +130,70 @@ total_counts_appear_all %>%
 
 
 
-gene_signature <- as.character(total_counts$Var1[1:37])
 
 
-p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% gene_signature )) +
+p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% lasso_sign )) +
   geom_col(position = "stack") +
   labs(
     x = "Gene (Var1)",
     y = "Total Appearances",
-    fill = "Category",
-    title = "Gene Counts: Confirmed vs. Tentative"
+    fill = "Selected by Lasso",
+    title = "Gene Counts: Lasso selected"
   ) +
-  theme_minimal() +
+  scale_fill_manual(values = c("TRUE" = "#1F77B4", "FALSE" = "#cc5242")) + 
+  theme_classic(base_size = 13) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
   geom_hline(yintercept = 35)
 
-p1 / p2
+
+p3 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% gene_signature )) +
+  geom_col(position = "stack") +
+  labs(
+    x = "Gene (Var1)",
+    y = "Total Appearances",
+    fill = "Top 37 genes",
+    title = "Gene Counts: Top 37 genes"
+  ) +
+  scale_fill_manual(values = c("TRUE" = "#1F77B4", "FALSE" = "#cc5242")) + 
+  theme_classic(base_size = 13) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+  geom_hline(yintercept = 35)
+
+
+p1 / p2 / p3
+
+
+total_counts %>% 
+  filter(Var1 %in% lasso_sign) %>% 
+  summarise(
+    max_c = max(Count),
+    min_r = min(rank_all),
+    mean_c = mean(Count),
+    mean_r = mean(rank_all),
+    medi_c = median(Count),
+    medi_r = median(rank_all),
+    min_c = min(Count),
+    max_r = max(rank_all),
+    sd_c = sd(Count)
+            
+            )
+
+
+total_counts %>% 
+  filter(Var1 %in% gene_signature) %>% 
+  summarise(
+    max_c = max(Count),
+    min_r = min(rank_all),
+    mean_c = mean(Count),
+    mean_r = mean(rank_all),
+    medi_c = median(Count),
+    medi_r = median(rank_all),
+    min_c = min(Count),
+    max_r = max(rank_all),
+    sd_c = sd(Count)
+    
+  )
+
 
 
 write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
