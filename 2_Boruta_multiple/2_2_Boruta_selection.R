@@ -34,9 +34,11 @@ boruta_sign <- readRDS("results/boruta/boruta_signature.RDS")
 # summary(unlist(set_size))
 
 confirmed <- as.data.frame(table(unlist(boruta_list))) %>% 
-  rename(Confirmed = "Freq")
+  dplyr::rename(Confirmed = "Freq")
+
+
 tentative_confirmed <- as.data.frame(table(unlist(boruta_tent))) %>%  
-  rename(Tentative = "Freq") 
+  dplyr::rename(Tentative = "Freq") 
 
 
 gene_counts_long <- confirmed %>%
@@ -80,23 +82,23 @@ boruta_list_pert <- readRDS("results/boruta/boruta_conf_pert.RDS")
 boruta_tent_pert <- readRDS("results/boruta/boruta_tent_pert.RDS")
 
 total_counts_pert <-as.data.frame(table(unlist(boruta_list_pert))) %>% 
-    rename(Confirmed = "Freq") %>% 
+    dplyr::rename(Confirmed = "Freq") %>% 
   arrange(desc(Confirmed)) 
 
 confirmed_pert_5 <- as.data.frame(table(unlist(boruta_list_pert[1:25]))) %>% 
-    rename(Confirmed = "Freq") %>% 
+    dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "5%")
 
 confirmed_pert_10 <- as.data.frame(table(unlist(boruta_list_pert[25:49]))) %>% 
-    rename(Confirmed = "Freq") %>% 
+    dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "10%")
 
 confirmed_pert_15 <- as.data.frame(table(unlist(boruta_list_pert[50:74]))) %>% 
-    rename(Confirmed = "Freq") %>% 
+    dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "15%")
  
 confirmed_pert_20 <- as.data.frame(table(unlist(boruta_list_pert[75:100]))) %>% 
-    rename(Confirmed = "Freq") %>% 
+    dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "20%")
 
 

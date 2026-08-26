@@ -45,8 +45,8 @@ RUN R -e "renv::restore(packages = c('dplyr', 'Boruta', 'ranger', 'dplyr', 'tidy
 
 RUN mkdir -p /app/results/boruta && chmod 777 /app/results /app/results/boruta
 RUN mkdir -p /app/output_data && chmod 777 /app/output_data
-COPY 2_Boruta_multiple/Boruta_surv_bin.R /app/2_Boruta_multiple/Boruta_surv_bin.R
-COPY 2_Boruta_multiple/Boruta_surv_bin_perm.R /app/2_Boruta_multiple/Boruta_surv_bin_perm.R
+COPY 2_Boruta_multiple/2_1_1_Boruta_surv_bin.R /app/2_Boruta_multiple/2_1_1_Boruta_surv_bin.R
+COPY 2_Boruta_multiple/2_1_2_Boruta_surv_bin_pert.R /app/2_Boruta_multiple/2_1_2_Boruta_surv_bin_pert.R 
 COPY output_data /app/output_data
 
 CMD ["sleep", "infinity"]
