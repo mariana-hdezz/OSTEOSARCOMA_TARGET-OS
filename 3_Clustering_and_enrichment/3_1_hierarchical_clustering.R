@@ -41,9 +41,6 @@ metadata_os <- readRDS("./output_data/metadata_os.RDS")
 
 gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
 
-
-borutaaa <- readRDS("./results/boruta/boruta_signature.RDS")
-
 table(borutaaa$finalDecision == "Confirmed")
 table(borutaaa$roughfixed == "Tenative")
 
