@@ -9,7 +9,7 @@ metadata_os <- readRDS("output_data/metadata_os.RDS")
 
 metadata_surv <- 
   metadata_os %>% 
-  select(sample,
+  dplyr::select(sample,
          survival_stat) %>% 
   drop_na(survival_stat)
 

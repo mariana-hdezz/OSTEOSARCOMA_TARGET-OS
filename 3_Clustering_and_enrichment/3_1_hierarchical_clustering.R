@@ -41,8 +41,6 @@ metadata_os <- readRDS("./output_data/metadata_os.RDS")
 
 gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
 
-table(borutaaa$finalDecision == "Confirmed")
-table(borutaaa$roughfixed == "Tenative")
 
 # Keep only genes for clustering
 
