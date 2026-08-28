@@ -309,3 +309,4 @@ saveRDS(counts_merged, "output_data/counts_merged.RDS")
 
 
 rm(list = ls())
+gc()

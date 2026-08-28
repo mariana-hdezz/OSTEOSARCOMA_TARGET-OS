@@ -8,8 +8,6 @@
 #> metadata_os_rec: metadata useful for recurrence analysis
 #> metadata_os_met: metadata useful for metastasis analysis
 
-install.packages("BiocManager")
-BiocManager::install("biomaRt")
 
 library(TCGAbiolinks)
 library(data.table)
@@ -17,9 +15,6 @@ library(dplyr)
 library(biomaRt)
 library(UCSCXenaTools)
 library(DESeq2)
-
-install.packages("TCGAbiolinks")
-
 
 os_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso" # Directory for download and retrieval of data
 

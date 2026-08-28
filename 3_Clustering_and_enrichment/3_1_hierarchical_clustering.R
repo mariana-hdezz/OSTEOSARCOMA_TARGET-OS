@@ -230,6 +230,18 @@ huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simula
 
 saveRDS(metadata_os, "./output_data/metadata_os.RDS")
 
+if(dir.exists("./results/res_3_1_hc/")){
+  "Directory already exists"
+}else{
+  dir.create("./results/res_3_1_hc/")
+}
+
+
+
+saveRDS(cox , "./results/res_3_1_hc/cox.RDS")
+saveRDS(cox_rec , "./results/res_3_1_hc/cox_rec.RDS")
+saveRDS(surv_plot , "./results/res_3_1_hc/surv_plot.RDS")
+saveRDS(surv_plot_rec , "./results/res_3_1_hc/surv_plot_rec.RDS")
 
 
 cat("--------------Cox results--------------\n")
