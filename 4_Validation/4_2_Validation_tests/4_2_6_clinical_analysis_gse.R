@@ -5,15 +5,18 @@ library(tidyr)
 metadata_gse21257 <- readRDS("output_data/metadata_gse21257.RDS")
 metadata_33382 <- readRDS("output_data/metadata_33382.RDS")
 
+metadata_gse21257$clusters <- as.factor(metadata_gse21257$clusters)
 
-cox <- survival::coxph(Surv(as.numeric(metadata_gse21257$relapse_time), metadata_gse21257$relapse_stat) ~ clusters, metadata_gse21257)
+metadata_gse21257$clusters <- relevel(metadata_gse21257$clusters, 3)
+
+cox_gse21257_rec <- survival::coxph(Surv(as.numeric(metadata_gse21257$relapse_time), metadata_gse21257$relapse_stat) ~ clusters, metadata_gse21257)
 
 
-pha <- survival::cox.zph(cox)
+pha <- survival::cox.zph(cox_gse21257_rec)
 
 fit_km <- survival::survfit(Surv(as.numeric(metadata_gse21257$relapse_time), metadata_gse21257$relapse_stat) ~ clusters, metadata_gse21257)
 
-surv_plot <- survminer::ggsurvplot(
+surv_plot_gse21257_rec <- survminer::ggsurvplot(
   fit_km,
   data = metadata_gse21257,
   pval = TRUE,
@@ -30,7 +33,7 @@ surv_plot <- survminer::ggsurvplot(
   palette = c("#c380d3" , "#ff89d4", "#33ccff"),
 )
 
-surv_plot$plot <- surv_plot$plot + 
+surv_plot_gse21257_rec$plot <- surv_plot_gse21257_rec$plot + 
   annotate(
     geom = "text", 
     x = 30,      
@@ -41,20 +44,20 @@ surv_plot$plot <- surv_plot$plot +
     fontface = "bold"
   )
 
-surv_plot
+surv_plot_gse21257_rec
 
-summary(cox)
-
-
-
-cox <- survival::coxph(Surv(as.numeric(metadata_gse21257$survival_time), metadata_gse21257$survival_stat) ~ clusters, metadata_gse21257)
+summary(cox_gse21257_rec)
 
 
-pha <- survival::cox.zph(cox)
+
+cox_gse21257 <- survival::coxph(Surv(as.numeric(metadata_gse21257$survival_time), metadata_gse21257$survival_stat) ~ clusters, metadata_gse21257)
+
+
+pha <- survival::cox.zph(cox_gse21257)
 
 fit_km <- survival::survfit(Surv(as.numeric(metadata_gse21257$survival_time), metadata_gse21257$survival_stat) ~ clusters, metadata_gse21257)
 
-surv_plot <- survminer::ggsurvplot(
+surv_plot_gse21257 <- survminer::ggsurvplot(
   fit_km,
   data = metadata_gse21257,
   pval = TRUE,
@@ -71,7 +74,7 @@ surv_plot <- survminer::ggsurvplot(
   palette = c("#c380d3" , "#ff89d4", "#33ccff"),
 )
 
-surv_plot$plot <- surv_plot$plot + 
+surv_plot_gse21257$plot <- surv_plot_gse21257$plot + 
   annotate(
     geom = "text", 
     x = 30,         
@@ -82,9 +85,9 @@ surv_plot$plot <- surv_plot$plot +
     fontface = "bold"
   )
 
-surv_plot
+surv_plot_gse21257
 
-summary(cox)
+summary(cox_gse21257)
 
 
 metadata_gse21257 %>% dplyr::group_by(clusters) %>% dplyr::count(survival_stat)
