@@ -18,7 +18,7 @@ library(AnnotationDbi)
 #> 
 #> Inputs: metadatao_os, counts_data
 #> 
-#> Outputs: No outputs used in further analsis
+#> Outputs: No outputs used in further analysis
 #> 
 #> Results: 
 ##> Objects with GSEA results:
@@ -233,7 +233,7 @@ gsea_df_HM1_vs_2 <- read_csv("results/diffex_gsea_target/gsea_df_HM1_vs_2.csv")
 
 
 
-# Objectts for heatmaps
+# Objects for heatmaps
 
 c1_v_c2_GO <- data.frame(row.names = gsea_df_GO1_vs_2$Description, # Rownames contains tha pathway
                          C1_vs_C2 = gsea_df_GO1_vs_2$NES) # Column named after the comparison contains NES
@@ -257,14 +257,14 @@ c3_v_c2_HM <- data.frame(row.names = gsea_df_HM3_vs_2$Description,
 # limit how many paths t plot
 
 c1_v_c2_GO <- c1_v_c2_GO %>% 
-  filter(C1_vs_C2 > quantile(C1_vs_C2, 0.7) | C1_vs_C2 < quantile(C1_vs_C2, 0.2))
+  filter(C1_vs_C2 > quantile(C1_vs_C2, 0.9) | C1_vs_C2 < quantile(C1_vs_C2, 0.05))
 
 c3_v_c1_GO <- c3_v_c1_GO %>% 
 
-  filter(C3_vs_C1 > quantile(C3_vs_C1, 0.85) | C3_vs_C1 < quantile(C3_vs_C1, 0.15))
+  filter(C3_vs_C1 > quantile(C3_vs_C1, 0.9) | C3_vs_C1 < quantile(C3_vs_C1, 0.05))
 
 c3_v_c2_GO <- c3_v_c2_GO %>% 
-  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.7) | C3_vs_C2 < quantile(C3_vs_C2, 0.30))
+  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.9) | C3_vs_C2 < quantile(C3_vs_C2, 0.05))
 
 
 # Merge the isolated columns to be able tp plot
@@ -292,7 +292,7 @@ gsea_HM_heatmap_obj[is.na(gsea_HM_heatmap_obj )] <- 0
 row_go <- hclust(dist(gsea_GO_heatmap_obj))
 col_go <- hclust(dist(t(gsea_GO_heatmap_obj)))
 
-# Dndograms
+# Dendograms
 
 tree_right_go <- ggtree(row_go) + 
   scale_x_reverse() + 
@@ -311,14 +311,23 @@ obj_for_GO <- gsea_GO_heatmap_obj %>%
 
 # Prepare object
 
-heatmap_go <- obj_for_GO %>%
+heatmap_go <- obj_for_GO %>% 
   ggplot(aes(x = clusters, y = path, fill = value)) + 
   geom_tile() +
-  scale_fill_distiller(palette = "Spectral") +
+  scale_fill_distiller(palette = "Spectral") + 
   theme_classic() + 
-  scale_x_discrete(labels = c("C3_vs_C1" = "C3 vs C1", "C1_vs_C2" = "C1 vs C2", "C3_vs_C2" = "C3 vs C2")) +
-  labs(title = "GSEA between clusters Gene Ontology. TARGET-OS", 
-       x = "Clusters")
+  scale_x_discrete(labels = c(
+  "C3_vs_C1" = "C3 vs C1",
+  "C1_vs_C2" = "C1 vs C2",
+  "C3_vs_C2" = "C3 vs C2")) + 
+  labs(title = "GSEA between clusters Gene Ontology. TARGET-OS", x = "Clusters") + 
+  theme(
+  axis.text.y = element_text(size = 5),
+  axis.text.x = element_text(size = 9),
+  plot.title = element_text(size = 11)
+)
+
+
 
 # Plot
 
