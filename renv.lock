@@ -8252,6 +8252,37 @@
       "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
+    "illuminaHumanWGDASLv4.db": {
+      "Package": "illuminaHumanWGDASLv4.db",
+      "Version": "1.26.0",
+      "Source": "Bioconductor",
+      "Title": "Illumina HumanWGDASLv4 annotation data (chip illuminaHumanWGDASLv4)",
+      "Description": "Illumina HumanWGDASLv4 annotation data (chip illuminaHumanWGDASLv4) assembled using data from public repositories",
+      "Author": "Mark Dunning, Andy Lynch, Matthew Eldridge",
+      "Maintainer": "Mark Dunning <mark.dunning@cruk.cam.ac.uk>",
+      "Depends": [
+        "R (>= 2.7.0)",
+        "methods",
+        "AnnotationDbi (>= 1.29.20)",
+        "org.Hs.eg.db (>= 3.1.2)"
+      ],
+      "Suggests": [
+        "annotate",
+        "RUnit"
+      ],
+      "Imports": [
+        "methods",
+        "AnnotationDbi"
+      ],
+      "License": "Artistic-2.0",
+      "organism": "Homo sapiens",
+      "species": "Human",
+      "manufacturer": "Illumina",
+      "chipName": "HumanWGDASLv4",
+      "manufacturerUrl": "http://www.illumina.com",
+      "biocViews": "ChipDb, AnnotationData, IlluminaChip, Homo_sapiens, illuminaHumanWGDASLv4",
+      "NeedsCompilation": "no"
+    },
     "illuminaio": {
       "Package": "illuminaio",
       "Version": "0.54.0",
