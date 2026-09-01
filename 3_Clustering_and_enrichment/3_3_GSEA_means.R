@@ -137,16 +137,16 @@ for (i in 1:nrow(cluster_gene_mean)) {
   }
 }
 
-# Keep top and lower 25% of C1 and all of c2 and c3
+# Keep top and lower 10% of C1, C2 and C3
 
 c1_cent_GO_10 <- c1_cent_GO %>% 
-  filter(c1 > quantile(c1, 0.7) | c1 < quantile(c1, 0.25))
+  filter(c1 > quantile(c1, 0.9) | c1 < quantile(c1, 0.1))
 
 c2_cent_GO_10 <- c2_cent_GO %>% 
-  filter(c2 > quantile(c2, 0.75) | c2 < quantile(c2, 0.75))
+  filter(c2 > quantile(c2, 0.9) | c2 < quantile(c2, 0.1))
 
 c3_cent_GO_10 <- c3_cent_GO %>% 
-  filter(c3 > quantile(c3, 0.75) | c3 < quantile(c3, 0.75))
+  filter(c3 > quantile(c3, 0.9) | c3 < quantile(c3, 0.1))
 
 # Join and convert to matrix
 
@@ -176,7 +176,12 @@ heatmap_gsea <- gsea_GO_mat %>%
   scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
   scale_y_discrete(expand = c(0, 0)) +  
   theme_classic() +
-  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA from clusters means")
+  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA from clusters means") +
+  theme(
+  axis.text.y = element_text(size = 5),
+  axis.text.x = element_text(size = 9),
+  plot.title = element_text(size = 11)
+)
 
 
 # Dendograms
