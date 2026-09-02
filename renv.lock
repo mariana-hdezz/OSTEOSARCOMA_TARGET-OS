@@ -2313,7 +2313,7 @@
     },
     "S4Vectors": {
       "Package": "S4Vectors",
-      "Version": "0.50.1",
+      "Version": "0.50.2",
       "Source": "Bioconductor",
       "Title": "Foundation of vector-like and list-like containers in Bioconductor",
       "Description": "The S4Vectors package defines the Vector and List virtual classes and a set of generic functions that extend the semantic of ordinary vectors and lists in R. Package developers can easily implement vector-like or list-like objects as concrete subclasses of Vector or List. In addition, a few low-level concrete subclasses of general interest (e.g. DataFrame, Rle, Factor, and Hits) are implemented in the S4Vectors package itself (many more are implemented in the IRanges package and in other Bioconductor infrastructure packages).",
@@ -2346,13 +2346,14 @@
       ],
       "VignetteBuilder": "knitr",
       "Collate": "S4-utils.R show-utils.R utils.R normarg-utils.R bindROWS.R LLint-class.R isSorted.R subsetting-utils.R vector-utils.R integer-utils.R character-utils.R raw-utils.R eval-utils.R map_ranges_to_runs.R RectangularData-class.R Annotated-class.R DataFrame_OR_NULL-class.R Vector-class.R Vector-comparison.R Vector-setops.R Vector-merge.R Hits-class.R Hits-comparison.R Hits-setops.R Rle-class.R Rle-utils.R Factor-class.R List-class.R List-comparison.R splitAsList.R List-utils.R SimpleList-class.R HitsList-class.R DataFrame-class.R DataFrame-combine.R DataFrame-comparison.R DataFrame-utils.R DataFrameFactor-class.R TransposedDataFrame-class.R Pairs-class.R FilterRules-class.R stack-methods.R expand-methods.R aggregate-methods.R shiftApply-methods.R zzz.R",
-      "Repository": "https://bioc-release.r-universe.dev",
-      "RemoteUrl": "https://github.com/bioc/S4Vectors",
-      "RemoteRef": "RELEASE_3_23",
-      "RemoteSha": "dfc837c68d33d9dfb2ba620c8cad386b8a730fa2",
+      "Repository": "Bioconductor 3.23",
       "NeedsCompilation": "yes",
       "Author": "Hervé Pagès [aut, cre], Michael Lawrence [aut], Patrick Aboyoun [aut], Aaron Lun [ctb], Beryl Kanali [ctb] (Converted vignettes from Sweave to RMarkdown)",
-      "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>"
+      "Maintainer": "Hervé Pagès <hpages.on.github@gmail.com>",
+      "RemoteType": "repository",
+      "RemoteUrl": "https://github.com/bioc/S4Vectors",
+      "RemoteRef": "RELEASE_3_23",
+      "RemoteSha": "9bd354f3a5b9fd19f549b472e24518328aa2abf3"
     },
     "S7": {
       "Package": "S7",
@@ -7871,6 +7872,38 @@
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
       "Repository": "CRAN"
     },
+    "hgu133a.db": {
+      "Package": "hgu133a.db",
+      "Version": "3.13.0",
+      "Source": "Bioconductor",
+      "Title": "Affymetrix Affymetrix HG-U133A Array annotation data (chip hgu133a)",
+      "Description": "Affymetrix Affymetrix HG-U133A Array annotation data (chip hgu133a) assembled using data from public repositories",
+      "Author": "Marc Carlson",
+      "Maintainer": "Bioconductor Package Maintainer <maintainer@bioconductor.org>",
+      "Depends": [
+        "R (>= 2.7.0)",
+        "methods",
+        "AnnotationDbi (>= 1.53.2)",
+        "org.Hs.eg.db (>= 3.13.0)"
+      ],
+      "Suggests": [
+        "DBI",
+        "annotate",
+        "RUnit"
+      ],
+      "Imports": [
+        "methods",
+        "AnnotationDbi"
+      ],
+      "License": "Artistic-2.0",
+      "organism": "Homo sapiens",
+      "species": "Human",
+      "manufacturer": "Affymetrix",
+      "chipName": "Affymetrix HG-U133A Array",
+      "manufacturerUrl": "http://www.affymetrix.com",
+      "biocViews": "ChipDb, AnnotationData, AffymetrixChip, Homo_sapiens, hgu133a",
+      "NeedsCompilation": "no"
+    },
     "highr": {
       "Package": "highr",
       "Version": "0.12",
@@ -8281,6 +8314,37 @@
       "chipName": "HumanWGDASLv4",
       "manufacturerUrl": "http://www.illumina.com",
       "biocViews": "ChipDb, AnnotationData, IlluminaChip, Homo_sapiens, illuminaHumanWGDASLv4",
+      "NeedsCompilation": "no"
+    },
+    "illuminaHumanv2.db": {
+      "Package": "illuminaHumanv2.db",
+      "Version": "1.26.0",
+      "Source": "Bioconductor",
+      "Title": "Illumina HumanWG6v2 annotation data (chip illuminaHumanv2)",
+      "Description": "Illumina HumanWG6v2 annotation data (chip illuminaHumanv2) assembled using data from public repositories",
+      "Author": "Mark Dunning, Andy Lynch, Matthew Eldridge",
+      "Maintainer": "Mark Dunning <mark.dunning@cruk.cam.ac.uk>",
+      "Depends": [
+        "R (>= 2.7.0)",
+        "methods",
+        "AnnotationDbi (>= 1.29.20)",
+        "org.Hs.eg.db (>= 3.1.2)"
+      ],
+      "Suggests": [
+        "annotate",
+        "RUnit"
+      ],
+      "Imports": [
+        "methods",
+        "AnnotationDbi"
+      ],
+      "License": "Artistic-2.0",
+      "organism": "Homo sapiens",
+      "species": "Human",
+      "manufacturer": "Illumina",
+      "chipName": "HumanWG6v2",
+      "manufacturerUrl": "http://www.illumina.com",
+      "biocViews": "ChipDb, AnnotationData, IlluminaChip, Homo_sapiens, illuminaHumanv2",
       "NeedsCompilation": "no"
     },
     "illuminaio": {
@@ -9277,6 +9341,31 @@
       "git_last_commit": "af17967",
       "git_last_commit_date": "2026-04-28",
       "Repository": "Bioconductor 3.23"
+    },
+    "lumiHumanIDMapping": {
+      "Package": "lumiHumanIDMapping",
+      "Version": "1.10.1",
+      "Source": "Bioconductor",
+      "Title": "Illumina Identifier mapping for Human",
+      "Description": "This package includes mappings information between different types of Illumina IDs of Illumina Human chips and nuIDs. It also includes mappings of all nuIDs included in Illumina Human chips to RefSeq IDs with mapping qualities information.",
+      "Author": "Pan Du, Gilbert Feng, Warren Kibbe, Simon Lin",
+      "Maintainer": "Gilbert Feng <g-feng@northwestern.edu>",
+      "Depends": [
+        "R (>= 2.7.0)",
+        "lumi (>= 1.7.14)",
+        "methods",
+        "AnnotationDbi (>= 1.13.13)"
+      ],
+      "Imports": [
+        "methods",
+        "AnnotationDbi",
+        "DBI"
+      ],
+      "License": "The Artistic License, Version 2.0",
+      "organism": "Homo sapiens",
+      "species": "Human",
+      "biocViews": "AnnotationData, Homo sapiens",
+      "NeedsCompilation": "no"
     },
     "magrittr": {
       "Package": "magrittr",
