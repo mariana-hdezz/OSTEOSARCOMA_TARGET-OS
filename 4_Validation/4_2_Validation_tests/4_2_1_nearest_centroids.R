@@ -145,15 +145,15 @@ for (t in 1:3) {
   cluster_list <- list() # output list
   
   for (i in 1:nrow(test_mat)) { # Repeat to all rows on test matrix
-    x <- as.numeric(test_mat[i, ]) # Convert that row intonumeric vector
+    x <- as.numeric(test_mat[i, ]) # Convert that row into numeric vector
     sample_name <- rownames(test_mat)[i] # maintain the patient name
     
     distances <- numeric(nrow(train_centroids_mat)) # to register the distance with respect to patient
-    names(distances) <- rownames(train_centroids_mat) #assign rownames as names
+    names(distances) <- rownames(train_centroids_mat) #assign row names as names
     
     for (e in 1:nrow(train_centroids_mat)) { # Repeat the distance calculation for each cluster
       centroid <- as.numeric(train_centroids_mat[e, ]) # convert the train cluster row to numbers 
-      distances[e] <- sqrt(sum((x - centroid)^2)) # calculate euqlidean distance
+      distances[e] <- sqrt(sum((x - centroid)^2)) # calculate euclidean distance
     }
     
     
