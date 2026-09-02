@@ -1,23 +1,28 @@
 
 #------------------- TARGET-OS RESULTS EASY ACCESS -----------------------
 
+# ---------------- DATA LOADING ----------
+
+# Load 37 gene signature
+gene_signature <- scan("./output_data/gene_signature.csv", sep = ",", what = character())
 
 # Load CSV with results of the differential expression
 
-res_sig_1v2  <-  read.csv("results/diffex_gsea_target/res_sig_1v2.csv")
-res_sig_3v2  <-  read.csv("results/diffex_gsea_target/res_sig_3v2.csv")
-res_sig_3v1  <-  read.csv("results/diffex_gsea_target/res_sig_3v1.csv")
+res_1_vs_2 <-  read.csv("./results/diffex_gsea_target/res_1_vs_2.csv")
+res_3_vs_2 <-   read.csv("./results/diffex_gsea_target/res_3_vs_2.csv")
+res_3_vs_1 <-   read.csv("./results/diffex_gsea_target/res_3_vs_1.csv")
+
+# Load CSV with results of the differential expression filtered by p-values
+
+res_sig_1v2  <-  read.csv("./results/diffex_gsea_target/res_sig_1v2.csv")
+res_sig_3v2  <-  read.csv("./results/diffex_gsea_target/res_sig_3v2.csv")
+res_sig_3v1  <-  read.csv("./results/diffex_gsea_target/res_sig_3v1.csv")
 
 
-res_1_vs_2 <-  read.csv("results/diffex_gsea_target/res_1_vs_2.csv")
-res_3_vs_2 <-   read.csv("results/diffex_gsea_target/res_3_vs_2.csv")
-res_3_vs_1 <-   read.csv("results/diffex_gsea_target/res_3_vs_1.csv")
+# ------------ ANALYSIS --------------
 
-
-
-gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
-
-dim(res_sig_3v1)
+# Differentialy expressed genes in cluster 3 utilizing cluster 1 as reference
+dim(res_3_vs_1)
 
 res_sig_3v1 %>% 
   filter(log2FoldChange >= 0)
@@ -40,6 +45,10 @@ cat(genes_inter3, sep = ", ")
 genes_inter2 <- res_sig_3v1[res_sig_3v1$X %in% gene_signature, ]
 
 genes_inter3 <- genes_inter2$X[genes_inter2$log2FoldChange < 0]
+
+
+
+
 
 
 gsea_df_GO3.vs.1 <-  read_csv("results/diffex_gsea_target/gsea_df_GO3_vs_1.csv")
