@@ -251,3 +251,16 @@ heatmap_gsea_hm %>%
   insert_right(tree_right_hm, width = 0.1) %>% 
   insert_top(tree_top_hm, height = 0.1)
 
+
+
+# Save results for GSEA GO
+write.csv(c1_cent_GO, "./results/diffex_gsea_target/c1_cent_GO.csv")
+write.csv(c2_cent_GO, "./results/diffex_gsea_target/c2_cent_GO.csv")
+write.csv(c3_cent_GO, "./results/diffex_gsea_target/c3_cent_GO.csv")
+
+# Save results for GSEA HM
+write.csv(c1_cent_hallmark, "./results/diffex_gsea_target/c1_cent_hallmark.csv")
+write.csv(c2_cent_hallmark, "./results/diffex_gsea_target/c2_cent_hallmark.csv")
+write.csv(c3_cent_hallmark, "./results/diffex_gsea_target/c3_cent_hallmark.csv")
+
+
