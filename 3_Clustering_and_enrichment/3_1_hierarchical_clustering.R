@@ -126,7 +126,7 @@ metadata_os %>%
   labs(x = "Survival", y = "N. of patients", fill = "Relapse") +
   theme_classic()
 
-metadata_os$clusters <- relevel(factor(metadata_os$clusters), 2)
+metadata_os$clusters <- relevel(factor(metadata_os$clusters), 3)
 
 cox <- survival::coxph(
   Surv(metadata_os$survival_time, metadata_os$survival_stat) ~ clusters,
@@ -175,8 +175,6 @@ surv_plot
 metadata_os %>%
   group_by(clusters) %>%
   dplyr::count(relapse_stat)
-
-metadata_os$clusters <- relevel(factor(metadata_os$clusters), 2)
 
 cox_rec <- survival::coxph(
   Surv(metadata_os$time_to_first_event, metadata_os$relapse_stat) ~ clusters,
@@ -254,3 +252,4 @@ cat("Residuals\n"); print(huvos_chi$residuals)
 
 
 rm(list = ls())
+gc()
