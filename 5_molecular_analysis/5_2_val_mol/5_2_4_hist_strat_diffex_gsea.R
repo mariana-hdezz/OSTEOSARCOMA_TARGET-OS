@@ -1,21 +1,3 @@
-
-
-metadata_gse33382_for_merge <- readRDS("output_data/metadata_gse33382_for_merge.RDS")
-metadata_gse21257_for_merge <- readRDS("output_data/metadata_gse21257_for_merge.RDS")
-counts_merged <- readRDS("output_data/counts_merged.RDS")
-gene_signature_gse <- scan("output_data/gene_signature_gse.csv", sep = ",", what = character())
-
-metadata_merged <- bind_rows(metadata_gse33382_for_merge,
-          metadata_gse21257_for_merge)
-
-
-metadata_merged_hist_sub <- metadata_merged %>% 
-  filter(hist_sub == "chondroblastic",
-         !(clusters == 1))
-
-
-
-
 library(limma)
 library(dplyr)
 library(ggplot2)
@@ -32,170 +14,129 @@ library(ggtree)
 library(aplot)
 
 
-metadata_difex <- metadata_merged_hist_sub
-
-counts_data_difex <- counts_merged
-
-# 1.1 Generate column corresponding to clusters nodes, those that have 0 in one group and those with more than 0 in another
-
-col_data <- metadata_difex %>% 
-  dplyr::select(geo_accession, clusters, cohort) %>% # Create only the object to use for Limma
-  column_to_rownames("geo_accession")
-
-
-
-
-# 2.- Differential expression -----------------------------------------------
-
-
-# 2.2 Data counts of the patients that had clusters node information in the metadata
-
-count_data <- counts_data_difex[colnames(counts_data_difex) %in% rownames(col_data)]
-
-# 2.2.2 Making shure they are in the same order
-
-count_data <- count_data[match(rownames(col_data), colnames(count_data))]
-
-all(colnames(count_data) == rownames(col_data))
-
-col_data$clusters <- relevel(factor(col_data$clusters), ref = "2")
-
-# 2.4 Design based on object separating on clusters nodes
-
-design <- model.matrix(~ cohort + clusters, data = col_data)
-
-# 2.4.2 Asign make.names objects as colnames
-
-colnames(design) <- make.names(colnames(design)) 
-
-# 2.5 Fit
-
-fit <- lmFit(count_data, design)
-
-
-contrast.matrix <- makeContrasts(clusters3,
-                                 levels = design)
-
-
-# 2.5.3 Fit based on contrasts
-
-fit <- contrasts.fit(fit, contrast.matrix)
-fit <- eBayes(fit)
-
-topTable(fit)
-
-# 2.6 Results
-
-res <- topTable(fit, coef = 1, number = Inf)
-
-# 2.6.2 Results that correspond to a signfiicant p value and log fold change
-
-res_sig <- res %>%
-  filter(adj.P.Val < 0.05 & abs(logFC) > 1.5) # 0.1
-print(res_sig)
-
-print(intersect(gene_signature_gse, rownames(res_sig)))
-
-
-res$entrez <- mapIds(org.Hs.eg.db,
-                     keys=rownames(res),
-                     column="ENTREZID", 
-                     keytype="SYMBOL", 
-                     multiVals="first") 
-
-res$name <-   mapIds(org.Hs.eg.db,
-                     keys=rownames(res), 
-                     column="GENENAME",
-                     keytype="SYMBOL",
-                     multiVals="first")
-
-gene_symbols <- rownames(count_data)
-
-res_lfc <- res$logFC
-
-# 9.1 Assign ENSEMBL names to Log Fold object
-
-names(res_lfc) <- rownames(res)
-
-# 9.2 Eliminate NA
-
-gene_list <- na.omit(res_lfc)
-
-
-# 9.3 Descendant order
-
-gene_list <- sort(gene_list, decreasing = TRUE)
-
-
-# 9.4 Objeto GSEA de Gene ontology
-
-gse <- gseGO(
-  geneList = gene_list, 
-  ont = "ALL", 
-  keyType = "SYMBOL", 
-  pvalueCutoff = 0.05, 
-  OrgDb = "org.Hs.eg.db",
-  minGSSize = 30, 
-  maxGSSize = 100 
-)
-
-# 9.4.1 Observar como data frame
-
-gse_df <- as.data.frame(gse)
-
-
-msigdbr_collections()
-
-m_df <- msigdbr(species = "Homo sapiens", category = "H")
-
-msig_t2g <- m_df %>% dplyr::select(gs_name, gene_symbol)
-
-gsea_res <- GSEA(
-  geneList     = gene_list,
-  TERM2GENE    = msig_t2g,
-  pvalueCutoff = 0.05,
-  pAdjustMethod = "BH",
-  verbose      = FALSE
-)
-
-gsea_df <- as.data.frame(gsea_res)
-
-# Create objects for heatmaps
-c3_vs_c2_GO <- data.frame(row.names = gse$Description,
-                          c3_vs_c2  = gse$NES)
-
-
-c3_vs_c2_hallmark <- data.frame(row.names = gsea_res$Description, 
-                                c3_vs_c2  = gsea_res$NES)
-
-
-c3_vs_c2_GO[is.na(c3_vs_c2_GO)] <- 0
-
-c3_vs_c2_hallmark[is.na(c3_vs_c2_hallmark)] <- 0
-
-
-ggplot(c3_vs_c2_GO, aes(x = colnames(c3_vs_c2_GO), y = rownames(c3_vs_c2_GO), fill = c3_vs_c2)) + 
-  geom_tile() +
-  scale_fill_distiller(palette = "Spectral") +
-  theme_classic() + 
-  scale_x_discrete(labels = "C3 vs C2") +
-  labs(title = "GSEA between clusters Gene Ontology C3 vs C2.GSE33382", 
-       x = "Clusters")
-
-
-
-ggplot(c3_vs_c2_hallmark, aes(x = colnames(c3_vs_c2_hallmark), y = rownames(c3_vs_c2_hallmark), fill = c3_vs_c2)) + 
-  geom_tile() +
-  scale_fill_distiller(palette = "Spectral") +
-  theme_classic() + 
-  scale_x_discrete(labels = "C3 vs C2") +
-  labs(title = "GSEA between clusters Hallmarks of cancer C3 vs C2. GSE33382", 
-       x = "Clusters")
-
-
-
-
-
-
-
-
+metadata_gse33382_for_merge <- readRDS("output_data/metadata_gse33382_for_merge.RDS")
+metadata_gse21257_for_merge <- readRDS("output_data/metadata_gse21257_for_merge.RDS")
+counts_merged <- readRDS("output_data/counts_merged.RDS")
+gene_signature_gse <- scan("output_data/gene_signature_gse.csv", sep = ",", what = character())
+
+metadata_merged <- bind_rows(metadata_gse33382_for_merge,
+                             metadata_gse21257_for_merge)
+
+table_cluster <- (table(metadata_merged$clusters, metadata_merged$hist_sub))
+
+table_cluster <- table_cluster[, colSums(table_cluster >= 3) >= 2]
+
+
+for(t in colnames(table_cluster)) {
+  
+  metadata_merged_hist_sub <- metadata_merged %>% 
+    filter(
+      hist_sub == as.character(t)
+    )
+  
+  
+  col_data <- metadata_merged_hist_sub %>% 
+    column_to_rownames("geo_accession")
+  
+  counts_data_difex <- counts_merged
+  
+  
+  # 2.- Differential expression -----------------------------------------------
+  
+  
+  # 2.2 Data counts of the patients that had clusters node information in the metadata
+  
+  count_data <- counts_data_difex[colnames(counts_data_difex) %in% rownames(col_data)]
+  
+  # 2.2.2 Making shure they are in the same order
+  
+  count_data <- count_data[match(rownames(col_data), colnames(count_data))]
+  
+  all(colnames(count_data) == rownames(col_data))
+  
+  
+  # 2.4 Design based on object separating on clusters nodes
+  
+  design <- model.matrix(~ 0  + clusters + cohort, data = col_data)
+  
+  # 2.4.2 Asign make.names objects as colnames
+  
+  colnames(design) <- make.names(colnames(design)) 
+  
+  # 2.5 Fit
+  
+  fit <- lmFit(count_data, design)
+  
+  
+  for (i in (1:(ncol(design)-1))) {
+    
+    if(i == 1 & t != "telangiectatic"){
+      
+      print(t)
+      print("1-2")
+      # 2.5.2 Contrast matrix comparing clusters 0 to > 0 clusters
+      
+      contrast.matrix <- makeContrasts(clusters1 - clusters2,
+                                       levels = design)
+      
+    }else if(i == 2 & t != "telangiectatic"){
+      print(t)
+      print("3-2")
+      contrast.matrix <- makeContrasts(clusters3 - clusters2,
+                                       levels = design)
+    }else if(i == 3 | (i == 1 & t == "telangiectatic")){
+      print(t)
+      print("3-1")
+      contrast.matrix <- makeContrasts(clusters3 - clusters1,
+                                       levels = design)
+    }else if(i == 2 & t == "telangiectatic"){
+      break
+    }
+    
+    
+    
+    # 2.5.3 Fit based on contrasts
+    
+    fit_2 <- contrasts.fit(fit, contrast.matrix)
+    fit_2 <- eBayes(fit_2)
+    
+    # 2.6 Results
+    
+    res <- topTable(fit_2, coef = 1, number = Inf)
+    
+    # 2.6.2 Results that correspond to a signfiicant p value and log fold change
+    
+    res_sig <- res %>%
+      filter(adj.P.Val < 0.05 & abs(logFC) > 1.5) # 0.1
+    
+    if(i == 1 & t != "telangiectatic"){
+      
+      write.csv(res, paste0("results/diffex_gsea_gse/", t, "_hist_strat_res_1v2_.csv"))
+      
+      write.csv(res_sig, paste0("results/diffex_gsea_gse/", t, "_hist_strat_res_sig_1v2_.csv"))
+      
+    }else if(i == 2 & t != "telangiectatic"){
+      
+      write.csv(res, paste0("results/diffex_gsea_gse/", t, "_hist_strat_res_3v2_.csv"))
+      
+      write.csv(res_sig, paste0("results/diffex_gsea_gse/", t, "_hist_strat_res_sig_3v2_.csv"))
+      
+    }else if(i == 3 | (i == 1 & t == "telangiectatic")){
+      
+      write.csv(res, paste0("results/diffex_gsea_gse/", t, "_hist_strat_res_3v1_.csv"))
+      
+      write.csv(res_sig, paste0("results/diffex_gsea_gse/", t, "_hist_strat_res_sig_3v1_.csv"))
+      
+    }
+    
+    source("5_molecular_analysis/5_2_val_mol/5_2_2_gsea_val.R")
+    
+    
+  }
+  
+  
+}
+
+rm(list = ls())
+
+gc()

@@ -84,7 +84,7 @@ gsea_go_hm <- as.data.frame(gsea_res)
 #> Then the sum of (cluster 1)^2 and (clsuter 3)^2 = 2 meanwhile the sum of (cluster 2)^2 with any of the other 2 will yield 1 so that means 
 #> cluster 2 is not taken into account in this round
 
-if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2){
+if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2 & t != "telangiectatic"){
 
   
   out_path_3v2_go <- paste0("results/diffex_gsea_gse/", "gsea_c3_vs_c2_GO_", t, ".csv")
@@ -93,7 +93,7 @@ if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2){
   write.csv(gsea_go_df, out_path_3v2_go)
   write.csv(gsea_go_hm, out_path_3v2_hm)
   
-}else if((contrast.matrix[2,])^2 + (contrast.matrix[1,])^2 == 2){
+}else if((contrast.matrix[2,])^2 + (contrast.matrix[1,])^2 == 2 & t != "telangiectatic"){
 
   
   out_path_1v2_go <- paste0("results/diffex_gsea_gse/", "gsea_c1_vs_c2_GO_", t, ".csv")
@@ -102,7 +102,7 @@ if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2){
   write.csv(gsea_go_df, out_path_1v2_go)
   write.csv(gsea_go_hm, out_path_1v2_hm)
   
-}else if((contrast.matrix[3,])^2 + (contrast.matrix[1,])^2 == 2){
+}else if((contrast.matrix[3,])^2 + (contrast.matrix[1,])^2 == 2 | t == "telangiectatic"){
 
 
   
