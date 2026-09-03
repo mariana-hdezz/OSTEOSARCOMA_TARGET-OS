@@ -76,7 +76,8 @@ dim(counts_raw)
 
 mart <- useEnsembl(
   biomart = "genes",
-  dataset = "hsapiens_gene_ensembl")
+  dataset = "hsapiens_gene_ensembl",
+  host = "https://jun2026.archive.ensembl.org")
 
 
 genes <- biomaRt::getBM(
@@ -256,7 +257,8 @@ dim(counts_raw_fpkm)
 
 mart <- useEnsembl(
   biomart = "genes",
-  dataset = "hsapiens_gene_ensembl")
+  dataset = "hsapiens_gene_ensembl",
+  host = "https://jun2026.archive.ensembl.org")
 
 
 genes <- biomaRt::getBM(
@@ -325,3 +327,4 @@ saveRDS(gene_dist, "./output_data/gene_dist.RDS")
 
 rm(list = ls())
 gc()
+
