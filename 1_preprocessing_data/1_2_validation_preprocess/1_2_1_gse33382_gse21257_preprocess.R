@@ -313,6 +313,7 @@ saveRDS(counts_data_gse21257, "output_data/counts_data_gse21257.RDS")
 saveRDS(counts_data_gse33382, "output_data/counts_data_gse33382.RDS")
 saveRDS(annot, "output_data/annot.RDS")
 saveRDS(counts_merged, "output_data/counts_merged.RDS")
+saveRDS(counts_batch, "output_data/counts_batch.RDS")
 
 
 rm(list = ls())

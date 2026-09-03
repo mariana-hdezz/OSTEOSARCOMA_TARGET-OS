@@ -40,7 +40,7 @@ library(ggtree)
 metadata_gse33382_for_merge <- readRDS("output_data/metadata_gse33382_for_merge.RDS")
 metadata_gse21257_for_merge <- readRDS("output_data/metadata_gse21257_for_merge.RDS")
 
-counts_merged <- readRDS("output_data/counts_merged.RDS")
+counts_merged <- readRDS("output_data/counts_batch.RDS")
 
 gene_signature_gse <- scan("output_data/gene_signature_gse.csv", sep = ",", what = character())
 
