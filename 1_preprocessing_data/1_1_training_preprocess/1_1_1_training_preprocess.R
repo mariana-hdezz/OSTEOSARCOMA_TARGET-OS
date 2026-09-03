@@ -1,3 +1,4 @@
+################################################################################
 # This script prepossesses counts data and metadata
 
 #> Main output objects:
@@ -7,7 +8,9 @@
 #> metadata_os_surv: metadata useful for survival analysis
 #> metadata_os_rec: metadata useful for recurrence analysis
 #> metadata_os_met: metadata useful for metastasis analysis
-
+#> 
+#> At the end directories for future processes are created, their names are already included in gitignore
+################################################################################
 
 library(TCGAbiolinks)
 library(data.table)
@@ -292,16 +295,31 @@ fpkm_data <- fpkm_data[, colnames(fpkm_data) %in% metadata_os$sample]
 
 fpkm_data_log <- log(fpkm_data + 1)
 
+if(dir.exists("./output_data/")){
+  "Output adata directory already exists"
+}else{
+  dir.create("./output_data/")
+}
+
+if(dir.exists("./boruta/")){
+  "boruta directory already exists"
+}else{
+  dir.create("./boruta/")
+} 
+
+if(dir.exists("./results/")){
+  "results directory already exists"
+}else{
+  dir.create("./results/")
+} 
+
 
 saveRDS(vst_counts, "./output_data/vst_counts.RDS")
-
 saveRDS(metadata_os, "./output_data/metadata_os.RDS")
-
 saveRDS(counts_data, "./output_data/counts_data.RDS")
-
 saveRDS(fpkm_data, "./output_data/fpkm_data.RDS")
-
 saveRDS(gene_dist, "./output_data/gene_dist.RDS")
 
 
 rm(list = ls())
+gc()

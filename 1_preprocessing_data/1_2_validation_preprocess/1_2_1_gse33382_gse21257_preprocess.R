@@ -90,6 +90,7 @@ metadata_gse21257 <- pheno_gse21257 %>%
            ),
            TRUE ~ NA_real_
          ),
+         response = ifelse(huvos %in% c("1", "2"), "Poor (<90%)", "Good (>=90%)"),
          cohort = "GSE21257"
          ) %>% 
   
@@ -189,7 +190,13 @@ metadata_33382 <- pheno_gse33382 %>%
     hist_sub = ifelse(hist_sub_com == "fibroblastic MFH-like" | hist_sub_com == "fibroblastic giant cell rich" | hist_sub_com == "gibroblastic",
                           "fibroblastic",
                           as.character(hist_sub_com)),
-    cohort = "GSE33382"
+    cohort = "GSE33382",
+    response = ifelse(huvos %in% c("1", "2"), "Poor (<90%)", "Good (>=90%)"),
+    metastasis_5y = case_when(
+      metastasis_5y == "no"~ 0,
+      metastasis_5y == "yes" ~ 1,
+      is.na(metastasis_5y) ~ NA
+    )
   ) %>% 
   dplyr::select(- c(
     extract_protocol_ch1,
