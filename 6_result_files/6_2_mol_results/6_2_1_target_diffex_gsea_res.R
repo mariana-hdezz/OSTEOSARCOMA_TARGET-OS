@@ -19,33 +19,43 @@ res_sig_3v2  <-  read.csv("./results/diffex_gsea_target/res_sig_3v2.csv")
 res_sig_3v1  <-  read.csv("./results/diffex_gsea_target/res_sig_3v1.csv")
 
 
-# ANALYSIS 
+# ------ Analysis ------
 
-# Differentialy expressed genes in cluster 3 utilizing cluster 1 as reference
-dim(res_sig_3v1) # View the total of diffex genes
+# Total significant differentialy expressed genes in each cluster comparisson 
+dim(res_sig_1v2)
+dim(res_sig_3v2)
+dim(res_sig_3v1)
 
-res_sig_3v1 %>% 
-  filter(log2FoldChange >= 0)
+# Significant genes for cluster 1 (logfoldchange  >0) when comparing vs cluster 2
+res_sig_1v2$X[res_sig_1v2$log2FoldChange > 0]
+sort(res_sig_1v2$log2FoldChange[res_sig_1v2$log2FoldChange > 0], decreasing = TRUE) 
 
+# Significant genes for cluster 2 (logfoldchange <0) when comparing vs cluster 1
+res_sig_1v2$X[res_sig_1v2$log2FoldChange < 0]
+sort(res_sig_1v2$log2FoldChange[res_sig_1v2$log2FoldChange > 0], decreasing = TRUE) 
+
+# Significant genes for cluster 3 (logfoldchange  >0) when comparing vs cluster 2
+res_sig_3v2$X[res_sig_3v2$log2FoldChange > 0]
+
+# Significant genes for cluster 2 (logfoldchange <0) when comparing vs cluster 3
+res_sig_3v2$X[res_sig_3v2$log2FoldChange < 0]
+
+# Significant genes for cluster 3 (logfoldchange >0) when comparing vs cluster 3
+res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0]
+
+# Significant genes for cluster 1 (logfoldchange  >0) when comparing vs cluster 3
 res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0]
 
 
-sort(res_sig_3v1$log2FoldChange[res_sig_3v1$log2FoldChange > 0], decreasing = TRUE)
+# View which of the selected genes in each comparison
+intersect_1v2 <- intersect(res_sig_1v2$X, gene_signature)
+intersect_3v2 <- intersect(res_sig_3v2$X, gene_signature)
+intersect_3v1 <-intersect(res_sig_3v1$X, gene_signature)
 
-res_view <- res_sig_3v1 %>% 
-  arrange(desc(by = log2FoldChange))
-
-res_sig_3v1$X[res_sig_3v1$log2FoldChange < 0]
-
-
-genes_inter <- intersect(res_sig_3v1$X, gene_signature )
-
-cat(genes_inter3, sep = ", ")
-
-genes_inter2 <- res_sig_3v1[res_sig_3v1$X %in% gene_signature, ]
-
-genes_inter3 <- genes_inter2$X[genes_inter2$log2FoldChange < 0]
-
+# List
+cat(intersect_1v2, sep = ", ")
+cat(intersect_3v2, sep = ", ")
+cat(intersect_3v1, sep = ", ")
 
 
 
@@ -55,12 +65,42 @@ gsea_df_GO3.vs.1 <-  read_csv("./results/diffex_gsea_target/gsea_df_GO3_vs_1.csv
 gsea_df_GO3.vs.2 <-  read_csv("./results/diffex_gsea_target/gsea_df_GO3_vs_2.csv")
 gsea_df_GO1.vs.2 <-  read_csv("./results/diffex_gsea_target/gsea_df_GO1_vs_2.csv")
 
+# ------ Analysis ------
+gsea_df_GO3.vs.1 %>%
+  arrange(desc(NES)) %>%
+  dplyr::select(Description, NES, p.adjust) %>%
+  head(50)
+
+gsea_df_GO3.vs.2 %>%
+  arrange(desc(NES)) %>%
+  dplyr::select(Description, NES, p.adjust) %>%
+  head(50)
+
+gsea_df_GO1.vs.2 %>%
+  arrange(desc(NES)) %>%
+  dplyr::select(Description, NES, p.adjust) %>%
+  head(50)
+
+
 
 # ------- 3-DATA LOADING FOR CLUSTER COMPARISSON GSEA HALLMARK RESULTS ---------
 
 gsea_df_HM3.vs.1 <-  read_csv("./results/diffex_gsea_target/gsea_df_HM3_vs_1.csv")
 gsea_df_HM3.vs.2 <-  read_csv("./results/diffex_gsea_target/gsea_df_HM3_vs_2.csv")
 gsea_df_HM1.vs.2 <-  read_csv("./results/diffex_gsea_target/gsea_df_HM1_vs_2.csv")
+
+# ------ Analysis ------
+gsea_df_HM3.vs.1 %>%
+  arrange(desc(NES)) %>%
+  dplyr::select(Description, NES, p.adjust)
+
+gsea_df_HM3.vs.2 %>%
+  arrange(desc(NES)) %>%
+  dplyr::select(Description, NES, p.adjust) 
+
+gsea_df_HM1.vs.2 %>%
+  arrange(desc(NES)) %>%
+  dplyr::select(Description, NES, p.adjust)
 
 
 # ------- 4-DATA LOADING FOR "MEAN-BASED" GSEA GO RESULTS ------------
@@ -69,21 +109,10 @@ c1_cent_GO <-  read_csv("./results/diffex_gsea_target/c1_cent_GO.csv")
 c2_cent_GO <-  read_csv("./results/diffex_gsea_target/c2_cent_GO.csv")
 c3_cent_GO <-  read_csv("./results/diffex_gsea_target/c3_cent_GO.csv")
 
-
-# ------- 5-DATA LOADING FOR "MEAN-BASED" GSEA HM RESULTS ------------
-
-c1_cent_hallmark <-  read_csv("./results/diffex_gsea_target/c1_cent_hallmark.csv")
-c2_cent_hallmark <-  read_csv("./results/diffex_gsea_target/c2_cent_hallmark.csv")
-c3_cent_hallmark <-  read_csv("./results/diffex_gsea_target/c3_cent_hallmark.csv")
-
-
-
-# ANALYSIS
-
+# ------ Analysis ------
 c1_cent_GO %>%
   rownames_to_column("pathway") %>%
   filter(c1 > 0) %>%
-  arrange(desc(c1)) %>%
   head(50)
 
 c2_cent_GO %>%
@@ -99,27 +128,26 @@ c3_cent_GO %>%
   head(50)
 
 
+# ------- 5-DATA LOADING FOR "MEAN-BASED" GSEA HM RESULTS ------------
 
+c1_cent_hallmark <-  read_csv("./results/diffex_gsea_target/c1_cent_hallmark.csv")
+c2_cent_hallmark <-  read_csv("./results/diffex_gsea_target/c2_cent_hallmark.csv")
+c3_cent_hallmark <-  read_csv("./results/diffex_gsea_target/c3_cent_hallmark.csv")
 
-
-# ANALYSIS
-
+# ------ Analysis ------
 # View top 30 (interchangeable) enriched genes for each cluster
 
 c1_cent_hallmark %>%
   rownames_to_column("pathway") %>%
   filter(c1 > 0) %>%
-  arrange(desc(c1)) %>%
-  head(30)
+  arrange(desc(c1)) 
 
 c2_cent_hallmark %>%
   rownames_to_column("pathway") %>%
   filter(c2 > 0) %>%
-  arrange(desc(c2)) %>%
-  head(30)
+  arrange(desc(c2)) 
 
 c3_cent_hallmark %>%
   rownames_to_column("pathway") %>%
   filter(c3 > 0) %>%
-  arrange(desc(c3)) %>%
-  head(30)
+  arrange(desc(c3)) 
