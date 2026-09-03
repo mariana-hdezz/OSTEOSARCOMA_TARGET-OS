@@ -35,7 +35,9 @@ ensembl_annot <- data.frame(Gene = unlist(mget(
 )))
 
 
-mart <- useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl") 
+mart <- useEnsembl("ensembl", 
+                   dataset = "hsapiens_gene_ensembl",
+                   host = "https://jun2026.archive.ensembl.org") 
 
 
 myannot <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"),
