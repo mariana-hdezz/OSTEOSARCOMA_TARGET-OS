@@ -65,7 +65,6 @@ counts_data_dseq <- counts_data_dseq[ , metadata_os$sample]
 
 
 #Pt in columns
-#-------------------- DIFFERENTIAL EXPRESSION DESeq2 --------------------------
 
 dds <- DESeqDataSetFromMatrix(countData = counts_data_dseq,
                               colData = metadata_os_clusters,
@@ -77,7 +76,10 @@ results_list_go <- list()
 results_list_hm <- list()
 
 for (i in 1:(length(unique(dds$clusters)) - 1)) {
-  dds$clusters <- relevel(dds$clusters, ref = i)
+  
+  dds$clusters <- factor(dds$clusters)
+  
+  dds$clusters <- relevel(dds$clusters, ref = as.character(i))
   
   dds <- DESeq(dds)
   
@@ -212,9 +214,9 @@ write.csv(res_sig_1v2, "results/diffex_gsea_target/res_sig_1v2.csv")
 write.csv(res_sig_3v2, "results/diffex_gsea_target/res_sig_3v2.csv")
 write.csv(res_sig_3v1, "results/diffex_gsea_target/res_sig_3v1.csv")
 
-write.csv(res_1_vs_2, "results/diffex_gsea_target/res_1_vs_2.csv")
-write.csv(res_3_vs_2, "results/diffex_gsea_target/res_3_vs_2.csv")
-write.csv(res_3_vs_1, "results/diffex_gsea_target/res_3_vs_1.csv")
+write.csv(res_1_vs_2 , "results/diffex_gsea_target/res_1_vs_2.csv")
+write.csv(res_3_vs_2 , "results/diffex_gsea_target/res_3_vs_2.csv")
+write.csv(res_3_vs_1 , "results/diffex_gsea_target/res_3_vs_1.csv")
 
 
 
@@ -369,3 +371,4 @@ heatmap_hm %>%
 
 
 rm(list = ls())
+gc()
