@@ -22,9 +22,9 @@ files_gsea <-
     gsea_chond 
   )
 
-names(files_diffex) <-  gsub("^results/diffex_gsea_gse/(.*)_\\.csv$", "\\1", files_diffex)
+names(files_diffex) <-  gsub("^results/diffex_gsea_gse//(.*)_\\.csv$", "\\1", files_diffex)
 
-names(files_gsea) <-  gsub("^results/diffex_gsea_gse/(.*)\\.csv$", "\\1", files_gsea)
+names(files_gsea) <-  gsub("^results/diffex_gsea_gse//(.*)\\.csv$", "\\1", files_gsea)
 
 
 diffex <- lapply(files_diffex, function(i){
