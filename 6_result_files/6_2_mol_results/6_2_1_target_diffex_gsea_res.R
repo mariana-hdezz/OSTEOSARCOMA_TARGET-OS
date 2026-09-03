@@ -1,4 +1,58 @@
 
+#############################################################################
+#> Script to a fast view the results from differential expression and GSEA of TCGA-OS
+#> 
+#> This correspond to the script used for our comprehension of the 
+#>  results with what we thought was needed at the time, but further analysis can 
+#>  be conducted for whom presents interest with the following objects that are saved 
+#>  in previous scripts.
+#> 
+#> 
+#> Inputs:
+#> ##> # This corresponds to the 37 gene signature:
+##> 
+##> gene_signature.csv
+##> 
+#>
+#>  
+#>  This corresponds to the overall results of the diffex in each comparison:
+#>  
+#>  res_1_vs_2.csv
+#>  res_3_vs_2.csv
+#>  res_3_vs_1.csv
+##> 
+##> 
+##> This corresponds to the results after filtering by LFC and adj p value:
+##> 
+##> res_sig_1v2.csv
+##> res_sig_3v2.csv
+##> res_sig_3v1.csv
+##> 
+##> 
+##> This are the results of the GSEA for each cluster comparison for both GO and 
+##> Hallmark terms
+##> 
+##> gsea_df_GO3.vs.1.csv
+##> gsea_df_GO3.vs.2.csv
+##> gsea_df_GO1.vs.2.csv
+##> gsea_df_HM3.vs.1.csv 
+##> gsea_df_HM3.vs.2.csv 
+##> gsea_df_HM1.vs.2.csv 
+##> 
+##> This are the results of the mean-based GSEA for each cluster for both GO
+##> and Hallmark terms:
+##> 
+##> c1_cent_GO.csv
+##> c2_cent_GO.csv
+##> c3_cent_GO.csv
+##> c1_cent_hallmark.csv
+##> c2_cent_hallmark.csv
+##> c3_cent_hallmark.csv
+##> 
+##> 
+############################################################################
+
+
 #------------------- TARGET-OS RESULTS EASY ACCESS -----------------------
 
 # ------------- 1-DATA LOADING FOR DIFFERENTIAL EXPRESSION RESULTS ------------
@@ -103,6 +157,7 @@ gsea_df_HM1.vs.2 %>%
   dplyr::select(Description, NES, p.adjust)
 
 
+
 # ------- 4-DATA LOADING FOR "MEAN-BASED" GSEA GO RESULTS ------------
 
 c1_cent_GO <-  read_csv("./results/diffex_gsea_target/c1_cent_GO.csv")
@@ -151,3 +206,8 @@ c3_cent_hallmark %>%
   rownames_to_column("pathway") %>%
   filter(c3 > 0) %>%
   arrange(desc(c3)) 
+
+
+
+rm(list = ls())
+gc()
