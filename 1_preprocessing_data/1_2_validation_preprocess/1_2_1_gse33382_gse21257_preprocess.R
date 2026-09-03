@@ -15,7 +15,7 @@ library(tibble)
 library(readr)
 library(stringr)
 library(hgu133a.db)
-
+library(ggplot2)
 
 gpl <- getGEO("GPL10295", AnnotGPL = TRUE)
 

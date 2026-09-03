@@ -16,28 +16,26 @@ res$name <-   mapIds(org.Hs.eg.db,
 
 
 
-
-
 gene_symbols <- rownames(count_data)
 
 
 res_lfc <- res$logFC
 
-# 9.1 Asignar al objeto de Log Fold los nombres de ENSEMBL
+# Asign the gene names to log fold change object
 
 names(res_lfc) <- rownames(res)
 
-# 9.2 Eliminar los NA
+# Delete NA
 
 gene_list <- na.omit(res_lfc)
 
 
-# 9.3 Ordena en orden descendente
+# Sort descending
 
 gene_list <- sort(gene_list, decreasing = TRUE)
 
 
-# 9.4 Objeto GSEA de Gene ontology
+# GSEA object GO
 
 gse <- gseGO(
   geneList = gene_list, 
@@ -51,9 +49,9 @@ gse <- gseGO(
 )
   
 gsea_go_df <- as.data.frame(gse)
-# 9.4.1 Observar como data frame
 
 
+# gsea hallmarks
 
 msigdbr_collections()
 
@@ -76,7 +74,7 @@ gsea_go_hm <- as.data.frame(gsea_res)
 
 # Create objects for heatmaps ---------------------------------------------
 
-# if else conditional logic where if in the contrast.matrix object generated on diff_expr_val_sets.R the contrast is between cluster i and j 
+# if else conditional logic where if in the contrast.matrix object generated on 5_2_1diffex_val.R the contrast is between cluster i and j 
 # then that section of the script will run
 # For example, since the contrast matrix looks like this in c3 vs c1 
 #> contrast.matrix

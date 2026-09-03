@@ -301,17 +301,19 @@ if(dir.exists("./output_data/")){
   dir.create("./output_data/")
 }
 
-if(dir.exists("./boruta/")){
-  "boruta directory already exists"
-}else{
-  dir.create("./boruta/")
-} 
 
 if(dir.exists("./results/")){
   "results directory already exists"
 }else{
   dir.create("./results/")
 } 
+
+if(dir.exists("./results/boruta/")){
+  "boruta directory already exists"
+}else{
+  dir.create("./results/boruta/")
+} 
+
 
 
 saveRDS(vst_counts, "./output_data/vst_counts.RDS")

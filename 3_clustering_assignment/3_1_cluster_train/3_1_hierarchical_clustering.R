@@ -1,5 +1,6 @@
 library(cluster)
 library(Boruta)
+library(factoextra)
 
 #############################################################################
 #> Hierarchical clustering on train set (TARGET_OS patients), utilizing

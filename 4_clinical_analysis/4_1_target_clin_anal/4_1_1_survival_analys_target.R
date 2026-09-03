@@ -162,3 +162,6 @@ saveRDS(cox_rec , "./results/clinical_res/cox_rec.RDS")
 saveRDS(surv_plot , "./results/clinical_res/surv_plot.RDS")
 saveRDS(surv_plot_rec , "./results/clinical_res/surv_plot_rec.RDS")
 saveRDS(huvos_chi, "./results/clinical_res/huvos_chisqr_target.RDS")
+
+rm(list = ls())
+gc()

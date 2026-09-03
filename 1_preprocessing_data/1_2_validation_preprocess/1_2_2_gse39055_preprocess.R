@@ -112,17 +112,8 @@ metadata_gse39055 <- metadata_gse39055 %>%
 identical(colnames(counts_data_gse39055), metadata_gse39055$id)
 
 
-# Match common genes from TARGET-OS signature with GSE39055
-
-gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
-
-# Confirm all genes in signature are found in new gse
-
-common_genes_TARGET_GSE39055 <- intersect(gene_signature, rownames(counts_data_gse39055))
-
-length(common_genes_TARGET_GSE39055)
-
 saveRDS(metadata_gse39055, "output_data/metadata_gse39055.RDS")
 saveRDS(counts_data_gse39055, "output_data/counts_data_gse39055.RDS")
 
 rm(list = ls())
+gc()

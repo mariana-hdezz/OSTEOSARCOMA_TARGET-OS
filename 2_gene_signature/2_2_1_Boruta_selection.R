@@ -119,7 +119,7 @@ total_counts_pert$rank_pert <- seq_along(total_counts_pert$Var1)
 
 # Lasso
 
-source("2_Boruta_multiple/2_2_2_lasso_eleasticNet.R")
+source("2_gene_signature//2_2_2_lasso_eleasticNet.R")
 
 
 # Visualization and gene signature creation ----------------------------------

@@ -148,112 +148,16 @@ for (i in 1:nrow(cluster_gene_mean)) {
   }
 }
 
-# Keep top and lower 25% of C1 and all of c2 and c3
-
-c1_cent_GO_10 <- c1_cent_GO %>% 
-  filter(c1 > quantile(c1, 0.92) | c1 < quantile(c1, 0.07))
-
-c2_cent_GO_10 <- c2_cent_GO %>% 
-  filter(c2 > quantile(c2, 0.97) | c2 < quantile(c2, 0.12))
-
-c3_cent_GO_10 <- c3_cent_GO %>% 
-  filter(c3 > quantile(c3, 0.9) | c3 < quantile(c3, 0.1))
-
-# Join and convert to matrix
-
-gsea_GO_mat <- merge(c3_cent_GO_10, (merge(c1_cent_GO_10, c2_cent_GO_10, by = 0, all = TRUE) %>% tibble::column_to_rownames("Row.names")), by = 0, all = TRUE)
-
-gsea_GO_mat <- gsea_GO_mat %>% 
-  tibble::column_to_rownames("Row.names") %>% 
-  as.matrix()
-
-gsea_GO_mat[is.na(gsea_GO_mat)] <- 0
-
-# Distances for dendofram
-
-row_hc <- hclust(dist(gsea_GO_mat))
-col_hc <- hclust(dist(t(gsea_GO_mat)))
 
 
-# Heatmap
-
-heatmap_gsea <- gsea_GO_mat %>% 
-  as.data.frame() %>% 
-  tibble::rownames_to_column("path") %>% 
-  pivot_longer(cols = c("c1", "c2", "c3"), names_to = "clusters") %>% 
-  ggplot(aes(x = clusters, y = path, fill = value)) +
-  geom_tile() +
-  scale_fill_distiller(palette = "Spectral", direction = -1) +
-  scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
-  scale_y_discrete(expand = c(0, 0)) +  
-  theme_classic() +
-  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA from clusters means")
+write.csv(c1_cent_GO      , "./results/diffex_gsea_gse/c1_cent_GO.csv"      )
+write.csv(c1_cent_hallmark, "./results/diffex_gsea_gse/c1_cent_hallmark.csv")
+write.csv(c2_cent_GO      , "./results/diffex_gsea_gse/c2_cent_GO.csv"      )
+write.csv(c2_cent_hallmark, "./results/diffex_gsea_gse/c2_cent_hallmark.csv")
+write.csv(c3_cent_GO      , "./results/diffex_gsea_gse/c3_cent_GO.csv"      )
+write.csv(c3_cent_hallmark, "./results/diffex_gsea_gse/c3_cent_hallmark.csv")
 
 
-# Dendograms
 
-tree_right <- ggtree(row_hc) + 
-  scale_x_reverse() + 
-  scale_y_continuous(expand = c(0, 0))
-
-tree_top <- ggtree(col_hc, hang = -1) + 
-  layout_dendrogram() + 
-  scale_y_reverse(expand = c(0, 0))
-
-# Full heatmap
-
-heatmap_gsea %>% 
-  insert_right(tree_right, width = 0.1) %>% 
-  insert_top(tree_top, height = 0.1)
-
-################################################################################
-
-c1_cent_hallmark_10 <- c1_cent_hallmark %>% 
-  filter(c1 > quantile(c1, 0.75) | c1 < quantile(c1, 0.75))
-
-c2_cent_hallmark_10 <- c2_cent_hallmark %>% 
-  filter(c2 > quantile(c2, 0.75) | c2 < quantile(c2, 0.75))
-
-c3_cent_hallmark_10 <- c3_cent_hallmark %>% 
-  filter(c3 > quantile(c3, 0.75) | c3 < quantile(c3, 0.75))
-
-# Join and convert to matrix
-
-gsea_hallmark_mat <- merge(c3_cent_hallmark_10, (merge(c1_cent_hallmark_10, c2_cent_hallmark_10, by = 0, all = TRUE) %>% tibble::column_to_rownames("Row.names")), by = 0, all = TRUE)
-
-gsea_hallmark_mat <- gsea_hallmark_mat %>% 
-  tibble::column_to_rownames("Row.names") %>% 
-  as.matrix()
-
-gsea_hallmark_mat[is.na(gsea_hallmark_mat)] <- 0
-
-
-row_hc <- hclust(dist(gsea_hallmark_mat))
-col_hc <- hclust(dist(t(gsea_hallmark_mat)))
-
-
-heatmap_gsea_hm <- gsea_hallmark_mat %>% 
-  as.data.frame() %>% 
-  tibble::rownames_to_column("path") %>% 
-  pivot_longer(cols = c("c1", "c2", "c3"), names_to = "clusters") %>% 
-  ggplot(aes(x = clusters, y = path, fill = value)) +
-  geom_tile() +
-  scale_fill_distiller(palette = "Spectral", direction = -1) +
-  scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
-  scale_y_discrete(expand = c(0, 0)) +  
-  theme_classic() +
-  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA from clusters means")
-
-
-tree_right_hm <- ggtree(row_hc) + 
-  scale_x_reverse() + 
-  scale_y_continuous(expand = c(0, 0))
-
-tree_top_hm <- ggtree(col_hc, hang = -1) + 
-  layout_dendrogram() + 
-  scale_y_reverse(expand = c(0, 0))
-
-heatmap_gsea_hm %>% 
-  insert_right(tree_right_hm, width = 0.1) %>% 
-  insert_top(tree_top_hm, height = 0.1)
-
+rm(list = ls())
+gc()
