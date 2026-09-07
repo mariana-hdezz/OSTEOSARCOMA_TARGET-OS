@@ -98,7 +98,7 @@ res_sig_3v2$X[res_sig_3v2$log2FoldChange < 0]
 res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0]
 
 # Significant genes for cluster 1 (logfoldchange  >0) when comparing vs cluster 3
-res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0]
+res_sig_3v1$X[res_sig_3v1$log2FoldChange < 0]
 
 
 # View which of the selected genes in each comparison
