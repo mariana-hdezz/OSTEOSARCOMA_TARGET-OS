@@ -1,4 +1,4 @@
-
+library(dplyr)
 #############################################################################
 #> Script to a fast view the results from differential expression and GSEA of TCGA-OS
 #> 
@@ -82,27 +82,51 @@ dim(res_sig_3v1)
 
 # Significant genes for cluster 1 (logfoldchange  >0) when comparing vs cluster 2
 res_sig_1v2$X[res_sig_1v2$log2FoldChange > 0]
-sort(res_sig_1v2$X[res_sig_1v2$log2FoldChange > 0], decreasing = TRUE) 
+
+res_sig_1v2 %>%
+  filter(log2FoldChange > 0) %>%
+  arrange(desc(log2FoldChange)) %>%
+  head(5)
 
 # Significant genes for cluster 2 (logfoldchange <0) when comparing vs cluster 1
 res_sig_1v2$X[res_sig_1v2$log2FoldChange < 0]
-sort(res_sig_1v2$X[res_sig_1v2$log2FoldChange < 0], decreasing = TRUE) 
+
+res_sig_1v2 %>%
+  filter(log2FoldChange < 0) %>%
+  arrange(desc(log2FoldChange)) %>%
+  head(5)
 
 # Significant genes for cluster 3 (logfoldchange  >0) when comparing vs cluster 2
 res_sig_3v2$X[res_sig_3v2$log2FoldChange > 0]
-sort(res_sig_3v2$X[res_sig_3v2$log2FoldChange > 0], decreasing = TRUE) 
+
+res_sig_3v2 %>%
+  filter(log2FoldChange > 0) %>%
+  arrange(desc(log2FoldChange)) %>%
+  head(5)
 
 # Significant genes for cluster 2 (logfoldchange <0) when comparing vs cluster 3
 res_sig_3v2$X[res_sig_3v2$log2FoldChange < 0]
-sort(res_sig_3v2$X[res_sig_3v2$log2FoldChange < 0], decreasing = TRUE) 
+
+res_sig_3v2 %>%
+  filter(log2FoldChange < 0) %>%
+  arrange(desc(log2FoldChange)) %>%
+  head(5)
 
 # Significant genes for cluster 3 (logfoldchange >0) when comparing vs cluster 3
 res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0]
-sort(res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0], decreasing = TRUE) 
+
+res_sig_3v1 %>%
+  filter(log2FoldChange > 0) %>%
+  arrange(desc(log2FoldChange)) %>%
+  head(5)
 
 # Significant genes for cluster 1 (logfoldchange  >0) when comparing vs cluster 3
 res_sig_3v1$X[res_sig_3v1$log2FoldChange < 0]
-sort(res_sig_3v1$X[res_sig_3v1$log2FoldChange < 0], decreasing = TRUE) 
+
+res_sig_3v1 %>%
+  filter(log2FoldChange < 0) %>%
+  arrange(desc(log2FoldChange)) %>%
+  head(5)
 
 # View which of the selected genes in each comparison
 intersect_1v2 <- intersect(res_sig_1v2$X, gene_signature)
