@@ -44,6 +44,7 @@
 ############################################################################
 
 library(dplyr)
+library(tibble)
 
 # Load data
 
@@ -139,3 +140,4 @@ gsea_c3_vs_c2_hm_gse21257[gsea_c3_vs_c2_hm_gse21257$ID %in% intersect(gsea_c3_vs
 
 gsea_c3_vs_c1_GO_gse21257[gsea_c3_vs_c1_GO_gse21257$ID %in% intersect(gsea_c3_vs_c1_GO_gse21257$ID, gsea_c3_vs_c1_GO_gse33382$ID), ]
 gsea_c3_vs_c1_hm_gse21257[gsea_c3_vs_c1_hm_gse21257$ID %in% intersect(gsea_c3_vs_c1_hm_gse21257$ID, gsea_c3_vs_c1_hm_gse33382$ID), ]
+
