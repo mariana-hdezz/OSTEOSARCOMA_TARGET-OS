@@ -52,6 +52,9 @@ library(dplyr)
 ##> 
 ############################################################################
 
+library(dplyr)
+library(tibble)
+library(readr)
 
 #------------------- TARGET-OS RESULTS EASY ACCESS -----------------------
 
