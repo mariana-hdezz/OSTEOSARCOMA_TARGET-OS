@@ -45,6 +45,8 @@ heat_hist              <- readRDS("./results/clinical_res/heat_hist.RDS")
 heat_huvos             <- readRDS("./results/clinical_res/heat_huvos.RDS")
 hist_chi_sqr           <- readRDS("./results/clinical_res/hist_chi_sqr.RDS")
 huvos_val_chsq         <- readRDS("./results/clinical_res/huvos_val_chsq.RDS")
+huvos_meta_plot        <- readRDS("./results/clinical_res/huvos_meta_plot.RDS")
+
 
 # Summary of the survival cox
 

@@ -148,6 +148,15 @@ huvos_meta <- metadata_os %>%
 
 huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simulate.p.value = TRUE, B = 10000)
 
+huvos_meta_plot <- 
+  huvos_meta %>% 
+  group_by(clusters) %>% 
+  count(huvos_bin) %>% 
+  ggplot(aes(x = clusters, y = huvos_bin, fill = n))+
+    geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
+    scale_fill_distiller(palette = "Spectral", direction = -1) + 
+    theme_classic(base_size = 30) +
+    labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
 
 if(dir.exists("./results/clinical_res/")){
   "Directory already exists"
@@ -162,6 +171,7 @@ saveRDS(cox_rec , "./results/clinical_res/cox_rec.RDS")
 saveRDS(surv_plot , "./results/clinical_res/surv_plot.RDS")
 saveRDS(surv_plot_rec , "./results/clinical_res/surv_plot_rec.RDS")
 saveRDS(huvos_chi, "./results/clinical_res/huvos_chisqr_target.RDS")
+saveRDS(huvos_meta_plot, "./results/clinical_res/huvos_meta_plot.RDS")
 
 rm(list = ls())
 gc()

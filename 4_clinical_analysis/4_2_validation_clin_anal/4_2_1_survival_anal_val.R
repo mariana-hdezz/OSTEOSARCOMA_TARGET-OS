@@ -225,7 +225,7 @@ heat_huvos <- metad_table_huvos %>%
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
   scale_fill_distiller(palette = "Spectral", direction = -1) + 
   theme_classic(base_size = 30) +
-  labs(x = "Clusters", y = "Histologic subtype", fill = "Freq", title = "Proportion of cluster for each histologic subtype")
+  labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
 
 
 saveRDS(surv_plot_gse21257     , "./results/clinical_res/surv_plot_gse21257.RDS")
