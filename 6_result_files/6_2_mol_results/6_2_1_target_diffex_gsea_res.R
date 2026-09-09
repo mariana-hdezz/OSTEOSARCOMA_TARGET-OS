@@ -115,7 +115,7 @@ res_sig_3v2 %>%
   arrange(desc(log2FoldChange)) %>%
   head(5)
 
-# Significant genes for cluster 3 (logfoldchange >0) when comparing vs cluster 3
+# Significant genes for cluster 3 (logfoldchange >0) when comparing vs cluster 1
 res_sig_3v1$X[res_sig_3v1$log2FoldChange > 0]
 
 res_sig_3v1 %>%
