@@ -35,6 +35,11 @@ metadata_os %>%
   group_by(clusters) %>%
   dplyr::count(survival_stat)
 
+metadata_os <- 
+  metadata_os %>%
+  mutate(survival_time = survival_time / 30.4166667,
+         time_to_first_event = time_to_first_event / 30.4166667)
+
 
 metadata_os %>%
   mutate(
@@ -70,27 +75,30 @@ surv_plot <- survminer::ggsurvplot(
   pval = TRUE,
   risk.table = TRUE,
   
-  xlim = c(0, 6000),
-  break.time.by = 500,
-  ggtheme = theme_minimal(),
-  
-  
+  xlim = c(0, 200),
+  break.time.by = 50,
+  ggtheme = theme_classic(base_size = 15),
+
   
   linewidth = 3,
   # Line size
   palette = c("#c380d3" , "#ff89d4", "#33ccff"),
-)
+) 
 
 surv_plot$plot <- surv_plot$plot + 
   annotate(
     geom = "text", 
-    x = 500,          # X-axis position
+    x = 150,          # X-axis position
     y = 0.10,         # Y-axis position
     label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
     color = "black", 
     size = 5, 
     fontface = "bold"
-  )
+  ) +
+  labs(title = "TARGET-OS",
+       y = "Survival")
+
+  
 
 
 
@@ -118,9 +126,9 @@ surv_plot_rec <- survminer::ggsurvplot(
   pval = TRUE,
   risk.table = TRUE,
   
-  xlim = c(0, 6000),
-  break.time.by = 500,
-  ggtheme = theme_minimal(),
+  xlim = c(0, 200),
+  break.time.by = 50,
+  ggtheme = theme_classic(base_size = 15),
   
   
   
@@ -132,13 +140,14 @@ surv_plot_rec <- survminer::ggsurvplot(
 surv_plot_rec$plot <- surv_plot_rec$plot + 
   annotate(
     geom = "text", 
-    x = 500,          # X-axis position
+    x = 150,          # X-axis position
     y = 0.10,         # Y-axis position
     label = paste0("PH assumption ", round(pha_rec$table[1,3], 2)), 
     color = "black", 
     size = 5, 
     fontface = "bold"
-  )
+  ) +
+  labs(y = "Recurrence")
 
 
 # Huvos chi squared -------------------------------------------------------

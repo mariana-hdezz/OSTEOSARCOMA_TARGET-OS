@@ -58,9 +58,9 @@ surv_plot_gse21257_rec <- survminer::ggsurvplot(
   pval = TRUE,
   risk.table = TRUE,
   
-  xlim = c(0, 300),
+  xlim = c(0, 250),
   break.time.by = 50,
-  ggtheme = theme_minimal(),
+  ggtheme = theme_classic(base_size = 15),
   
   linewidth = 3,
   
@@ -72,13 +72,14 @@ surv_plot_gse21257_rec <- survminer::ggsurvplot(
 surv_plot_gse21257_rec$plot <- surv_plot_gse21257_rec$plot + 
   annotate(
     geom = "text", 
-    x = 30,      
-    y = 0,           
+    x = 150,      
+    y = 0.10,           
     label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
     color = "black", 
     size = 5, 
     fontface = "bold"
-  )
+  ) +
+  labs(y = "Recurrence")
 
 # Cox for survival
 
@@ -98,9 +99,9 @@ surv_plot_gse21257 <- survminer::ggsurvplot(
   pval = TRUE,
   risk.table = TRUE,
   
-  xlim = c(0, 300),
+  xlim = c(0, 250),
   break.time.by = 50,
-  ggtheme = theme_minimal(),
+  ggtheme = theme_classic(base_size = 15),
   
   
   
@@ -112,13 +113,16 @@ surv_plot_gse21257 <- survminer::ggsurvplot(
 surv_plot_gse21257$plot <- surv_plot_gse21257$plot + 
   annotate(
     geom = "text", 
-    x = 30,         
-    y = 0,         
+    x = 150,         
+    y =  0.10,         
     label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
     color = "black", 
     size = 5, 
     fontface = "bold"
-  )
+  )  +
+  labs(title = "GSE21257",
+       y = "Survival")
+
 
 
 # Hist sub and huvos analysis ---------------------------------------------
@@ -163,7 +167,7 @@ heat_hist <- metad_table_hist %>%
   ggplot(aes(x = clusters, y = hist_sub, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
   scale_fill_distiller(palette = "Spectral", direction = -1) + 
-  theme_classic(base_size = 30) +
+  theme_classic(base_size = 15) +
   labs(x = "Clusters", y = "Histologic subtype", fill = "Freq", title = "Proportion of cluster for each histologic subtype")
 
 # Prepare dendograms
@@ -224,7 +228,7 @@ heat_huvos <- metad_table_huvos %>%
   ggplot(aes(x = clusters, y = huvos, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
   scale_fill_distiller(palette = "Spectral", direction = -1) + 
-  theme_classic(base_size = 30) +
+  theme_classic(base_size = 15) +
   labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
 
 
