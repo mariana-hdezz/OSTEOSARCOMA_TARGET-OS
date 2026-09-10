@@ -27,6 +27,16 @@ names(files_diffex) <-  gsub("^results/diffex_gsea_gse//(.*)_\\.csv$", "\\1", fi
 names(files_gsea) <-  gsub("^results/diffex_gsea_gse//(.*)\\.csv$", "\\1", files_gsea)
 
 
+
+if(substr(start = 1,stop = 3, names(files_diffex)[1]) == "res"){
+  names(files_diffex) <-  gsub("^results/diffex_gsea_gse/(.*)_\\.csv$", "\\1", files_diffex)
+  
+  names(files_gsea) <-  gsub("^results/diffex_gsea_gse/(.*)\\.csv$", "\\1", files_gsea)
+}else{
+  "Already processed"
+}
+
+
 diffex <- lapply(files_diffex, function(i){
   
   read.csv(i) %>% 
@@ -228,16 +238,31 @@ heatmap_hist <-
   ggplot(aes(x = comparison, y = path, fill = NES)) +
   geom_tile() +
   theme_classic() + 
-  scale_fill_distiller(palette = "Spectral")  
+  scale_fill_distiller(palette = "Spectral")  +
+  labs(title = "GSEA hallmarks histologic subtype comparison") + 
+  theme(
+    axis.text.y = element_text(size = 7),
+    axis.text.x = element_text(size = 8, angle = 90, hjust = 1, vjust = 1),
+  ) + 
+  scale_x_discrete(
+    labels = c(
+      "c3_vs_c1_hm_telangiectatic" = "C3 vs C1 Telangiectatic",
+      "c1_vs_c2_hm_osteoblastic"   = "C1 vs C2 Osteoblastic"  ,
+      "c3_vs_c1_hm_osteoblastic"   = "C3 vs C1 Osteoblastic"  ,
+      "c3_vs_c2_hm_osteoblastic"   = "C3 vs C2 Osteoblastic"  ,
+      "c1_vs_c2_hm_chondroblastic" = "C1 vs C2 Chondroblastic",
+      "c3_vs_c1_hm_chondroblastic" = "C3 vs C1 Chondroblastic",
+      "c3_vs_c2_hm_chondroblastic" = "C3 vs C2 Chondroblastic"
+    ))
 
 
-heatmap_hist%>% 
+heatmap_hist_hm <- 
+  heatmap_hist%>% 
   insert_right(tree_right_go, width = 0.1) %>% 
   insert_top(tree_top_go, height = 0.1)
 
 
-
-
+saveRDS(heatmap_hist_hm, "results/mul_hm/heatmap_hist_hm.RDS")
 
 
 rm(list = ls())
