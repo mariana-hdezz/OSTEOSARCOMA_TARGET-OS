@@ -2,7 +2,7 @@
 library(patchwork)
 library(ggplotify)
 
-heatmap_hm_target           <- readRDS("./results/mul_hm/heatmap_go_target.RDS")
+heatmap_hm_target           <- readRDS("./results/mul_hm/heatmap_hm_target.RDS")
 heatmap_go_target           <- readRDS("./results/mul_hm/heatmap_go_target.RDS")
 mean_heatmap_gsea_target    <- readRDS("./results/mul_hm/mean_heatmap_gsea_target.RDS")
 mean_heatmap_gsea_hm_target <- readRDS("./results/mul_hm/mean_heatmap_gsea_hm_target.RDS")
@@ -23,8 +23,10 @@ gse33382_plot_gse_go <- as.ggplot(gse33382_plot_gse_go)
 gse33382_plot_gse_hm <- as.ggplot(gse33382_plot_gse_hm)
 
 (((heatmap_go_target / gse33382_plot_gse_go) + patchwork::plot_layout(heights = c(4,3))) | (heatmap_hm_target / gse33382_plot_gse_hm) ) +
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = list(c("A", "C", "B", "D")))
 
+(gse21257_plot_gse_go | gse21257_plot_gse_hm) +
+  plot_annotation(tag_levels = "A")
 
 
 mean_heatmap_gsea_hm_gse    <- as.ggplot(mean_heatmap_gsea_hm_gse   )

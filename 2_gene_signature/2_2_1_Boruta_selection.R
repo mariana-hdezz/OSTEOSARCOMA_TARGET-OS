@@ -46,12 +46,14 @@ tentative_confirmed <- as.data.frame(table(unlist(boruta_tent))) %>%
   dplyr::rename(Tentative = "Freq") 
 
 
-gene_counts_long <- confirmed %>%
+pre_gene_counts_long <- confirmed %>%
   full_join(tentative_confirmed, by = "Var1") %>%
   mutate(
     Confirmed = as.numeric(Confirmed),
     Tentative = as.numeric(Tentative)
-  ) %>%
+  ) 
+
+gene_counts_long <- pre_gene_counts_long %>%
   pivot_longer(
     cols = c(Confirmed, Tentative), 
     names_to = "Status", 
@@ -66,16 +68,6 @@ total_counts <- gene_counts_long %>%
   summarise(Count = sum(Count))
 
 
-p1 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Status)) +
-  geom_col(position = "stack") +
-  labs(
-    x = "Gene (Var1)",
-    y = "Total Appearances",
-    fill = "Category",
-    title = "Gene Counts: Confirmed vs. Tentative"
-  ) +
-  theme_classic(base_size = 13) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 
 gene_signature <- as.character(total_counts$Var1[1:37])
 
@@ -139,37 +131,6 @@ total_counts_appear_all %>%
 
 
 
-p2 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% lasso_sign )) +
-  geom_col(position = "stack") +
-  labs(
-    x = "Gene (Var1)",
-    y = "Total Appearances",
-    fill = "Selected by Lasso",
-    title = "Gene Counts: Lasso selected"
-  ) +
-  scale_fill_manual(values = c("TRUE" = "#1F77B4", "FALSE" = "#cc5242")) + 
-  theme_classic(base_size = 13) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
-  geom_hline(yintercept = 35)
-
-
-p3 <- ggplot(gene_counts_long, aes(x = Var1, y = Count, fill = Var1 %in% gene_signature )) +
-  geom_col(position = "stack") +
-  labs(
-    x = "Gene (Var1)",
-    y = "Total Appearances",
-    fill = "Top 37 genes",
-    title = "Gene Counts: Top 37 genes"
-  ) +
-  scale_fill_manual(values = c("TRUE" = "#1F77B4", "FALSE" = "#cc5242")) + 
-  theme_classic(base_size = 13) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
-  geom_hline(yintercept = 35)
-
-
-p1/ p2 / p3
-
-
 total_counts %>% 
   filter(Var1 %in% lasso_sign) %>% 
   summarise(
@@ -203,6 +164,57 @@ total_counts %>%
 
 
 write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
+
+
+pre_gene_counts_long %>%
+  mutate(appear = case_when(
+    Var1 %in% lasso_sign & 
+      Var1 %in% gene_signature & 
+       Var1 %in% total_counts_appear_all$Var1 ~ "Appears in all",
+    !(Var1 %in% lasso_sign | 
+      Var1 %in% gene_signature | 
+      Var1 %in% total_counts_appear_all$Var1) ~ "Appears in none",
+    Var1 %in% lasso_sign & 
+      !(Var1 %in% gene_signature | 
+      Var1 %in% total_counts_appear_all$Var1) ~ "Appears only in Lasso",
+    Var1 %in% gene_signature & 
+      !(Var1 %in% lasso_sign | 
+          Var1 %in% total_counts_appear_all$Var1) ~ "Appears only in Top 37 genes",
+    Var1 %in% total_counts_appear_all$Var1 & 
+      !(Var1 %in% lasso_sign | 
+          Var1 %in% gene_signature) ~ "Appears only in perturbation",
+    !Var1 %in% total_counts_appear_all$Var1 & 
+      (Var1 %in% lasso_sign | 
+          Var1 %in% gene_signature) ~ "Appears in Lasso and Top 37 but not pert",
+    !Var1 %in% lasso_sign & 
+      (Var1 %in% gene_signature | 
+          Var1 %in% total_counts_appear_all$Var1) ~ "Appears in Top 37 and perturbations but not Lasoo",
+    !Var1 %in% gene_signature & 
+      (Var1 %in% lasso_sign | 
+          Var1 %in% total_counts_appear_all$Var1) ~ "Appears in perturbations and Lasso but not Top 37",
+
+    )
+         ) %>%
+  pivot_longer(
+    cols = c(Confirmed, Tentative), 
+    names_to = "Status", 
+    values_to = "Count"
+  ) %>%
+  filter(!is.na(Count)) %>% 
+  mutate(Var1 = fct_reorder(Var1, Count, .fun = sum, .desc = TRUE)) %>%
+ggplot(aes(x = Var1, y = Count, fill = appear)) +
+  geom_col(position = "stack") +
+  labs(
+    x = "Gene (Var1)",
+    y = "Total Appearances",
+    fill = "Category",
+    title = "Genes that appear in the different conditions"
+  ) +
+  theme_classic(base_size = 13) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  scale_fill_discrete(palette = "Accent")
+
+
 
 rm(list = ls())
 gc()
