@@ -129,8 +129,7 @@ for(t in colnames(table_cluster)) {
       
     }
     
-    source("5_molecular_analysis/5_2_val_mol/5_2_2_gsea_val.R")
-    
+    source("7_isolated_functions/5_2_2_gsea_val.R")    
     
   }
   

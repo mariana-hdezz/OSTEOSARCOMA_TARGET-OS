@@ -187,7 +187,7 @@ for(t in c("gse21257", "gse33382")) {
   
     }
   
-  source("5_molecular_analysis/5_2_val_mol/5_2_2_gsea_val.R")
+  source("7_isolated_functions/5_2_2_gsea_val.R")
   
   
   }
