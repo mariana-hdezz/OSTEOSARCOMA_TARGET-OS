@@ -56,7 +56,7 @@ renv available
 
 ## Manual interventions
 
-Only on `1_1_1_training_preprocess.R` is a manuall input asaked for and it is to establish the directory of download for those data 
+Only on [`1_1_1_training_preprocess.R`](1_preprocessing_data/1_1_training_preprocess/1_1_1_training_preprocess.R) is a manual input asaked for and it is to establish the directory of download for those data 
 
 ---
 
@@ -69,7 +69,7 @@ Numbered execution suggested since that assures that all necessary inputs on a c
 The only exceptions lie in directoy **7_isolated_functions** which are not directly run, they are sourced to other scripts.
 
 ---
-No manuall directory creation is necessary except for the desired directory to download the TARGET-OS ddata
+No manual directory creation is necessary except for the desired directory to download the TARGET-OS ddata
 Script 1 creates the output_data and resuts directory which will have diufferent objects. Other subdirectories for results are created on the script that needs it. 
 After running the full script the OSTEOSARCOMA_TARGET-OS direcetory will contain about 308 mb without taking into account the TARGET-OS data. It does not create temporary files for most data
 ---
