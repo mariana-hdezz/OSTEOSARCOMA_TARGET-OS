@@ -15,47 +15,54 @@
 library(dplyr)
 library(tibble)
 
+# Dictionary corresponding to the transformation between gene_signature and gene_signature_gse
+
+# | gene_signature_gse | gene_signature |
+
 dictionary_genes <- 
   list(
-    "GRAMD1B" = "GRAMD1B",
-    "KIF25" = "KIF25",
-    "GRRP1" = "FAM110D",
-    "ITGA10" = "ITGA10",
-    "GBP1" = "GBP1",
-    "MXI1" = "MXI1",
-    "TRIM68" = "TRIM68",
-    "C9orf100" = "ARHGEF39",
-    "TPD52" = "TPD52",
-    "CGREF1" = "CGREF1",
-    "KERA" = "KERA",
-    "UBE2D4" = "UBE2D4",
-    "BNIP3" = "BNIP3",
-    "MKL2" = "MRTFB",
-    "COL22A1" = "COL22A1",
-    "CPE" = "CPE",
-    "LSG1" = "LSG1",
-    "CTNNBIP1" = "CTNNBIP1",
-    "LGR6" = "LGR6",
-    "RHBDL2" = "RHBDL2",
-    "TMEM49" = "VMP1",
-    "HSD11B2" = "HSD11B2",
-    "EID-3" = "EID2B",
-    "UHRF2" = "UHRF2",
-    "SLC12A4" = "SLC12A4",
-    "MEF2A" = "MEF2A",
-    "ACTA2" = "ACTA2",
-    "MSC" = "MSC",
-    "PIP5K1C" = "PIP5K1C",
-    "F13A1" = "F13A1",
-    "ARHGAP28" = "ARHGAP28",
-    "FKBP11" = "FKBP11",
-    "PSMC4" = "PSMC4",
-    "RGS9" = "RGS9",
-    "SH3PXD2A" = "SH3PXD2A",
-    "CD163" = "CD163",
-    "SF3B3" = "SF3B3"
+    "GRAMD1B"          =      "GRAMD1B",
+    "KIF25"            =      "KIF25",
+    "GRRP1"            =      "FAM110D",
+    "ITGA10"           =      "ITGA10",
+    "GBP1"             =      "GBP1",
+    "MXI1"             =      "MXI1",
+    "TRIM68"           =      "TRIM68",
+    "C9orf100"         =      "ARHGEF39",
+    "TPD52"            =      "TPD52",
+    "CGREF1"           =      "CGREF1",
+    "KERA"             =      "KERA",
+    "UBE2D4"           =      "UBE2D4",
+    "BNIP3"            =      "BNIP3",
+    "MKL2"             =      "MRTFB",
+    "COL22A1"          =      "COL22A1",
+    "CPE"              =      "CPE",
+    "LSG1"             =      "LSG1",
+    "CTNNBIP1"         =      "CTNNBIP1",
+    "LGR6"             =      "LGR6",
+    "RHBDL2"           =      "RHBDL2",
+    "TMEM49"           =      "VMP1",
+    "HSD11B2"          =      "HSD11B2",
+    "EID-3"            =      "EID2B",
+    "UHRF2"            =      "UHRF2",
+    "SLC12A4"          =      "SLC12A4",
+    "MEF2A"            =      "MEF2A",
+    "ACTA2"            =      "ACTA2",
+    "MSC"              =      "MSC",
+    "PIP5K1C"          =      "PIP5K1C",
+    "F13A1"            =      "F13A1",
+    "ARHGAP28"         =      "ARHGAP28",
+    "FKBP11"           =      "FKBP11",
+    "PSMC4"            =      "PSMC4",
+    "RGS9"             =      "RGS9",
+    "SH3PXD2A"         =      "SH3PXD2A",
+    "CD163"            =      "CD163",
+    "SF3B3"            =      "SF3B3"
   )
 
+# Load data
+
+# Data for validation sets
 
 counts_data_gse21257 <- readRDS("output_data/counts_data_gse21257.RDS")
 counts_data_gse33382 <- readRDS("output_data/counts_data_gse33382.RDS")
@@ -64,20 +71,25 @@ metadata_gse21257 <- readRDS("output_data/metadata_gse21257.RDS")
 metadata_33382 <- readRDS("output_data/metadata_33382.RDS")
 metadata_gse39055 <- readRDS("output_data/metadata_gse39055.RDS")
 
+# Data for training sets
+
 vst_counts <- readRDS("output_data/vst_counts.RDS")
 metadata_os <- readRDS("output_data/metadata_os.RDS")
 
+# Signatures
+
 gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character())
 gene_signature_gse <- scan("output_data/gene_signature_gse.csv", sep = ",", what = character()) 
+
+# The names of the objects to analyse
 
 counts_data_list <- c("counts_data_gse21257", "counts_data_gse33382", "counts_data_gse39055")
 
 metadata_list <- c("metadata_gse21257", "metadata_33382", "metadata_gse39055")
 
+
 for (t in 1:3) {
 
-
-    
   # Load needed objects (counts_data_test_centr, metadata_centroids, gene_signature, gene_signature_gse)
   
   counts_data_test_centr <- get(counts_data_list[t])

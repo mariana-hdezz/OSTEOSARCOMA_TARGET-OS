@@ -4,10 +4,8 @@
 #> Main output objects:
 #> counts_data: Unnormalized object for future differential expression
 #> vst_counts: VST normalized object for most downstream analysis
+#> fpkm_data: FPKM normalized object for Boruta
 #> metadata_os: complete metadata
-#> metadata_os_surv: metadata useful for survival analysis
-#> metadata_os_rec: metadata useful for recurrence analysis
-#> metadata_os_met: metadata useful for metastasis analysis
 #> 
 #> At the end directories for future processes are created, their names are already included in gitignore
 ################################################################################
@@ -18,8 +16,11 @@ library(dplyr)
 library(biomaRt)
 library(UCSCXenaTools)
 library(DESeq2)
+library(TargetOsteoAnalysis)
 
-os_directory <- "~/Documents/OSTEOSARCOMA/R.project/Hueso" # Directory for download and retrieval of data
+# "~/Documents/OSTEOSARCOMA/R.project/Hueso" # Directory for download and retrieval of data
+
+os_directory <- readline(prompt = "Enter desired diretory for downlaoding TARGET-OS data: ")
 
 
 #1 - DOWNLOAD COUNTS DATA
@@ -31,7 +32,6 @@ query_os <- GDCquery(
   workflow.type = "STAR - Counts")
 
 # GDCdownload(query_os, directory = os_directory)
-
 
 os_data <- GDCprepare(
   query = query_os,
@@ -45,21 +45,29 @@ counts_col <- grep(
   x = names(os_data),
   value = TRUE)
 
+# Keep raw counts of patients alogn with gene name and type
 
 counts_raw <- os_data %>% 
   dplyr::select(all_of(counts_col),
                 gene_name,
                 gene_type)
 
+# Object with gene name, type and ensembl
+
 gene_dist <- os_data %>% 
   dplyr::select(gene_name,
                 gene_type,
                 gene_id)
 
+# Delete the version specifier of ensembl
 
 gene_dist$ensembl <- gsub("\\..", "", gene_dist$gene_id)
 
+# Variance
+
 counts_raw$variance <- apply(counts_raw %>% dplyr::select(-gene_name),1 , var, na.rm = TRUE)
+
+# Keep duplicated SYMBOLs with highest variance
 
 counts_raw <- counts_raw %>% 
   group_by(gene_name) %>%
@@ -68,17 +76,14 @@ counts_raw <- counts_raw %>%
   tibble::column_to_rownames("gene_name") %>% 
   dplyr::select(-variance)
 
-
-
-class(counts_raw)
-dim(counts_raw)
-
+# Mart
 
 mart <- useEnsembl(
   biomart = "genes",
   dataset = "hsapiens_gene_ensembl",
   host = "https://jun2026.archive.ensembl.org")
 
+# Obtain symbol with its type
 
 genes <- biomaRt::getBM(
   attributes = c(
@@ -90,15 +95,18 @@ genes <- biomaRt::getBM(
   mart = mart
 )
 
+# Keep protein coding genes
 
 counts_data <- counts_raw[rownames(counts_raw) %in% genes$hgnc_symbol ,]
 
-
+# Delete the unstranded specifier from the patients names
 
 colnames(counts_data) <- sub(
   pattern = "^unstranded_",
   replacement = "",
   x = colnames(counts_data))
+
+# As well as the pattern specifying priary tumor since they all ar
 
 colnames(counts_data) <- sub(
   pattern = "-01R", 
@@ -114,11 +122,7 @@ colnames(counts_data) <- sub(
 
 # ---------- 2 - METADATA PREPREOCCESSING ----------------
 
-# install.packages('BiocManager')
-# BiocManager::install("seandavi/TargetOsteoAnalysis")
-
-library(TargetOsteoAnalysis)
-
+# Obtain metadata
 
 metadata_raw <- TargetOsteoAnalysis::target_load_clinical()
 
@@ -136,6 +140,7 @@ metadata_raw <- metadata_raw %>%
 
 
 # Keep only the patients with available counts
+
 metadata_os <- metadata_raw %>% 
   filter(sample %in% colnames(counts_data))
 
@@ -143,6 +148,7 @@ metadata_os <- metadata_raw %>%
 # Add modified columns needed for further analysis (metastasis and survival)
 
 # Complete metadata
+
 metadata_os <- metadata_os %>%
   mutate(
     metastasis_at_diagnosis = ifelse(
@@ -217,8 +223,9 @@ metadata_os <- metadata_os %>%
 
 # Counts data final adjust ------------------------------------------------
 
-counts_data <- counts_data[, colnames(counts_data) %in% metadata_os$sample]
+# keep patients with metadata
 
+counts_data <- counts_data[, colnames(counts_data) %in% metadata_os$sample]
 
 # VST and FPKM ------------------------------------------------------------
 
@@ -293,9 +300,6 @@ colnames(fpkm_data) <- sub(
 
 
 fpkm_data <- fpkm_data[, colnames(fpkm_data) %in% metadata_os$sample]
-
-
-fpkm_data_log <- log(fpkm_data + 1)
 
 if(dir.exists("./output_data/")){
   "Output adata directory already exists"

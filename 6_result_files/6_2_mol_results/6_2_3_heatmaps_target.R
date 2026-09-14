@@ -13,6 +13,11 @@
 ##>  
 #############################################################################
 
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+
 if(dir.exists("./results/mul_hm")){
   "Multiple heatmap directory already exists"
 }else{

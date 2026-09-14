@@ -5,9 +5,9 @@
 #> in common (even if with another symbol version) and create the gene 
 #> signature that is compatible with those GSE. 
 #> 
-#> Note that 2 genes are added manually since there was no compatibility in probes 
-#> But where preesen tin the original symbol comparison. Or the previous symbol name
-#> was manually found (In supplementary we have the evidence that it is the same gene)
+#> Note that 1 gene is added manually since there was no compatibility in probes 
+#> But the previous symbol name was manually found (In supplementary 
+#> we have the evidence that it is the same gene)
 #> 
 #> Inputs: annot, gene_signature
 #> 

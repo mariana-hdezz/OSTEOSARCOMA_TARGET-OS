@@ -108,14 +108,14 @@ common_3v1 <- intersect(rownames(res_sig_c3_vs_c1_gse21257), rownames(res_sig_c3
 
 res_sig_c1_vs_c2_gse21257[common_1v2, ]
 res_sig_c1_vs_c2_gse33382[common_1v2, ]
-common_1v2[common_1v2 %in% gene_signature_gse]
+genes_in_sign_1v2 <- common_1v2[common_1v2 %in% gene_signature_gse]
 
 
 ## C3 VS C2 (C2 is negative LFC)
 
 res_sig_c3_vs_c2_gse21257[common_3v2, ]
 res_sig_c3_vs_c2_gse33382[common_3v2, ]
-common_3v2[common_3v2 %in% gene_signature_gse]
+genes_in_sign_3v2 <- common_3v2[common_3v2 %in% gene_signature_gse]
 
 ## C3 VS 1C (C1 is negative LFC)
 
@@ -125,7 +125,7 @@ res_sig_c3_vs_c1_gse21257[common_3v1, ] %>%
 res_sig_c3_vs_c1_gse33382[common_3v1, ]%>% 
   arrange(desc(logFC))
 
-common_3v1[common_3v1 %in% gene_signature_gse]
+genes_in_sign_3v1 <- common_3v1[common_3v1 %in% gene_signature_gse]
 
 ## C1 VS C2 (C2 is negative NES)
 
@@ -141,4 +141,5 @@ gsea_c3_vs_c2_hm_gse21257[gsea_c3_vs_c2_hm_gse21257$ID %in% intersect(gsea_c3_vs
 
 gsea_c3_vs_c1_GO_gse21257[gsea_c3_vs_c1_GO_gse21257$ID %in% intersect(gsea_c3_vs_c1_GO_gse21257$ID, gsea_c3_vs_c1_GO_gse33382$ID), ]
 gsea_c3_vs_c1_hm_gse21257[gsea_c3_vs_c1_hm_gse21257$ID %in% intersect(gsea_c3_vs_c1_hm_gse21257$ID, gsea_c3_vs_c1_hm_gse33382$ID), ]
+
 

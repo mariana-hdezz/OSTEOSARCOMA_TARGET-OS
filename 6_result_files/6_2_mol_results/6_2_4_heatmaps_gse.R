@@ -13,6 +13,11 @@
 ##>  
 #############################################################################
 
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+
 # Load data
 
 ## Diff expr gsea

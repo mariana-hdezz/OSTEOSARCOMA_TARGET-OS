@@ -1,11 +1,3 @@
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(clusterProfiler)
-library(msigdbr)
-library(aplot)
-library(ggtree)
-
 #############################################################################
 #> Script to perform differential expression analysis on batch corrected
 #> GSE patients utilizing the means of each gene in each cluster. Same as
@@ -33,6 +25,16 @@ library(ggtree)
 ###> Heatmaps
 #
 #############################################################################
+
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(clusterProfiler)
+library(msigdbr)
+library(aplot)
+library(ggtree)
+
 
 # Load data
 

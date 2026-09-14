@@ -16,7 +16,7 @@
 ###> gsea_df_HM3.vs.2
 ###> gsea_df_HM1.vs.2
 #
-##> Objects with results of diffexp
+##> Objects with results of diffex
 ###> res_1_vs_2
 ###> res_3_vs_2
 ###> res_3_vs_1

@@ -1,4 +1,23 @@
+#############################################################################
+#> Script to obtain the heatmaps for the gsea of GSE analysis  stratified by histologic subype
+#> 
+#> Inputs: All of the GSEA results from 4_2_4_hist_strat_diffex_gsea.R 
+#> 
+#> 
+#> Results: 
+##> Heaatmap for the GSEA comparing between all 3 clusters for both GO
+##> and Hallmark terms start by hist sub
+##> 
+##> Heatmap for the mean ranked GSEA with both GO and Hallmark terms
+##>  
+#############################################################################
 
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(tibble)
+
+# Load data
 
 diffex_telan <- list.files(path = "results/diffex_gsea_gse/", pattern = "^telangiectatic", full.names = TRUE)
 diffex_osteo <- list.files(path = "results/diffex_gsea_gse/", pattern = "^osteoblastic", full.names = TRUE)
@@ -7,6 +26,7 @@ gsea_telan <- list.files(path = "results/diffex_gsea_gse/", pattern = "telangiec
 gsea_osteo <- list.files(path = "results/diffex_gsea_gse/", pattern = "osteoblastic.csv$", full.names = TRUE)
 gsea_chond <- list.files(path = "results/diffex_gsea_gse/", pattern = "chondroblastic.csv$", full.names = TRUE)
 
+# Obtain the names of files for differential expression between clusters
 
 files_diffex <- 
   c(
@@ -22,11 +42,13 @@ files_gsea <-
     gsea_chond 
   )
 
+# Keep the part of the names that matter
+
 names(files_diffex) <-  gsub("^results/diffex_gsea_gse//(.*)_\\.csv$", "\\1", files_diffex)
 
 names(files_gsea) <-  gsub("^results/diffex_gsea_gse//(.*)\\.csv$", "\\1", files_gsea)
 
-
+# If since in mac and windows the prebvious code did different things, this reassures the correct output
 
 if(substr(start = 1,stop = 3, names(files_diffex)[1]) == "res"){
   names(files_diffex) <-  gsub("^results/diffex_gsea_gse/(.*)_\\.csv$", "\\1", files_diffex)
@@ -37,6 +59,8 @@ if(substr(start = 1,stop = 3, names(files_diffex)[1]) == "res"){
 }
 
 
+# Read the differential expression files
+
 diffex <- lapply(files_diffex, function(i){
   
   read.csv(i) %>% 
@@ -44,6 +68,7 @@ diffex <- lapply(files_diffex, function(i){
 
 })
 
+# Read the GSEA  files
 
 gsea <- lapply(files_gsea, function(i){
   
@@ -52,6 +77,7 @@ gsea <- lapply(files_gsea, function(i){
   
 })
 
+# Create unique objects for each element in the list of results
 
 for (i in seq_along(diffex)){
   name <- names(diffex)[[i]]
@@ -66,7 +92,7 @@ for (i in seq_along(gsea)){
   assign(name, obj)
 }
 
-
+# Create dataframe with points of interest
 
 c3vc1_telangiectatic <-
   data.frame(path = gsea_c3_vs_c1_GO_telangiectatic$Description,
@@ -101,16 +127,19 @@ object_name <- c("c1vc2_osteoblastic", "c3vc1_osteoblastic", "c3vc2_osteoblastic
 
 merge1 <- c3vc1_telangiectatic
 
+# For loop to merge results
+#> Initoially starts with merg1 being just one objetc
+
 for (i in seq_along(object_name)) {
   
-  obj <- get(object_name[i])
+  obj <- get(object_name[i]) # Extract the next dataframe
   
-  merge1 <- merge(merge1, obj, by = "path", all = TRUE)
+  merge1 <- merge(merge1, obj, by = "path", all = TRUE) # Merge new dataframe with previous modified iteration
   
   
 }
 
-merge1[is.na(merge1)] <- 0
+merge1[is.na(merge1)] <- 0 # NAs to 0s
 
 
 

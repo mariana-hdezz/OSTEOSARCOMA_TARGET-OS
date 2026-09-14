@@ -1,3 +1,14 @@
+#############################################################################
+#> Script to create PCA based on the gene signature
+#> 
+#> Inputs: vst_counts, metadata_os, gene_signature
+#> 
+#> Results: 
+##> PCA plot
+##> 
+##>  
+#############################################################################
+
 library(ggplot2)
 library(dplyr)
 library(tibble)
@@ -6,6 +17,7 @@ library(gridExtra)
 library(sigPCA)
 library(RColorBrewer)
 
+# Load data
 
 vst_counts <- readRDS("output_data/vst_counts.RDS")
 
@@ -13,7 +25,11 @@ metadata <- readRDS("output_data/metadata_os.RDS")
 
 gene_signature <- scan("output_data/gene_signature.csv", sep = ",", what = character()) 
 
+# Keep the genes in signature
+
 vst_counts <- vst_counts[rownames(vst_counts) %in% gene_signature, ]
+
+# Transpose for PCA
 
 vst_counts <- t(vst_counts)
 
@@ -21,13 +37,23 @@ pca <- prcomp(x = vst_counts)
 
 pca_full <- pca$x
 
+# Join with metadata
+
 pca_plot <- merge(pca_full, metadata %>% dplyr::select(clusters, sample) %>% tibble::column_to_rownames("sample"), by = 0) %>% 
   tibble::column_to_rownames("Row.names") %>% 
   mutate(clusters = factor(clusters))
 
+# Eigenvalues
+
 eigens <- get_eigenvalue(pca)
 
+# Significant PC
+
 sig_pc <- sigPCA::sigPCA(vst_counts)
+
+sig_pc
+
+# Plot
 
 pca_plot <- 
   pca_plot %>% 
@@ -47,6 +73,7 @@ a <- fviz_contrib(pca, choice = "var", axes = 1, top = 30, fill = "#ff89d4", col
 
 b <- fviz_contrib(pca, choice = "var", axes = 2, top = 30, fill = "#c380d3", color = "#c380d3") 
 
+# Plot Components
 
 components <- 
   grid.arrange(a, b, ncol = 2,
@@ -77,6 +104,8 @@ pca_gse_plot <- merge(pca_gse_full, metad_com %>% dplyr::select(clusters, geo_ac
 eigens <- get_eigenvalue(pca_gse)
 
 sig_pc <- sigPCA::sigPCA(batch_counts)
+
+sig_pc
 
 pca_gse_plot <- 
   pca_gse_plot %>% 

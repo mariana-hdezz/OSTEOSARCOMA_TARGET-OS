@@ -5,7 +5,12 @@
 #> Inputs: None
 #> 
 #> Outputs: metadata_gse21257, metadata_33382, counts_data_gse21257, counts_data_gse33382, annot,
-#> counts_merged
+#> counts_merged, counts batch
+#> 
+#> The difference between counts_merged and counts batch is that the former 
+#> is not batch corrected and it is used in differential expression while
+#> the latter is batch corrected and it is used for mean ranked GSEA,
+#> and PCA
 #> 
 #############################################################################
 

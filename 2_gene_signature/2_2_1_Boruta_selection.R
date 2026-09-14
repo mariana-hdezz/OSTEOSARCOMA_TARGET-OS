@@ -1,4 +1,20 @@
 
+#############################################################################
+#> Gene signature selection based on the 100 Boruta iterations, 100
+#> perturbed Boruta iterations and Lasso penalized logistic regression
+#> 
+#> 
+#> Inputs: The various objects obtained at each Boruta script
+#> boruta_conf = The genes htat where confirmed even before tentative rough fix
+#> boruta_tent = Only includes the genes confirmed after tentative decision force
+#> boruta_signature = Full object of each iteration for more complete analysis
+#> 
+#> Outputs: gene_signature_gse
+#> 
+#############################################################################
+
+# Libraries
+
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -10,19 +26,25 @@ library(broom)
 library(survival)
 library(Boruta)
 
+# Load data
 
+# 100 Iteration Boruta
 
 
 boruta_list <- readRDS("results/boruta/boruta_conf.RDS")
 boruta_tent <- readRDS("results/boruta/boruta_tent.RDS")
 boruta_sign <- readRDS("results/boruta/boruta_signature.RDS")
 
+# Perturbation boruta
+
+boruta_list_pert <- readRDS("results/boruta/boruta_conf_pert.RDS")
+boruta_tent_pert <- readRDS("results/boruta/boruta_tent_pert.RDS")
+
 # This part is for demosntrating that the mean, median and mode belong to 37 as gene set size
-# it is commented because it is heavy
 
 set_size <- list()
 
-for (i in 1:100) {
+for (i in 1:100) { # For loop that obtains each signatue full object, calculates the length and then assigns it to list named by number of iteration
 
   x <- boruta_sign[[i]]
 
@@ -38,13 +60,17 @@ summary(unlist(set_size))
 
 table(unlist(set_size))[table(unlist(set_size)) == max(table(unlist(set_size)))]
 
+# Table with name and freuency of apperance for pure confirmed
+
 confirmed <- as.data.frame(table(unlist(boruta_list))) %>% 
   dplyr::rename(Confirmed = "Freq")
 
+# Table with name and freuency of apperance for genes confirmed after forcing tenttaive decision
 
 tentative_confirmed <- as.data.frame(table(unlist(boruta_tent))) %>%  
   dplyr::rename(Tentative = "Freq") 
 
+# Join previous objects with values for each gene of mode of being selected by each iteration
 
 pre_gene_counts_long <- confirmed %>%
   full_join(tentative_confirmed, by = "Var1") %>%
@@ -52,6 +78,8 @@ pre_gene_counts_long <- confirmed %>%
     Confirmed = as.numeric(Confirmed),
     Tentative = as.numeric(Tentative)
   ) 
+
+# Pivot long for plot
 
 gene_counts_long <- pre_gene_counts_long %>%
   pivot_longer(
@@ -62,21 +90,23 @@ gene_counts_long <- pre_gene_counts_long %>%
   filter(!is.na(Count)) %>% 
   mutate(Var1 = fct_reorder(Var1, Count, .fun = sum, .desc = TRUE))
 
+# Sum the counts independentof if initially tentative or initially confirmed
 
 total_counts <- gene_counts_long %>% 
   group_by(Var1) %>% 
   summarise(Count = sum(Count))
 
-
+# Keep top 37 like in the paper
 
 gene_signature <- as.character(total_counts$Var1[1:37])
 
 
 # Perturbation analysis ---------------------------------------------------
 
+# Here we only focuse on those confirmed directly not on those confirmed after tentative decision
 
-boruta_list_pert <- readRDS("results/boruta/boruta_conf_pert.RDS")
-boruta_tent_pert <- readRDS("results/boruta/boruta_tent_pert.RDS")
+# We create a generallobject as well as individual objects for each pert analysis
+# (5, 1, 15 and 25%). Since each analysis ran for 25
 
 total_counts_pert <-as.data.frame(table(unlist(boruta_list_pert))) %>% 
     dplyr::rename(Confirmed = "Freq") %>% 
@@ -86,35 +116,34 @@ confirmed_pert_5 <- as.data.frame(table(unlist(boruta_list_pert[1:25]))) %>%
     dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "5%")
 
-confirmed_pert_10 <- as.data.frame(table(unlist(boruta_list_pert[25:49]))) %>% 
+confirmed_pert_10 <- as.data.frame(table(unlist(boruta_list_pert[26:50]))) %>% 
     dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "10%")
 
-confirmed_pert_15 <- as.data.frame(table(unlist(boruta_list_pert[50:74]))) %>% 
+confirmed_pert_15 <- as.data.frame(table(unlist(boruta_list_pert[51:75]))) %>% 
     dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "15%")
  
-confirmed_pert_20 <- as.data.frame(table(unlist(boruta_list_pert[75:100]))) %>% 
+confirmed_pert_20 <- as.data.frame(table(unlist(boruta_list_pert[76:100]))) %>% 
     dplyr::rename(Confirmed = "Freq") %>% 
   mutate(pert = "20%")
 
+# Keep genes from original 100 iterations that appeared at least once in each perturbation analysis
 
 total_counts_appear_all <- total_counts[total_counts$Var1 %in% confirmed_pert_5$Var1 & total_counts$Var1 %in% confirmed_pert_10$Var1 & total_counts$Var1 %in% confirmed_pert_15$Var1 & total_counts$Var1 %in% confirmed_pert_20$Var1, ]
 
-
+# Rank by counts
 
 total_counts_appear_all$rank_all <- seq_along(total_counts_appear_all$Var1)
 
 total_counts$rank_all <- seq_along(total_counts$Var1)
 
+# Assign values of rank oin pert
+
 total_counts_pert$rank_pert <- seq_along(total_counts_pert$Var1)
 
-# Lasso
 
-source("7_isolated_functions/2_2_2_lasso_eleasticNet.R")
-
-
-# Visualization and gene signature creation ----------------------------------
+# Visualization 
 
 total_counts_appear_all %>% 
   left_join(total_counts_pert, by = "Var1") %>% 
@@ -128,7 +157,12 @@ total_counts_appear_all %>%
   theme_minimal()
 
 
+# Lasso
 
+source("./7_isolated_functions/2_2_2_lasso_elasticNet.R")
+
+
+# Characteristics of gene signature oif chosen by Lasso
 
 
 total_counts %>% 
@@ -145,6 +179,8 @@ total_counts %>%
     sd_c = sd(Count)
             
             )
+
+# Characteristics of gene signature oif chosen by top 37 genes
 
 
 total_counts %>% 
@@ -165,6 +201,8 @@ total_counts %>%
 
 write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature.csv", sep = ",", row.names = FALSE, col.names = FALSE)
 
+
+# Visualizte the genes selected by distinct methods and combinations
 
 pre_gene_counts_long %>%
   mutate(appear = case_when(

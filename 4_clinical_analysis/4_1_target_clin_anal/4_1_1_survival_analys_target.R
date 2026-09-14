@@ -10,11 +10,13 @@
 ##> Statistics:-------------------------------------------------------------
 ###> summary_cox: Cox analysis of survival as outcome
 ###> summary_cox_rec: Cox analysis of recurrence as outcome
+###> huvos_chi: Chi squared test comparing huvos grade between clusters
 #
 ##> Accompanying plots and results (not as objects):------------------------
 ###> Silhouette plots
 ###> Silhouette mean
 ###> Dendogram
+#>
 #############################################################################
 
 library(factoextra)

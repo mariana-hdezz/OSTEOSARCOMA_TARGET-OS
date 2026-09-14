@@ -83,6 +83,7 @@ gsea_go_hm <- as.data.frame(gsea_res)
 #> cluster 3           1
 #> Then the sum of (cluster 1)^2 and (clsuter 3)^2 = 2 meanwhile the sum of (cluster 2)^2 with any of the other 2 will yield 1 so that means 
 #> cluster 2 is not taken into account in this round
+#> The telangiectatic logic comparisons are for when histologic subtype is being compared to save it correctly
 
 if((contrast.matrix[2,])^2 + (contrast.matrix[3,])^2 == 2 & t != "telangiectatic"){
 

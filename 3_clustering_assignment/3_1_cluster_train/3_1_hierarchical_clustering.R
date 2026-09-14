@@ -6,12 +6,10 @@ library(factoextra)
 #> Hierarchical clustering on train set (TARGET_OS patients), utilizing
 #> the gene list obtained from Boruta.
 #> 
-#> It first creates the signature with the boruta output
 #> 
-#> Inputs: survival_signature, vst_counts, metadata_os, boruta_signature
+#> Inputs: gene_signature, vst_counts, metadata_os
 #> 
-#> Outputs: Overwrite metadata_os to inclide clusters column for future analysis,
-#> gene_signature
+#> Outputs: Overwrite metadata_os to inclide clusters column for future analysis
 #> 
 #############################################################################
 
