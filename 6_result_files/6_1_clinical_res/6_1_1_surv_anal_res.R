@@ -26,6 +26,7 @@ library(tidyr)
 library(tibble)
 library(ggplot2)
 library(patchwork)
+library(janitor)
 
 # Load data
 
@@ -54,7 +55,7 @@ cox_sum <- summary(cox)
 
 # Similar for gse results of survival
 
-cox_sum_gse <- summary(cox_gse21257_rec)
+cox_sum_gse <- summary(cox_gse21257)
 
 # Similar but for recurrence analysis for both target and validation sets
 
@@ -68,7 +69,7 @@ surv_tab <-
   data.frame(
     Cohort = "TARGET-OS",
     Comparison = c("Cluster 3 vs Cluster 1", "Cluster 3 vs Cluster 2"),
-    Odds_ratio = c(round(cox_sum$coefficients[1, 2], 3), round(cox_sum$coefficients[2, 2], 3)),
+    Hazard_ratio = c(round(cox_sum$coefficients[1, 2], 3), round(cox_sum$coefficients[2, 2], 3)),
     Conf_int_low = c(round(cox_sum$conf.int[1, 3], 3), round(cox_sum$conf.int[2, 3], 3)),
     Conf_int_high = c(round(cox_sum$conf.int[1, 4], 3), round(cox_sum$conf.int[2, 4], 3)),
     p_value = c(round(cox_sum$coefficients[1, 5], 4), round(cox_sum$coefficients[2, 5], 4))
@@ -80,7 +81,7 @@ surv_tab_gse <-
   data.frame(
     Cohort = "GSE21257",
     Comparison = c("Cluster 3 vs Cluster 1", "Cluster 3 vs Cluster 2"),
-    Odds_ratio = c(round(cox_sum_gse$coefficients[1, 2], 3), round(cox_sum_gse$coefficients[2, 2], 3)),
+    Hazard_ratio = c(round(cox_sum_gse$coefficients[1, 2], 3), round(cox_sum_gse$coefficients[2, 2], 3)),
     Conf_int_low = c(round(cox_sum_gse$conf.int[1, 3], 3), round(cox_sum_gse$conf.int[2, 3], 3)),
     Conf_int_high = c(round(cox_sum_gse$conf.int[1, 4], 3), round(cox_sum_gse$conf.int[2, 4], 3)),
     p_value = c(round(cox_sum_gse$coefficients[1, 5], 4), round(cox_sum_gse$coefficients[2, 5], 4))
@@ -99,7 +100,7 @@ rec_tab <-
   data.frame(
     Cohort = "TARGET-OS",
     Comparison = c("Cluster 3 vs Cluster 1", "Cluster 3 vs Cluster 2"),
-    Odds_ratio = c(round(cox_rec_sum$coefficients[1, 2], 3), round(cox_rec_sum$coefficients[2, 2], 3)),
+    Hazard_ratio = c(round(cox_rec_sum$coefficients[1, 2], 3), round(cox_rec_sum$coefficients[2, 2], 3)),
     Conf_int_low = c(round(cox_rec_sum$conf.int[1, 3], 3), round(cox_rec_sum$conf.int[2, 3], 3)),
     Conf_int_high = c(round(cox_rec_sum$conf.int[1, 4], 3), round(cox_rec_sum$conf.int[2, 4], 3)),
     p_value = c(round(cox_rec_sum$coefficients[1, 5], 5), round(cox_rec_sum$coefficients[2, 5], 4))
@@ -110,7 +111,7 @@ rec_tab_gse <-
   data.frame(
     Cohort = "GSE21257",
     Comparison = c("Cluster 3 vs Cluster 1", "Cluster 3 vs Cluster 2"),
-    Odds_ratio = c(round(cox_rec_sum_gse21257$coefficients[1, 2], 3), round(cox_rec_sum_gse21257$coefficients[2, 2], 3)),
+    Hazard_ratio = c(round(cox_rec_sum_gse21257$coefficients[1, 2], 3), round(cox_rec_sum_gse21257$coefficients[2, 2], 3)),
     Conf_int_low = c(round(cox_rec_sum_gse21257$conf.int[1, 3], 3), round(cox_rec_sum_gse21257$conf.int[2, 3], 3)),
     Conf_int_high = c(round(cox_rec_sum_gse21257$conf.int[1, 4], 3), round(cox_rec_sum_gse21257$conf.int[2, 4], 3)),
     p_value = c(round(cox_rec_sum_gse21257$coefficients[1, 5], 4), round(cox_rec_sum_gse21257$coefficients[2, 5], 4))
