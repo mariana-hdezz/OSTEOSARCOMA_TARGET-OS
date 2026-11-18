@@ -168,7 +168,7 @@ p3 <- ggplotify::as.ggplot(heat_hist) / heat_huvos
 
 plot_1 <- (p1 | p2 | p3) +
   plot_annotation(tag_levels = "A") & 
-  theme(plot.tag = element_text(size = 18, face = "bold"))
+  theme(plot.tag = element_text(size = 10, face = "bold"))
 
 plot_1  %>%
   ggsave(

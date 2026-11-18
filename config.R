@@ -10,3 +10,9 @@ line_width <- 8
 base_size <- 6
 
 text_size <- 3
+
+fill <- c(
+  "low" = "#088BBEFF",
+  "mid" = "#C75DABFF",
+  "high" = "#F5D000FF"
+)

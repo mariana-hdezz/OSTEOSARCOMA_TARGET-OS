@@ -227,7 +227,11 @@ metad_table_huvos <-
 heat_huvos <- metad_table_huvos %>% 
   ggplot(aes(x = clusters, y = huvos, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  fill + 
+  scale_fill_gradient2(
+    low = fill["low"], 
+    mid = fill["mid"], 
+    high = fill["high"],
+    midpoint = 0.4) + 
   theme_classic(base_size = base_size) +
   labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
 
