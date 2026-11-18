@@ -169,6 +169,13 @@ p3 <- ggplotify::as.ggplot(heat_hist) / heat_huvos
 plot_1 <- (p1 | p2 | p3) +
   plot_annotation(tag_levels = "A")
 
+plot_1 %>% 
+  ggsave(
+    filename = "figures/figure_2.tiff",
+    dpi = 600,
+    compression = "lzw"
+  )
+
 # Drop NA in metastasis for an analysisi in GSE33382
 
 metadata_33382_no_na <- metadata_33382 %>% 
