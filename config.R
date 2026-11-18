@@ -11,7 +11,7 @@ base_size <- 6
 text_size <- 3
 
 fill_col <- c(
-  "low" = "#38aBfEFF",
+  "low" = "#43d6ff",
   "mid" = "#eddd8a",
-  "high" = "#C75DABFF"
+  "high" = "#e953c3"
 )
