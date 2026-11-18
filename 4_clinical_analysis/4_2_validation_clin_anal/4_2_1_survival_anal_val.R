@@ -166,8 +166,12 @@ metad_table_hist <-
 heat_hist <- metad_table_hist %>% 
   ggplot(aes(x = clusters, y = hist_sub, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  fill + 
   theme_classic(base_size = base_size) +
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0.5) + 
   labs(x = "Clusters", y = "Histologic subtype", fill = "Freq", title = "Proportion of cluster for each histologic subtype")
 
 # Prepare dendograms
@@ -228,9 +232,9 @@ heat_huvos <- metad_table_huvos %>%
   ggplot(aes(x = clusters, y = huvos, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
   scale_fill_gradient2(
-    low = fill["low"], 
-    mid = fill["mid"], 
-    high = fill["high"],
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
     midpoint = 0.4) + 
   theme_classic(base_size = base_size) +
   labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
