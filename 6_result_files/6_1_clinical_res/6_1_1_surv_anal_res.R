@@ -164,22 +164,27 @@ p1 <- surv_plot$plot / surv_plot_rec$plot
 
 p2 <- surv_plot_gse21257$plot / surv_plot_gse21257_rec$plot
 
-p3 <- ggplotify::as.ggplot(heat_hist) / heat_huvos
+p3_2 <- ggplotify::as.ggplot(heat_hist)
+
+p3 <- p3_2 / heat_huvos
 
 plot_1 <- (p1 | p2 | p3) +
+  patchwork::plot_layout(widths = c(2,2,4)) +
   plot_annotation(tag_levels = "A") & 
-  theme(plot.tag = element_text(size = 10, face = "bold"))
+  theme(plot.tag = element_text(size = 8, face = "bold"))
 
 plot_1  %>%
   ggsave(
-  filename = "figures/figure_2.tiff",
-  dpi = 600,
-  width = 178,   
-  height = 130,   
-  units = "mm",
-  compression = "lzw",
-  type = "cairo"  
-)
+    filename = "figures/figure_2.tiff",
+    device = "tiff",
+    dpi = 600,
+    width = 160,
+    height = 90,
+    units = "mm",
+    compression = "lzw"
+  )
+
+
 
 # Drop NA in metastasis for an analysisi in GSE33382
 

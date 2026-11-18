@@ -78,7 +78,8 @@ surv_plot <- survminer::ggsurvplot(
   data = metadata_os,
   pval = TRUE,
   risk.table = TRUE,
-  
+  pval.size = p_size,
+  pval.coord = p_coord,
   xlim = c(0, 200),
   break.time.by = 50,
   ggtheme = theme_classic(base_size = base_size),
@@ -90,14 +91,7 @@ surv_plot <- survminer::ggsurvplot(
 ) 
 
 surv_plot$plot <- surv_plot$plot + 
-  annotate(
-    geom = "text", 
-    x = 150,          # X-axis position
-    y = 0.10,         # Y-axis position
-    label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
-    color = "black", 
-    fontface = "bold"
-  ) +
+  ph_coord(pha) +
   labs(title = "TARGET-OS",
        y = "Survival")
 
@@ -128,6 +122,8 @@ surv_plot_rec <- survminer::ggsurvplot(
   data = metadata_os,
   pval = TRUE,
   risk.table = TRUE,
+  pval.size = p_size,
+  pval.coord = p_coord,
   
   xlim = c(0, 200),
   break.time.by = 50,
@@ -140,14 +136,7 @@ surv_plot_rec <- survminer::ggsurvplot(
 )
 
 surv_plot_rec$plot <- surv_plot_rec$plot + 
-  annotate(
-    geom = "text", 
-    x = 150,          # X-axis position
-    y = 0.10,         # Y-axis position
-    label = paste0("PH assumption ", round(pha_rec$table[1,3], 2)), 
-    color = "black", 
-    fontface = "bold"
-  ) +
+  ph_coord(pha_rec) +
   labs(y = "Recurrence")
 
 

@@ -59,6 +59,8 @@ surv_plot_gse21257_rec <- survminer::ggsurvplot(
   data = metadata_gse21257,
   pval = TRUE,
   risk.table = TRUE,
+  pval.size = p_size,
+  pval.coord = p_coord,
   
   xlim = c(0, 250),
   break.time.by = 50,
@@ -73,14 +75,7 @@ surv_plot_gse21257_rec <- survminer::ggsurvplot(
 # Add ph asumption to plot
 
 surv_plot_gse21257_rec$plot <- surv_plot_gse21257_rec$plot + 
-  annotate(
-    geom = "text", 
-    x = 150,      
-    y = 0.10,           
-    label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
-    color = "black", 
-    fontface = "bold"
-  ) +
+  ph_coord(pha) +
   labs(y = "Recurrence")
 
 # Cox for survival
@@ -100,6 +95,8 @@ surv_plot_gse21257 <- survminer::ggsurvplot(
   data = metadata_gse21257,
   pval = TRUE,
   risk.table = TRUE,
+  pval.size = p_size,
+  pval.coord = p_coord,
   
   xlim = c(0, 250),
   break.time.by = 50,
@@ -112,14 +109,7 @@ surv_plot_gse21257 <- survminer::ggsurvplot(
 )
 
 surv_plot_gse21257$plot <- surv_plot_gse21257$plot + 
-  annotate(
-    geom = "text", 
-    x = 150,         
-    y =  0.10,         
-    label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
-    color = "black", 
-    fontface = "bold"
-  )  +
+  ph_coord(pha) +
   labs(title = "GSE21257",
        y = "Survival")
 
@@ -167,12 +157,15 @@ heat_hist <- metad_table_hist %>%
   ggplot(aes(x = clusters, y = hist_sub, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
   theme_classic(base_size = base_size) +
+  legend +
+  title_size + 
+  theme(axis.text.y = element_text(angle = 45)) +
   scale_fill_gradient2(
     low = fill_col["low"], 
     mid = fill_col["mid"], 
     high = fill_col["high"],
     midpoint = 0.5) + 
-  labs(x = "Clusters", y = "Histologic subtype", fill = "Freq", title = "Proportion of cluster for each histologic subtype")
+  labs(x = "Clusters", y = "Histologic subtype", fill = "Frequency")
 
 # Prepare dendograms
 
@@ -236,7 +229,9 @@ heat_huvos <- metad_table_huvos %>%
     mid = fill_col["mid"], 
     high = fill_col["high"],
     midpoint = 0.4) + 
+  legend + 
   theme_classic(base_size = base_size) +
+  title_size
   labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
 
 

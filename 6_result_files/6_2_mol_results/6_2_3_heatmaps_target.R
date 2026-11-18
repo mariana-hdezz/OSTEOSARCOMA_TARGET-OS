@@ -19,6 +19,7 @@ library(tidyr)
 library(tibble)
 library(ggtree)
 library(aplot)
+library(readr)
 
 if(dir.exists("./results/mul_hm")){
   "Multiple heatmap directory already exists"
