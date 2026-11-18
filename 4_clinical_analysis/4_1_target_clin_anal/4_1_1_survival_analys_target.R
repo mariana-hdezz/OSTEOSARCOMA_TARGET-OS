@@ -25,6 +25,8 @@ library(tidyr)
 library(survival)
 library(coxphf)
 
+source("config.R")
+
 # Load data
 
 metadata_os <- readRDS("./output_data/metadata_os.RDS")
@@ -79,12 +81,12 @@ surv_plot <- survminer::ggsurvplot(
   
   xlim = c(0, 200),
   break.time.by = 50,
-  ggtheme = theme_classic(base_size = 15),
+  ggtheme = theme_classic(base_size = base_size),
 
   
-  linewidth = 3,
-  # Line size
-  palette = c("#c380d3" , "#ff89d4", "#33ccff"),
+  linewidth = line_width,
+
+  palette = col_scheme,
 ) 
 
 surv_plot$plot <- surv_plot$plot + 
@@ -130,13 +132,12 @@ surv_plot_rec <- survminer::ggsurvplot(
   
   xlim = c(0, 200),
   break.time.by = 50,
-  ggtheme = theme_classic(base_size = 15),
+  ggtheme = theme_classic(base_size = base_size),
   
   
+  linewidth = line_width,
   
-  linewidth = 3,
-  # Line size
-  palette = c("#c380d3" , "#ff89d4", "#33ccff"),
+  palette = col_scheme,
 )
 
 surv_plot_rec$plot <- surv_plot_rec$plot + 
