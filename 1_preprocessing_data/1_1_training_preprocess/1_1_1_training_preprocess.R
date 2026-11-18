@@ -31,7 +31,7 @@ query_os <- GDCquery(
   data.type = "Gene Expression Quantification",
   workflow.type = "STAR - Counts")
 
-# GDCdownload(query_os, directory = os_directory)
+GDCdownload(query_os, directory = os_directory)
 
 os_data <- GDCprepare(
   query = query_os,
