@@ -96,7 +96,6 @@ surv_plot$plot <- surv_plot$plot +
     y = 0.10,         # Y-axis position
     label = paste0("PH assumption ", round(pha$table[1,3], 2)), 
     color = "black", 
-    size = 5, 
     fontface = "bold"
   ) +
   labs(title = "TARGET-OS",
@@ -147,7 +146,6 @@ surv_plot_rec$plot <- surv_plot_rec$plot +
     y = 0.10,         # Y-axis position
     label = paste0("PH assumption ", round(pha_rec$table[1,3], 2)), 
     color = "black", 
-    size = 5, 
     fontface = "bold"
   ) +
   labs(y = "Recurrence")
