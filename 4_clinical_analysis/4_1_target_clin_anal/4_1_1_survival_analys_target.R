@@ -150,7 +150,7 @@ huvos_chi <- chisq.test(table(huvos_meta$huvos_bin, huvos_meta$clusters), simula
 huvos_meta_plot <- 
   huvos_meta %>% 
   group_by(clusters) %>% 
-  count(huvos_bin) %>% 
+  dplyr::count(huvos_bin) %>% 
   ggplot(aes(x = clusters, y = huvos_bin, fill = n))+
     geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
     scale_fill_distiller(palette = "Spectral", direction = -1) + 
