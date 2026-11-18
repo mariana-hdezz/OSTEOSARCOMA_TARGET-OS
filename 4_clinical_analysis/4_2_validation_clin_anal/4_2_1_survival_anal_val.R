@@ -25,6 +25,8 @@ library(tidyr)
 library(ggtree)
 library(aplot)
 
+source("config.R")
+
 # Load data
 
 metadata_gse21257 <- readRDS("output_data/metadata_gse21257.RDS")
@@ -60,11 +62,12 @@ surv_plot_gse21257_rec <- survminer::ggsurvplot(
   
   xlim = c(0, 250),
   break.time.by = 50,
-  ggtheme = theme_classic(base_size = 15),
+  ggtheme = theme_classic(base_size = base_size),
   
-  linewidth = 3,
   
-  palette = c("#c380d3" , "#ff89d4", "#33ccff"),
+  linewidth = line_width,
+  
+  palette = col_scheme
 )
 
 # Add ph asumption to plot
@@ -101,13 +104,12 @@ surv_plot_gse21257 <- survminer::ggsurvplot(
   
   xlim = c(0, 250),
   break.time.by = 50,
-  ggtheme = theme_classic(base_size = 15),
+  ggtheme = theme_classic(base_size = base_size),
   
   
+  linewidth = line_width,
   
-  linewidth = 3,
-
-  palette = c("#c380d3" , "#ff89d4", "#33ccff"),
+  palette = col_scheme
 )
 
 surv_plot_gse21257$plot <- surv_plot_gse21257$plot + 
@@ -166,7 +168,7 @@ metad_table_hist <-
 heat_hist <- metad_table_hist %>% 
   ggplot(aes(x = clusters, y = hist_sub, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral", direction = -1) + 
+  fill + 
   theme_classic(base_size = 15) +
   labs(x = "Clusters", y = "Histologic subtype", fill = "Freq", title = "Proportion of cluster for each histologic subtype")
 
@@ -227,7 +229,7 @@ metad_table_huvos <-
 heat_huvos <- metad_table_huvos %>% 
   ggplot(aes(x = clusters, y = huvos, fill = prop)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral", direction = -1) + 
+  fill + 
   theme_classic(base_size = 15) +
   labs(x = "Clusters", y = "Huvos grade", fill = "Freq", title = "Proportion of patients with each Huvos grade for each cluster")
 

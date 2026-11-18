@@ -160,8 +160,14 @@ cat("Chi squared results\n"); print(hist_chi_sqr)
 cat("Residuals\n"); print(hist_chi_sqr$residuals)
 
 
-(((surv_plot$plot / surv_plot_rec$plot) | (surv_plot_gse21257$plot / surv_plot_gse21257_rec$plot))  | ((heat_hist) / (heat_huvos)))  +
-  patchwork::plot_annotation(tag_levels = "A")
+p1 <- surv_plot$plot / surv_plot_rec$plot
+
+p2 <- surv_plot_gse21257$plot / surv_plot_gse21257_rec$plot
+
+p3 <- ggplotify::as.ggplot(heat_hist) / heat_huvos
+
+plot_1 <- (p1 | p2 | p3) +
+  plot_annotation(tag_levels = "A")
 
 # Drop NA in metastasis for an analysisi in GSE33382
 
