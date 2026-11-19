@@ -82,6 +82,7 @@ surv_plot <- survminer::ggsurvplot(
   pval.coord = p_coord,
   xlim = c(0, 200),
   break.time.by = 50,
+  font.legend = text_size - 1,
   ggtheme = theme_classic(base_size = base_size),
 
   
@@ -127,6 +128,9 @@ surv_plot_rec <- survminer::ggsurvplot(
   
   xlim = c(0, 200),
   break.time.by = 50,
+  font.legend = text_size,
+  legend = "none",
+  
   ggtheme = theme_classic(base_size = base_size),
   
   

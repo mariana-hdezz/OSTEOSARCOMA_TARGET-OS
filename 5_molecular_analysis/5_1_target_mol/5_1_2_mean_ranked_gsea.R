@@ -75,6 +75,8 @@ for (i in 1:nrow(cluster_gene_mean)) {
   
   # GSEA with GO terms
   
+  set.seed(123)
+  
   gse <- gseGO(
     geneList = gene_list, 
     ont = "ALL", 

@@ -17,6 +17,13 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(tibble)
+library(ggtree)
+library(aplot)
+library(readr)
+
+
+source("config.R")
+
 
 # Load data
 
@@ -163,19 +170,24 @@ for (e in c("gse21257", "gse33382")) {
     mutate(clusters = factor(clusters)) %>% 
     ggplot(aes(x = clusters, y = path, fill = value)) +
     geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-    scale_fill_distiller(palette = "Spectral", direction = -1) + 
-    theme_classic() +
     labs(x = "Clusters", y = "Pathways", fill = "NES", title = paste("GSEA between clusters Gene Ontology:", e)) +
     scale_x_discrete(labels = c(
       "c3_vs_c1" = "C3 vs C1",
       "c1_vs_c2" = "C1 vs C2",
       "c3_vs_c2" = "C3 vs C2")) +
+    scale_fill_gradient2(
+      low = fill_col["low"], 
+      mid = fill_col["mid"], 
+      high = fill_col["high"],
+      midpoint = 0) +
+    theme_classic(base_size) + 
     theme(
-      axis.text.y = element_text(size = 7),
-      axis.text.x = element_text(size = 9),
-      plot.title = element_text(size = 11),
-      legend.position = "none"
-    )
+      axis.text.y = element_text(size = text_size),
+      axis.text.x = element_text(size = text_size),
+      legend.position = "none",
+      plot.title = element_text(size = text_size)
+    ) 
+
   
   tree_right_gse_GO <- ggtree(row_hc_gse_GO, hang = -1) + 
     scale_x_reverse() + 
@@ -238,13 +250,25 @@ for (e in c("gse21257", "gse33382")) {
     mutate(clusters = factor(clusters)) %>% 
     ggplot(aes(x = clusters, y = path, fill = value)) +
     geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-    scale_fill_distiller(palette = "Spectral", direction = -1) + 
-    theme_classic() +
     labs(x = "Clusters", y = "Pathway", fill = "NES", title = paste("GSEA between clusters Hallmarks:", e)) +
     scale_x_discrete(labels = c(
       "c3_vs_c1" = "C3 vs C1",
       "c1_vs_c2" = "C1 vs C2",
-      "c3_vs_c2" = "C3 vs C2"))
+      "c3_vs_c2" = "C3 vs C2")) + 
+    scale_fill_gradient2(
+      low = fill_col["low"], 
+      mid = fill_col["mid"], 
+      high = fill_col["high"],
+      midpoint = 0) +
+    theme_classic(base_size) + 
+    theme(
+      axis.text.y = element_text(size = text_size),
+      axis.text.x = element_text(size = text_size),
+      plot.title = element_text(size = text_size)
+    ) + 
+    legend
+    
+
   
   tree_right_gse_hallmark <- ggtree(row_hc_gse_hallmark, hang = -1) + 
     scale_x_reverse() + 
@@ -330,17 +354,22 @@ mean_heatmap_gsea <- gsea_GO_mat_mean %>%
   pivot_longer(cols = c("c1", "c2", "c3"), names_to = "clusters") %>% 
   ggplot(aes(x = clusters, y = path, fill = value)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral", direction = -1) +
   scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
   scale_y_discrete(expand = c(0, 0)) +  
-  theme_classic() +
-  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA GO means merged GSE21257 and GSE33382") +
+  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA GO means GSE21257 and GSE33382") +
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
+  theme_classic(base_size) + 
   theme(
-    axis.text.y = element_text(size = 7),
-    axis.text.x = element_text(size = 9),
-    plot.title = element_text(size = 9),
-    legend.position = "none"
-  )
+    axis.text.y = element_text(size = text_size - 0.5),
+    axis.text.x = element_text(size = text_size),
+    legend.position = "none",
+    plot.title = element_text(size = text_size - 0.5)
+  ) 
+  
 
 
 # Dendograms
@@ -392,16 +421,22 @@ mean_heatmap_gsea_hm <- mean_gsea_hallmark_mat %>%
   pivot_longer(cols = c("c1", "c2", "c3"), names_to = "clusters") %>% 
   ggplot(aes(x = clusters, y = path, fill = value)) +
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral", direction = -1) +
   scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
   scale_y_discrete(expand = c(0, 0)) +  
-  theme_classic() +
   labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA Hallmark means merged GSE21257 and GSE33382") + 
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
+  theme_classic(base_size) + 
   theme(
+    axis.text.y = element_text(size = text_size -1),
+    axis.text.x = element_text(size = text_size),
     legend.position = "none",
-    axis.text.y = element_text(size = 7)
-  )
-
+    plot.title = element_text(size = text_size)
+  ) + 
+  legend
 
 mean_tree_right_hm <- ggtree(mean_row_hc_hm) + 
   scale_x_reverse() + 

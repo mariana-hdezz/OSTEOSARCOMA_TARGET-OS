@@ -169,7 +169,7 @@ p3_2 <- ggplotify::as.ggplot(heat_hist)
 p3 <- p3_2 / heat_huvos
 
 plot_1 <- (p1 | p2 | p3) +
-  patchwork::plot_layout(widths = c(2,2,4)) +
+  patchwork::plot_layout(widths = c(2,2,3)) +
   plot_annotation(tag_levels = "A") & 
   theme(plot.tag = element_text(size = 8, face = "bold"))
 

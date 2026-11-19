@@ -29,7 +29,7 @@ ph_coord <- function(i){annotate(
 
 fill_col <- c(
   "low" = "#43d6ff",
-  "mid" = "#eddd8a",
+  "mid" = "#E6F598",
   "high" = "#e953c3"
 )
 

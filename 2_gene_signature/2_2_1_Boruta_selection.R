@@ -204,7 +204,8 @@ write.table(matrix(gene_signature, nrow = 1), file = "output_data/gene_signature
 
 # Visualizte the genes selected by distinct methods and combinations
 
-pre_gene_counts_long %>%
+supp_1 <- 
+  pre_gene_counts_long %>%
   mutate(appear = case_when(
     Var1 %in% lasso_sign & 
       Var1 %in% gene_signature & 
@@ -248,10 +249,23 @@ ggplot(aes(x = Var1, y = Count, fill = appear)) +
     fill = "Category",
     title = "Genes that appear in the different conditions"
   ) +
-  theme_classic(base_size = 13) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  theme_classic(base_size = base_size - 1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),   legend.text = element_text(size = 2),
+        legend.key.size = unit(1, "mm")
+        ) +
   scale_fill_discrete(palette = "Accent")
 
+
+supp_1 %>%
+  ggsave(
+    filename = "figures/supp_1.tiff",
+    device = "tiff",
+    dpi = 600,
+    width = 160,
+    height = 90,
+    units = "mm",
+    compression = "lzw"
+  )
 
 
 rm(list = ls())

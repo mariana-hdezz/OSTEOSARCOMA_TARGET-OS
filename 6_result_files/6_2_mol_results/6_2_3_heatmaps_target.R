@@ -21,6 +21,8 @@ library(ggtree)
 library(aplot)
 library(readr)
 
+source("config.R")
+
 if(dir.exists("./results/mul_hm")){
   "Multiple heatmap directory already exists"
 }else{
@@ -115,19 +117,23 @@ obj_for_GO <- gsea_GO_heatmap_obj %>%
 heatmap_go <- obj_for_GO %>% 
   ggplot(aes(x = clusters, y = path, fill = value)) + 
   geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral") + 
-  theme_classic() + 
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
+  theme_classic(base_size) + 
+  theme(
+    axis.text.y = element_text(size = text_size),
+    axis.text.x = element_text(size = text_size),
+    legend.position = "none",
+    plot.title = element_text(size = text_size)
+  ) + 
   scale_x_discrete(labels = c(
     "C3_vs_C1" = "C3 vs C1",
     "C1_vs_C2" = "C1 vs C2",
     "C3_vs_C2" = "C3 vs C2")) + 
-  labs(fill = "NES", title = "GSEA between clusters Gene Ontology. TARGET-OS", x = "Clusters") + 
-  theme(
-    axis.text.y = element_text(size = 7),
-    axis.text.x = element_text(size = 9),
-    plot.title = element_text(size = 11),
-    legend.position = "none"
-  )
+  labs(fill = "NES", title = "GSEA between clusters Gene Ontology. TARGET-OS", x = "Clusters") 
 
 
 
@@ -168,12 +174,21 @@ obj_for_hm <- gsea_HM_heatmap_obj %>%
 heatmap_hm <- obj_for_hm %>%
   ggplot(aes(x = clusters, y = path, fill = value)) + 
       geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral")+
-  theme_classic() +
-  scale_x_discrete(labels = c("C3_vs_C1" = "C3 vs C1", "C1_vs_C2" = "C1 vs C2", "C3_vs_C2" = "C3 vs C2")) +
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
+  theme_classic(base_size) + 
+  theme(
+    axis.text.y = element_text(size = text_size),
+    axis.text.x = element_text(size = text_size),
+    plot.title = element_text(size = text_size - 1)
+  ) + 
   labs(fill = "NES",
        title = "GSEA between clusters Hallmarks of cancer TARGET-OS", 
-       x = "Clusters")
+       x = "Clusters") + 
+  legend
 
 heatmap_hm_target <- 
   heatmap_hm %>% 
@@ -234,17 +249,21 @@ mean_heatmap_gsea_target <- gsea_GO_mat %>%
   pivot_longer(cols = c("c1", "c2", "c3"), names_to = "clusters") %>% 
   ggplot(aes(x = clusters, y = path, fill = value)) +
       geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral", direction = -1) +
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
+  theme_classic(base_size) + 
+  theme(
+    axis.text.y = element_text(size = text_size - 0.5),
+    axis.text.x = element_text(size = text_size),
+    legend.position = "none",
+    plot.title = element_text(size = text_size)
+  ) + 
   scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
   scale_y_discrete(expand = c(0, 0)) +  
-  theme_classic() +
-  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA GO from clusters means in TARGET-OS") +
-  theme(
-    axis.text.y = element_text(size = 7),
-    axis.text.x = element_text(size = 9),
-    plot.title = element_text(size = 9),
-    legend.position = "none"
-  )
+  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA GO from clusters means in TARGET-OS") 
 
 
 # Dendograms
@@ -295,16 +314,21 @@ mean_heatmap_gsea_hm_target <- gsea_hallmark_mat %>%
   pivot_longer(cols = c("c1", "c2", "c3"), names_to = "clusters") %>% 
   ggplot(aes(x = clusters, y = path, fill = value)) +
       geom_tile(color = "white", lwd = 0.5, linetype = 1) + 
-  scale_fill_distiller(palette = "Spectral", direction = -1) +
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
+  theme_classic(base_size) + 
+  theme(
+    axis.text.y = element_text(size = text_size - 1),
+    axis.text.x = element_text(size = text_size),
+    legend.position = "none",
+    plot.title = element_text(size = text_size)
+  ) + 
   scale_x_discrete(expand = c(0, 0), labels = c("c1" = "C1", "c3" = "C3", "c2" = "C2")) +  
   scale_y_discrete(expand = c(0, 0)) +  
-  theme_classic() +
-  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA Hallmarks from clusters means in TARGET-OS") + 
-  theme(
-    legend.position = "none",
-    axis.text.y = element_text(size = 7)
-  )
-
+  labs(x = "Clusters", y = "Pathway", fill = "NES", title = "GSEA Hallmarks from clusters means in TARGET-OS") 
 
 tree_right_hm <- ggtree(row_hc) + 
   scale_x_reverse() + 

@@ -37,6 +37,8 @@ gene_list <- sort(gene_list, decreasing = TRUE)
 
 # GSEA object GO
 
+set.seed(123)
+
 gse <- gseGO(
   geneList = gene_list, 
   ont = "ALL", 

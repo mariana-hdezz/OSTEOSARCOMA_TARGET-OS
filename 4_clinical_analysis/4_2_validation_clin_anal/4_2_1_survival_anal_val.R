@@ -61,6 +61,9 @@ surv_plot_gse21257_rec <- survminer::ggsurvplot(
   risk.table = TRUE,
   pval.size = p_size,
   pval.coord = p_coord,
+  font.legend = text_size,
+  legend = "none",
+  
   
   xlim = c(0, 250),
   break.time.by = 50,
@@ -97,6 +100,10 @@ surv_plot_gse21257 <- survminer::ggsurvplot(
   risk.table = TRUE,
   pval.size = p_size,
   pval.coord = p_coord,
+  font.legend = text_size - 1,
+  legend = "none",
+  
+  
   
   xlim = c(0, 250),
   break.time.by = 50,

@@ -30,16 +30,10 @@
 
 library(DESeq2)
 library(apeglm)
-library(tidyverse)
-library(ggiraph)
+library(dplyr)
 library(clusterProfiler)
-library(enrichplot)
-library(igraph)
-library(ggplot2)
 library(tidyr)
 library(msigdbr)
-library(ggtree)
-library(aplot)
 library(AnnotationDbi)
 
 
@@ -160,6 +154,8 @@ for (i in 1:(length(unique(dds$clusters)) - 1)) {
     
     
     #---------- GENE SET ENRICHMENT ------------
+    
+    set.seed(123)
     
     gse <- gseGO(
       geneList = gene_list,

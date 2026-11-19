@@ -17,6 +17,8 @@ library(gridExtra)
 library(sigPCA)
 library(RColorBrewer)
 
+source("config.R")
+
 # Load data
 
 vst_counts <- readRDS("output_data/vst_counts.RDS")
@@ -58,26 +60,28 @@ sig_pc
 pca_plot <- 
   pca_plot %>% 
   ggplot(aes(x = PC1, y = PC2, colour = clusters)) + 
-  geom_point(size = 5) + 
+  geom_point(size = 1) + 
   labs(
     x = paste0("PC1 ",  round(eigens[1, 1], 2), "%"),
     y =   paste0("PC2 ", round(eigens[2, 1], 2), "%"),
     title = "Principal component analysis of the gene signature in TARGET-OS"
   ) +
-  theme_classic(base_size = 18) + 
-  scale_color_discrete(palette = brewer.pal(n = 12, name = "Set3")[c(8, 5, 10)])
+  theme_classic(base_size = base_size) + 
+  scale_color_manual(values = col_scheme) + 
+  title_size
 
 
-a <- fviz_contrib(pca, choice = "var", axes = 1, top = 30, fill = "#ff89d4", color = "#ff89d4") 
+a <- fviz_contrib(pca, choice = "var", axes = 1, top = 30, fill = col_scheme[1], color = col_scheme[1], ggtheme = theme_minimal(base_size = base_size - 1)) +
+  title_size
 
 
-b <- fviz_contrib(pca, choice = "var", axes = 2, top = 30, fill = "#c380d3", color = "#c380d3") 
+b <- fviz_contrib(pca, choice = "var", axes = 2, top = 30, fill = col_scheme[2], color = col_scheme[2], ggtheme = theme_minimal(base_size = base_size - 1)) +
+  title_size
 
 # Plot Components
 
 components <- 
-  grid.arrange(a, b, ncol = 2,
-               top = paste0("Top Gene Contributors to PC1 and PC2 from gene signature in TARGET-OS"))
+  grid.arrange(a, b, ncol = 2)
 
 
 batch_counts <- readRDS("output_data/counts_batch.RDS")
@@ -110,28 +114,41 @@ sig_pc
 pca_gse_plot <- 
   pca_gse_plot %>% 
   ggplot(aes(x = PC1, y = PC2, colour = clusters)) + 
-  geom_point(size = 5) + 
+  geom_point(size = 1) + 
   labs(
     x = paste0("PC1 ",  round(eigens[1, 1], 2), "%"),
     y =   paste0("PC2 ", round(eigens[2, 1], 2), "%"),
     title = "Principal component analysis of the gene signature in validation set"
   ) +
-  theme_classic(base_size = 18) + 
-  scale_color_discrete(palette = brewer.pal(n = 12, name = "Set3")[c(8, 5, 10)])
+  theme_classic(base_size = base_size) + 
+  scale_color_manual(values = col_scheme) +
+  title_size
 
 
+a_gse <- fviz_contrib(pca_gse, choice = "var", axes = 1, top = 30, fill = col_scheme[1], color = col_scheme[1], ggtheme = theme_minimal(base_size = base_size - 1)) +
+  title_size
 
-a_gse <- fviz_contrib(pca_gse, choice = "var", axes = 1, top = 30, fill = "#ff89d4", color = "#ff89d4") 
 
-
-b_gse <- fviz_contrib(pca_gse, choice = "var", axes = 2, top = 30, fill = "#c380d3", color = "#c380d3") 
+b_gse <- fviz_contrib(pca_gse, choice = "var", axes = 2, top = 30, fill = col_scheme[2], color = col_scheme[2], ggtheme = theme_minimal(base_size = base_size - 1)) + 
+  title_size
 
 
 components_gse <- 
-  grid.arrange(a_gse, b_gse, ncol = 2,
-               top = paste0("Top Gene Contributors to PC1 and PC2 from signature in validation set"))
+  grid.arrange(a_gse, b_gse, ncol = 2)
 
 
+supp_3 <- ((pca_plot / components) | (pca_gse_plot / components_gse)) + 
+  patchwork::plot_annotation(tag_levels = "A") &
+  theme(plot.tag = element_text(size = 5))
 
-((pca_plot / components) | (pca_gse_plot / components_gse)) + 
-  patchwork::plot_annotation(tag_levels = "A")
+
+supp_3 %>%
+  ggsave(
+    filename = "figures/supp_3.tiff",
+    device = "tiff",
+    dpi = 600,
+    width = 140,
+    height = 100,
+    units = "mm",
+    compression = "lzw"
+  )

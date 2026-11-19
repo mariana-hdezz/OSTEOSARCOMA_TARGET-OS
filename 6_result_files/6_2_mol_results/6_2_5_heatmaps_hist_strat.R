@@ -12,10 +12,17 @@
 ##>  
 #############################################################################
 
-library(dplyr)
 library(ggplot2)
+library(dplyr)
 library(tidyr)
 library(tibble)
+library(ggtree)
+library(aplot)
+library(readr)
+
+
+source("config.R")
+
 
 # Load data
 
@@ -266,13 +273,17 @@ heatmap_hist <-
   heat_obj_hist %>% 
   ggplot(aes(x = comparison, y = path, fill = NES)) +
   geom_tile() +
-  theme_classic() + 
-  scale_fill_distiller(palette = "Spectral")  +
   labs(title = "GSEA hallmarks histologic subtype comparison") + 
   theme(
-    axis.text.y = element_text(size = 7),
-    axis.text.x = element_text(size = 8, angle = 90, hjust = 1, vjust = 1),
+    axis.text.y = element_text(size = text_size - 1),
+    legend.position = "none",
+    plot.title = element_text(size = text_size)
   ) + 
+  scale_fill_gradient2(
+    low = fill_col["low"], 
+    mid = fill_col["mid"], 
+    high = fill_col["high"],
+    midpoint = 0) +
   scale_x_discrete(
     labels = c(
       "c3_vs_c1_hm_telangiectatic" = "C3 vs C1 Telangiectatic",
@@ -282,7 +293,13 @@ heatmap_hist <-
       "c1_vs_c2_hm_chondroblastic" = "C1 vs C2 Chondroblastic",
       "c3_vs_c1_hm_chondroblastic" = "C3 vs C1 Chondroblastic",
       "c3_vs_c2_hm_chondroblastic" = "C3 vs C2 Chondroblastic"
-    ))
+    )) +
+  legend + 
+  theme(
+    axis.text.x = element_text(size = 3, angle = 90)
+    )
+  
+
 
 
 heatmap_hist_hm <- 
