@@ -5,6 +5,7 @@ FROM rocker/r-base:4.5.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
+    curl \
     libcairo2-dev \
     libcurl4-openssl-dev \
     libfontconfig1-dev \
@@ -13,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libssl-dev \
     libx11-dev \
+    libxml2 \
     libxml2-dev \
     pandoc \
   && rm -rf /var/lib/apt/lists/*
@@ -39,14 +41,20 @@ COPY renv/settings.json renv/settings.json
 
 # Explicitly pass only the package names you need
 
-RUN R -e "renv::restore(packages = c('dplyr', 'Boruta', 'ranger', 'dplyr', 'tidyr', 'tibble'))"
+RUN R -e "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager', repos = 'https://cloud.r-project.org')"
+
+RUN R -e "renv::restore(packages = c('limma', 'DESeq2', 'dplyr', 'Boruta', 'ranger', 'tidyr', 'tibble', 'apeglm', 'clusterProfiler', 'msigdbr', 'AnnotationDbi', 'org.Hs.eg.db', 'fgsea'), prompt = FALSE)"
 
 # 4. Set up output directories and copy project files
 
 RUN mkdir -p /app/results/boruta && chmod 777 /app/results /app/results/boruta
+RUN mkdir -p /app/results/diffex_gsea_gse && chmod 777 /app/results /app/results/diffex_gsea_gse
+RUN mkdir -p /app/results/diffex_gsea_target && chmod 777 /app/results /app/results/diffex_gsea_target
 RUN mkdir -p /app/output_data && chmod 777 /app/output_data
 COPY 7_isolated_functions/2_1_1_Boruta_surv_bin.R /app/7_isolated_functions/2_1_1_Boruta_surv_bin.R
 COPY 7_isolated_functions/2_1_2_Boruta_surv_bin_pert.R /app/7_isolated_functions/2_1_2_Boruta_surv_bin_pert.R 
+COPY 7_isolated_functions/5_2_2_gsea_val.R /app/7_isolated_functions/5_2_2_gsea_val.R
+COPY 5_molecular_analysis /app/5_molecular_analysis
 COPY output_data /app/output_data
 
 CMD ["sleep", "infinity"]

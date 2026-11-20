@@ -47,14 +47,7 @@ library(tibble)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
 library(clusterProfiler)
-library(ggridges)
-library(enrichplot)
 library(msigdbr)
-library(ComplexHeatmap)
-library(circlize)
-library(ggtree)
-library(ggplot2)
-library(aplot)
 library(tidyr)
 
 # Load data
@@ -71,7 +64,7 @@ gene_signature_gse <- scan("output_data/gene_signature_gse.csv", sep = ",", what
 
 
 if(dir.exists("./results/diffex_gsea_gse/")){
-  "differential expr4ession and gsea directory already exists"
+  print("differential expr4ession and gsea directory already exists")
 }else{
   dir.create("./results/diffex_gsea_gse/")
 } 
@@ -169,24 +162,24 @@ for(t in c("gse21257", "gse33382")) {
   
   if(i == 1){
     
-    write.csv(res, paste0("results/diffex_gsea_gse/", t, "_res_1v2_.csv"))
+    write.csv(res, paste0("./results/diffex_gsea_gse/", t, "_res_1v2_.csv"))
     
-    write.csv(res_sig, paste0("results/diffex_gsea_gse/", t, "_res_sig_1v2_.csv"))
+    write.csv(res_sig, paste0("./results/diffex_gsea_gse/", t, "_res_sig_1v2_.csv"))
   
     }else if(i == 2){
     
-    write.csv(res, paste0("results/diffex_gsea_gse/", t, "_res_3v2_.csv"))
+    write.csv(res, paste0("./results/diffex_gsea_gse/", t, "_res_3v2_.csv"))
     
-    write.csv(res_sig, paste0("results/diffex_gsea_gse/", t, "_res_sig_3v2_.csv"))
+    write.csv(res_sig, paste0("./results/diffex_gsea_gse/", t, "_res_sig_3v2_.csv"))
   
     }else if(i == 3){
     
-    write.csv(res, paste0("results/diffex_gsea_gse/", t, "_res_3v1_.csv"))
+    write.csv(res, paste0("./results/diffex_gsea_gse/", t, "_res_3v1_.csv"))
     
-    write.csv(res_sig, paste0("results/diffex_gsea_gse/", t, "_res_sig_3v1_.csv"))
+    write.csv(res_sig, paste0("./results/diffex_gsea_gse/", t, "_res_sig_3v1_.csv"))
   
     }
-  
+  print("difex_done")
   source("7_isolated_functions/5_2_2_gsea_val.R")
   
   

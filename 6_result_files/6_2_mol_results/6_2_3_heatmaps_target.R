@@ -74,7 +74,7 @@ c3_v_c1_GO_filt <- c3_v_c1_GO %>%
   filter(C3_vs_C1 > quantile(C3_vs_C1, 0.95) | C3_vs_C1 < quantile(C3_vs_C1, 0.05))
 
 c3_v_c2_GO_filt <- c3_v_c2_GO %>% 
-  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.9) | C3_vs_C2 < quantile(C3_vs_C2, 0.05))
+  filter(C3_vs_C2 > quantile(C3_vs_C2, 0.95) | C3_vs_C2 < quantile(C3_vs_C2, 0.05))
 
 
 # Merge the isolated columns to be able tp plot

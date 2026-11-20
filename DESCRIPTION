@@ -6,9 +6,19 @@ Description: Data processing, random forest feature selection, and survival anal
 Depends:
     R (>= 4.5.0)
 Imports:
+    dplyr,
     Boruta,
     ranger,
-    survival,
     dplyr,
+    tidyr,
     tibble,
-    tidyr
+    apeglm,
+    clusterProfiler,
+    msigdbr,
+    AnnotationDbi,
+    org.Hs.eg.db,
+    stats,
+    fgsea
+    Deseq2,
+    limma
+    

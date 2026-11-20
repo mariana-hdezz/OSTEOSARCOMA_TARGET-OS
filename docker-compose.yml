@@ -6,6 +6,8 @@ services:
     container_name: r-boruta-analysis
     volumes:
       - ./results/boruta:/app/results/boruta
+      - ./results/diffex_gsea_target:/app/results/diffex_gsea_target
+      - ./results/diffex_gsea_gse:/app/results/diffex_gsea_gse
     working_dir: /app
     environment:
       - GITHUB_PAT=${GITHUB_PAT}

@@ -29,11 +29,8 @@
 
 library(dplyr)
 library(tidyr)
-library(ggplot2)
 library(clusterProfiler)
 library(msigdbr)
-library(aplot)
-library(ggtree)
 
 
 # Load data

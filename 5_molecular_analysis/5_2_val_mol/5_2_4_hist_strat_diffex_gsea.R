@@ -24,18 +24,11 @@
 
 library(limma)
 library(dplyr)
-library(ggplot2)
 library(tibble)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
 library(clusterProfiler)
-library(ggridges)
-library(enrichplot)
 library(msigdbr)
-library(ComplexHeatmap)
-library(circlize)
-library(ggtree)
-library(aplot)
 
 # Load data
 
