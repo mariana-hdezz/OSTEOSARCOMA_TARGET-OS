@@ -43,7 +43,22 @@ COPY renv/settings.json renv/settings.json
 
 RUN R -e "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager', repos = 'https://cloud.r-project.org')"
 
-RUN R -e "renv::restore(packages = c('limma', 'DESeq2', 'dplyr', 'Boruta', 'ranger', 'tidyr', 'tibble', 'apeglm', 'clusterProfiler', 'msigdbr', 'AnnotationDbi', 'org.Hs.eg.db', 'fgsea'), prompt = FALSE)"
+RUN R --no-save << 'EOF'
+lock <- renv::lockfile_read("renv.lock")
+pkgs <- c("DESeq2", "dplyr", "Boruta", "ranger", "tidyr", "tibble",
+          "apeglm", "clusterProfiler", "msigdbr", "AnnotationDbi", "org.Hs.eg.db", "fgsea")
+
+if (is.null(lock$Packages$limma)) {
+  if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager", repos = "https://cloud.r-project.org")
+  }
+  BiocManager::install("limma", version = '3.68.5', ask = FALSE, update = FALSE)
+  renv::restore(packages = pkgs, prompt = FALSE)
+}else{
+ renv::restore(packages = c(pkgs, "limma"), prompt = FALSE) 
+}
+
+EOF
 
 # 4. Set up output directories and copy project files
 

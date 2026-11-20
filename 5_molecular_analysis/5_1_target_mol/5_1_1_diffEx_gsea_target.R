@@ -210,21 +210,21 @@ for (i in 1:(length(unique(dds$clusters)) - 1)) {
 # Save results
 
 
-write.csv(gsea_df_GO3.vs.1, "results/diffex_gsea_target/gsea_df_GO3_vs_1.csv")
-write.csv(gsea_df_GO3.vs.2, "results/diffex_gsea_target/gsea_df_GO3_vs_2.csv")
-write.csv(gsea_df_GO1.vs.2, "results/diffex_gsea_target/gsea_df_GO1_vs_2.csv")
-write.csv(gsea_df_GO3.vs.1, "results/diffex_gsea_target/gsea_df_GO3_vs_1.csv")
-write.csv(gsea_df_HM3.vs.1, "results/diffex_gsea_target/gsea_df_HM3_vs_1.csv")
-write.csv(gsea_df_HM3.vs.2, "results/diffex_gsea_target/gsea_df_HM3_vs_2.csv")
-write.csv(gsea_df_HM1.vs.2, "results/diffex_gsea_target/gsea_df_HM1_vs_2.csv")
+write.csv(gsea_df_GO3.vs.1, "./results/diffex_gsea_target/gsea_df_GO3_vs_1.csv")
+write.csv(gsea_df_GO3.vs.2, "./results/diffex_gsea_target/gsea_df_GO3_vs_2.csv")
+write.csv(gsea_df_GO1.vs.2, "./results/diffex_gsea_target/gsea_df_GO1_vs_2.csv")
+write.csv(gsea_df_GO3.vs.1, "./results/diffex_gsea_target/gsea_df_GO3_vs_1.csv")
+write.csv(gsea_df_HM3.vs.1, "./results/diffex_gsea_target/gsea_df_HM3_vs_1.csv")
+write.csv(gsea_df_HM3.vs.2, "./results/diffex_gsea_target/gsea_df_HM3_vs_2.csv")
+write.csv(gsea_df_HM1.vs.2, "./results/diffex_gsea_target/gsea_df_HM1_vs_2.csv")
 
-write.csv(res_sig_1v2, "results/diffex_gsea_target/res_sig_1v2.csv")
-write.csv(res_sig_3v2, "results/diffex_gsea_target/res_sig_3v2.csv")
-write.csv(res_sig_3v1, "results/diffex_gsea_target/res_sig_3v1.csv")
+write.csv(res_sig_1v2, "./results/diffex_gsea_target/res_sig_1v2.csv")
+write.csv(res_sig_3v2, "./results/diffex_gsea_target/res_sig_3v2.csv")
+write.csv(res_sig_3v1, "./results/diffex_gsea_target/res_sig_3v1.csv")
 
-write.csv(res_1_vs_2 , "results/diffex_gsea_target/res_1_vs_2.csv")
-write.csv(res_3_vs_2 , "results/diffex_gsea_target/res_3_vs_2.csv")
-write.csv(res_3_vs_1 , "results/diffex_gsea_target/res_3_vs_1.csv")
+write.csv(res_1_vs_2 , "./results/diffex_gsea_target/res_1_vs_2.csv")
+write.csv(res_3_vs_2 , "./results/diffex_gsea_target/res_3_vs_2.csv")
+write.csv(res_3_vs_1 , "./results/diffex_gsea_target/res_3_vs_1.csv")
 
 
 

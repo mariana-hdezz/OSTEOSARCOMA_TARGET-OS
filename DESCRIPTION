@@ -9,7 +9,6 @@ Imports:
     dplyr,
     Boruta,
     ranger,
-    dplyr,
     tidyr,
     tibble,
     apeglm,
@@ -18,7 +17,7 @@ Imports:
     AnnotationDbi,
     org.Hs.eg.db,
     stats,
-    fgsea
-    Deseq2,
+    fgsea,
+    DESeq2,
     limma
     
